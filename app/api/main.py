@@ -33,7 +33,7 @@ ADK_AGENTS = ("research_planner", "researcher", "reviewer")
 
 app = FastAPI(title="StudioClear", version="0.1.0")
 
-UPLOADS = Path("app/data/uploads")
+UPLOADS = store.DATA_DIR / "uploads"
 FRONTEND = Path("app/frontend/index.html")
 
 

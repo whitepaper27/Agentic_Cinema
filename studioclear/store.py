@@ -8,12 +8,16 @@ audit chain (E8.3), so the log stays verifiable after human action.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 from studioclear.security.audit import AuditLog
 
-RUNS_DIR = Path("app/data/runs")
+# Configurable so Cloud Run can point it at a writable path (e.g. /tmp), where
+# the container filesystem is ephemeral. Defaults to a local dir for dev.
+DATA_DIR = Path(os.getenv("STUDIOCLEAR_DATA_DIR", "app/data"))
+RUNS_DIR = DATA_DIR / "runs"
 
 # The only actions a coordinator may take (sol.md §6 coordinator.human_actions).
 HUMAN_ACTIONS = {"clear", "send_to_review", "escalate", "override"}

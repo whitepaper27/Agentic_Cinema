@@ -16,7 +16,9 @@ COPY demo/ ./demo/
 
 # Cloud Run provides $PORT. On Cloud Run, PARALLEL_API_KEY / GEMINI_API_KEY are
 # injected from Secret Manager via the service account (see deploy/terraform).
-ENV PORT=8080
+# The container filesystem is ephemeral — write run data under /tmp.
+ENV PORT=8080 \
+    STUDIOCLEAR_DATA_DIR=/tmp/studioclear
 EXPOSE 8080
 
 CMD ["sh", "-c", "uvicorn app.api.main:app --host 0.0.0.0 --port ${PORT}"]
