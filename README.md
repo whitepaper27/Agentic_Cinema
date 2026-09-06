@@ -2,6 +2,9 @@
 
 **Google Cloud Agentic Cinema — Parallel Track**
 
+[![CI](https://github.com/whitepaper27/Agentic_Cinema/actions/workflows/ci.yml/badge.svg)](https://github.com/whitepaper27/Agentic_Cinema/actions/workflows/ci.yml)
+&nbsp;License: MIT &nbsp;·&nbsp; Google ADK 2.8 &nbsp;·&nbsp; Gemini 2.5 &nbsp;·&nbsp; Parallel Search
+
 > Turn an unstructured screenplay into a **source-backed, policy-aware clearance
 > research workflow** where every recommendation is traceable and every final
 > decision stays with the studio.
