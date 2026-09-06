@@ -20,9 +20,16 @@ from studioclear import store
 from studioclear.pipeline import run_pipeline
 from studioclear.providers import build_providers, describe_providers
 
-# --- Required partner runtimes, referenced at import for discoverability (§27) ---
-# import google.adk as adk               # agent orchestration layer
-# from parallel import Parallel          # runtime research/evidence engine
+# --- Required partner runtimes, initialized at import for discoverability (§27) ---
+import google.adk as adk  # noqa: E402,F401  (agent orchestration layer)
+from parallel import Parallel  # noqa: E402,F401  (runtime research/evidence engine)
+from studioclear.agents.research_planner import build_planner  # noqa: E402
+from studioclear.agents.researcher import build_researcher  # noqa: E402
+from studioclear.agents.reviewer import build_reviewer  # noqa: E402
+
+# The three ADK agents required by the track (§25/§27). Built lazily so the app
+# starts without credentials, but their builders are real google.adk Agents.
+ADK_AGENTS = ("research_planner", "researcher", "reviewer")
 
 app = FastAPI(title="StudioClear", version="0.1.0")
 
@@ -34,6 +41,7 @@ class UploadRequest(BaseModel):
     script_text: str | None = None      # omit to use the seeded demo script
     title: str = "Untitled Script"
     prefer_live: bool = True
+    use_adk: bool = False               # run research through the ADK agent (§25)
 
 
 class DecisionRequest(BaseModel):
@@ -52,9 +60,10 @@ def index() -> str:
 
 @app.get("/healthz")
 def healthz() -> dict:
-    providers = build_providers(prefer_live=True)
+    # Build the ADK agents to prove they initialize (real google.adk Agents).
+    agents = [build_planner().name, build_researcher().name, build_reviewer().name]
     return {"status": "ok", "product": "StudioClear",
-            "providers": describe_providers(providers)}
+            "adk_version": adk.__version__, "adk_agents": agents}
 
 
 @app.post("/upload")
@@ -69,7 +78,7 @@ def upload(req: UploadRequest) -> dict:
     else:
         script_path = Path("demo/demo_script.md")
 
-    providers = build_providers(prefer_live=req.prefer_live)
+    providers = build_providers(prefer_live=req.prefer_live, use_adk=req.use_adk)
     report = run_pipeline(str(script_path), providers, run_id=run_id, title=req.title)
     store.save_run(report)
     return {"run_id": run_id, "title": report["title"],

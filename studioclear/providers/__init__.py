@@ -26,12 +26,14 @@ __all__ = [
 ]
 
 
-def build_providers(prefer_live: bool = True) -> Providers:
+def build_providers(prefer_live: bool = True, use_adk: bool = False) -> Providers:
     """Use live adapters where a key exists, else deterministic mocks.
 
-    Gemini extraction turns on with a Gemini key; Parallel search turns on with
-    PARALLEL_API_KEY. Missing either just falls back to the mock for that stage,
-    so a partial-credential setup still produces a full, honest run.
+    Gemini extraction turns on with a Gemini key; search turns on with
+    PARALLEL_API_KEY. With use_adk=True (and both keys), the search stage runs
+    through the Researcher ADK agent, which calls the Parallel tool at runtime
+    (sol.md §25) — same downstream integrity/policy. Missing a key falls back to
+    the mock for that stage, so a partial-credential setup still runs.
     """
     cfg = Config.from_env()
 
@@ -42,10 +44,14 @@ def build_providers(prefer_live: bool = True) -> Providers:
     else:
         llm = MockLLMProvider()
 
-    if prefer_live and cfg.parallel_api_key:
+    if prefer_live and use_adk and cfg.gemini_api_key and cfg.parallel_api_key:
+        from studioclear.providers.adk_search import ADKSearchProvider
+
+        search: SearchProvider = ADKSearchProvider()
+    elif prefer_live and cfg.parallel_api_key:
         from studioclear.providers.parallel import ParallelSearchProvider
 
-        search: SearchProvider = ParallelSearchProvider()
+        search = ParallelSearchProvider()
     else:
         search = MockSearchProvider()
 

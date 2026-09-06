@@ -4,6 +4,14 @@ Snapshot of what's built and verified vs. the plan in `sol.md`. Updated 2026-09-
 
 ## Verified working (live, with real credentials)
 
+- **Real ADK agents (§25/§27 compliance lock — DONE).** Planner, Researcher, and
+  Reviewer are genuine `google.adk` Agents (ADK 2.8.0). The Researcher runs via
+  `Runner` and calls `parallel_search` as an ADK tool at runtime; URLs are read
+  from the tool-response event, so evidence integrity holds. Full agentic run:
+  `ADKSearchProvider` drove all 14 items → 14/14 evidence-backed, audit verified
+  (`demo/adk_run.json`). Backend entry point visibly imports/initializes ADK +
+  Parallel. `scripts/smoke_adk.py`, `/healthz` lists the agents.
+
 - **Live Gemini extraction** — `gemini-2.5-pro` extracts all 14 seeded clearance
   items with correct types; the embedded prompt-injection line is ignored
   (treated as data, not instructions). `scripts/smoke_extract.py`.
@@ -38,17 +46,17 @@ Snapshot of what's built and verified vs. the plan in `sol.md`. Updated 2026-09-
 
 ## Remaining (priority order)
 
-1. **ADK agent wiring (compliance lock §25/§27).** Planner/Researcher/Reviewer
-   are currently plain Python behind the provider interface; the track requires
-   them as real `google.adk` Agents run via `Runner`, with the backend entry
-   point visibly initializing ADK. The grouping/search/policy logic is already
-   pure and tested — wrap it in ADK agents and call `parallel_search` as an ADK
-   tool. **Top priority.**
-2. **Demo tuning** — pick a fictional brand that reliably returns no
-   authoritative match live, or rely on the cached run for the honesty beat.
-3. **Deploy** to Cloud Run and verify the hosted app (Day-4).
-4. **Record the 3-minute video** against `demo/cached_run.json` (sol.md E6).
-5. **First git commit** + push public repo with MIT license (sol.md §27).
+1. **Deploy** to Cloud Run and verify the hosted app (Day-4). Dockerfile +
+   Terraform ready; blocked only on `gcloud auth` + a GCP project.
+2. **Record the 3-minute video** against `demo/cached_run.json` (sol.md E6).
+3. **Demo tuning** — the fictional brand (LunarFizz) returns tangential live
+   matches → ESCALATE; the cached/mock run shows the clean INSUFFICIENT-EVIDENCE
+   honesty beat, so record the honesty moment from cached mode.
+
+## Done
+
+- ADK agent wiring (§25/§27) — see "Verified working" above.
+- Public GitHub repo + MIT license: https://github.com/whitepaper27/Agentic_Cinema
 
 ## Run it
 

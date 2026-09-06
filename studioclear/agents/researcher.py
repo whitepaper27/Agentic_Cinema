@@ -1,19 +1,31 @@
-"""Researcher — ADK agent (sol.md §8). Calls the approved parallel_search tool
-and returns normalized, source-cited evidence. Never invents sources (E8.1)."""
+"""Researcher — a real google.adk Agent (sol.md §8, §25).
+
+Given a clearance item, it calls the `parallel_search` tool to gather
+source-cited evidence. The URLs are read from the tool response downstream, so
+the agent never fabricates citations (sol.md E8.1).
+"""
 
 from __future__ import annotations
 
-# from google.adk.agents import Agent
-# from studioclear.research.parallel_client import parallel_search
+from studioclear.agents.tools import parallel_search
+from studioclear.config import Config
 
 RESEARCHER_INSTRUCTION = (
-    "Given clearance items, call parallel_search and return normalized, "
-    "source-cited evidence. Every source_url must come from the tool result; "
-    "never write a URL yourself."
+    "You are StudioClear's research agent. For the given clearance item, call "
+    "parallel_search with a focused, factual query to find authoritative, "
+    "independent sources. Prefer primary/official sources. After the tool "
+    "returns, briefly summarize what the sources establish. Never write a URL "
+    "yourself — only the tool provides sources."
 )
 
 
-def build_researcher():  # pragma: no cover - stub
-    """STUB. return Agent(name='researcher', model='gemini-2.5-flash',
-    instruction=RESEARCHER_INSTRUCTION, tools=[parallel_search])."""
-    raise NotImplementedError("Wire the ADK researcher agent on the Day-1 build.")
+def build_researcher():
+    """Return the researcher ADK Agent (parallel_search tool attached)."""
+    from google.adk.agents import Agent
+
+    return Agent(
+        name="researcher",
+        model=Config.from_env().normalizer_model,  # gemini-2.5-flash
+        instruction=RESEARCHER_INSTRUCTION,
+        tools=[parallel_search],
+    )

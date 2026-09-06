@@ -1,19 +1,31 @@
-"""Reviewer / Policy — ADK agent (sol.md §8). Applies the deterministic policy
-evaluator and checks evidence requirements. Cannot grant final legal clearance
-(sol.md §14) — that authority does not exist by design."""
+"""Reviewer / Policy — a real google.adk Agent (sol.md §8, §25).
+
+Applies the studio policy to an item's evidence by calling the deterministic
+`apply_policy` tool, and explains the recommendation. It cannot grant final
+legal clearance (sol.md §14) — that authority does not exist by design, and the
+triage state comes from the tool (code), never the model.
+"""
 
 from __future__ import annotations
 
-# from google.adk.agents import Agent
-# from studioclear.contract.policy_evaluator import evaluate
+from studioclear.agents.tools import apply_policy
+from studioclear.config import Config
 
 REVIEWER_INSTRUCTION = (
-    "For each item, apply the studio policy to the evidence and produce a "
-    "CLEAR / REVIEW / ESCALATE / INSUFFICIENT_EVIDENCE recommendation with the "
-    "policy basis. You never issue legal clearance; humans decide."
+    "You are StudioClear's reviewer. For each item, call apply_policy with the "
+    "item type and its independent source count to get the deterministic triage "
+    "state, then explain the recommendation and its policy basis in one sentence. "
+    "You never issue legal clearance; humans decide."
 )
 
 
-def build_reviewer():  # pragma: no cover - stub
-    """STUB. Thin ADK wrapper that calls the pure evaluate() for determinism."""
-    raise NotImplementedError("Wire the ADK reviewer agent on the Day-2 build.")
+def build_reviewer():
+    """Return the reviewer ADK Agent (apply_policy tool attached)."""
+    from google.adk.agents import Agent
+
+    return Agent(
+        name="reviewer",
+        model=Config.from_env().normalizer_model,  # gemini-2.5-flash
+        instruction=REVIEWER_INSTRUCTION,
+        tools=[apply_policy],
+    )

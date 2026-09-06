@@ -65,7 +65,8 @@
 <main>
   <div class="controls">
     <button id="run">Run demo script</button>
-    <label class="chk"><input type="checkbox" id="live" /> Use live Gemini</label>
+    <label class="chk"><input type="checkbox" id="live" /> Use live Gemini + Parallel</label>
+    <label class="chk"><input type="checkbox" id="adk" /> Agentic (ADK)</label>
     <span class="muted" id="status">Ready.</span>
     <span class="badges" id="providers"></span>
   </div>
@@ -96,11 +97,13 @@ const api = (p, opts) => fetch(p, opts).then(r => r.json());
 $('#run').onclick = async () => {
   $('#run').disabled = true;
   const live = $('#live').checked;
-  $('#status').textContent = live ? 'Extracting with live Gemini…' : 'Running (offline mock)…';
+  const adk = $('#adk').checked;
+  $('#status').textContent = adk ? 'Running agentic ADK pipeline…'
+    : live ? 'Extracting with live Gemini…' : 'Running (offline mock)…';
   try {
     const res = await api('/upload', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prefer_live: live, title: 'Midnight Signal' })
+      body: JSON.stringify({ prefer_live: live, use_adk: adk, title: 'Midnight Signal' })
     });
     RUN = await api('/run/' + res.run_id);
     render();

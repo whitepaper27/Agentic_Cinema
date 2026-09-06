@@ -1,0 +1,1355 @@
+{
+  "script_id": "demo_script_001",
+  "title": "Midnight Signal",
+  "run_id": "run_adk",
+  "policy_id": "demo_policy_v1",
+  "generated_at": "2026-09-05T12:00:00Z",
+  "batches": [
+    {
+      "name": "brands_and_orgs",
+      "items": [
+        "CLR-001",
+        "CLR-002",
+        "CLR-003",
+        "CLR-006",
+        "CLR-007",
+        "CLR-014"
+      ]
+    },
+    {
+      "name": "people",
+      "items": [
+        "CLR-004",
+        "CLR-005"
+      ]
+    },
+    {
+      "name": "claims",
+      "items": [
+        "CLR-011",
+        "CLR-012",
+        "CLR-013"
+      ]
+    },
+    {
+      "name": "places_and_media",
+      "items": [
+        "CLR-008",
+        "CLR-009",
+        "CLR-010"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": "CLR-001",
+      "scene": 1,
+      "type": "brand",
+      "text_span": "Nikon",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Nikon' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/531a72bae4b0f7e1660f792e/nikon?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "nikon",
+          "excerpt": "All Locations: Canada  \nName: nikon\nWebsite Url: https://en.nikon.ca/\nFounded Year: 1978\nShort Description: Manufacturer of cameras, lenses, and related accessories\nDetailed Description: Manufacturer of cameras, lenses, and related accessories.\n\n...\n\nThe company's offerings cater to both professiona",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.nikon.com/company",
+          "title": "About Us - Nikon",
+          "excerpt": "# About Us\n## News [](https://www.nikon.com/company/rss/feeds/news.rss)\n### Nikon's Foundations for the Future\nNikon supports society and changes the future with its applied optics and precision technologies. Through the five business lines of Imaging Products, Precision Equipment, Healthcare, Indus",
+          "publisher": "nikon.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://nikon.com/",
+          "title": "Nikon",
+          "excerpt": "# [Nikon](https://www.nikon.com/)\n## Global Navigation\nMenu\n* [Business](https://www.nikon.com/business/)\n* Consumer\n* About Us\n[BUSINESS Products & Solutions](https://www.nikon.com/business/) CONSUMER Products & Services ABOUT US Company Information",
+          "publisher": "nikon.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.nikonusa.com/content/corporate-profile",
+          "title": "Nikon Inc. Corporate Profile",
+          "excerpt": "# Nikon Inc. Corporate Profile\n## Nikon Z System Imaging Products\nIn addition to a full selection of high-performance FX (full-frame) and DX (APS-C size) hybrid cameras, the lineup also includes a range of Z CINEMA products, developed in partnership with leading digital cinema company RED Digital Ci",
+          "publisher": "nikonusa.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.nikon.com/company/corporate/companyprofile/",
+          "title": "Company Profile 2025-2026 | Corporate Information | Nikon About Us",
+          "excerpt": "# Company Profile 2025-2026\n## Company Profile PDF Download\n* [Corporate Information on Our Website ( PDF:1.22MB)](https://www.nikon.com/company/corporate/pdf/nikon2025_2026e_5.pdf)\nNIKON REPORT, NIKON SUSTAINABILITY REPORT, Nikon Research Report, Medium-Term Management Plan and NIKON MUSEUM",
+          "publisher": "nikon.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 3,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-002",
+      "scene": 1,
+      "type": "brand",
+      "text_span": "Tesla",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Tesla' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/58ffec87e4b07ccdc568f12b/tesla?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "Tesla",
+          "excerpt": "Trademark Count: 0\nLoan Count: 0\nActive Loan Count: 0\nTotal Outstanding Shares: 100\nShareholder Count: 0\nRevenue History: [{\"value_usd\":47236.04},{\"value_usd\":45190.89},{\"value_usd\":1517.52},{\"value_usd\":110757.55},{\"value_usd\":43656.69}]\nNet Profit History: [{\"value_usd\":522.07},{\"value_usd\":55384.",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://en.wikipedia.org/wiki/Tesla%2C_Inc.",
+          "title": "Tesla, Inc. - Wikipedia",
+          "excerpt": "# History\n## Lawsuits and controversies\n### Environmental violations\nIn June 2018, Tesla employee Martin Tripp leaked information that Tesla was scrapping or reworking up to 40% of its raw materials at the Nevada Gigafactory.\n\n...\n\n## References\n[\" 'Don't buy a Swasticar': Elon Musk is wrecking Tesl",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.tesla.com/about",
+          "title": "About | Tesla",
+          "excerpt": "# About Us\nBuilding a World of Amazing Abundance\nBuilding a World of Amazing Abundance\n100k+\nEmployees\nEmployees\nOne Mission\nOne Mission\n20.4 Mmt \u00b9\nCO \u2082 e Avoided in 2023\nCO \u2082 e Avoided in 2023\n\n...\n\n## Join Us\nContact [ADA@tesla.com](mailto:ADA@tesla.com) for additional information or to request ac",
+          "publisher": "tesla.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://britannica.com/money/Tesla-Motors",
+          "title": "301 Moved Permanently",
+          "excerpt": "(last verified: 2026-08-16) Tesla, Inc., headquartered in Austin , Texas , is an American manufacturer of electric automobiles , solar panels, and batteries for cars and home power storage.",
+          "publisher": "britannica.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://platform.tracxn.com/a/d/company/531b0d7be4b0f7e1661f40cb/tesla#a:about",
+          "title": "",
+          "excerpt": "0,\"round_name\":\"Post IPO\",\"round_date\":\"2017-03-17\"},{\"amount_usd\":500000000.0,\"round_investor_names\":\"Deutsche Bank\",\"round_name\":\"Conventional Debt\",\"round_date\":\"2016-12-21\"},{\"amount_usd\":300000000.0,\"round_investor_names\":\"Deutsche Bank\",\"round_name\":\"Conventional Debt\",\"round_date\":\"2016-09-07",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-003",
+      "scene": 2,
+      "type": "brand",
+      "text_span": "Levi's",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Levi's' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/531a21e7e4b0f7e166088eeb/levi%27s?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "Levi's",
+          "excerpt": "Trademark Count: 0\nLoan Count: 0\nActive Loan Count: 0\nRevenue History: [{\"value_usd\":115109552.8},{\"value_usd\":103850979.13},{\"value_usd\":222729034.87},{\"value_usd\":158328911.47},{\"value_usd\":158142689.12}]\nEbitda History: [{\"value_usd\":33014968.4},{\"value_usd\":31998363.49},{\"value_usd\":26625524.38}",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co.",
+          "title": "Levi Strauss & Co.",
+          "excerpt": "**Levi Strauss & Co.** [[ a ]]() is an American clothing company known worldwide for its **Levi's** [[ b ]]() brand of denim [jeans](https://en.wikipedia.org/wiki/Jeans \"Jeans\") .\n\n...\n\n# History\n## Origin and formation (1853\u20131890s)\nThe company lost its records in the 1906 earthquake and there is no",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.levistrauss.com/who-we-are/company",
+          "title": "Company",
+          "excerpt": "# Fueled by our strong values, creativity and hard work.\n## Company Snapshot\n### Sold In\nIts products are sold in approximately 120 countries worldwide through a combination of chain retailers, department stores, online sites and a global footprint of approximately 3,300 retail stores and shop-in-sh",
+          "publisher": "levistrauss.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.levi.com/US/en_US/features/about-us",
+          "title": "About Us - Levi Strauss History",
+          "excerpt": "# ABOUT US - LEVI STRAUSS & CO. HISTORY\n## YOU WEAR JEANS. YOU LIVE IN LEVI'S\u00ae.\nIn 1853, Levi Strauss, an immigrant from Bavaria, opened a dry goods company in San Francisco at the height of the California Gold Rush. While he was working, he recognized a need among hardworking people: clothes built ",
+          "publisher": "levi.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.levistrauss.com/levis-history",
+          "title": "Levi's\u00ae History - Levi Strauss & Co : Levi Strauss & Co",
+          "excerpt": "# Been innovating since the birth of the blue jean in 1873.\n## 1965 \u2013 Levi Strauss & Co. Forms International Division\nBy the 1960s, the popularity of jeans, jackets and other Levi\u2019s\u00ae products lead the company to set up offices and factories throughout Europe and Asia.",
+          "publisher": "levistrauss.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-004",
+      "scene": 2,
+      "type": "living_person",
+      "text_span": "Jane Goodall",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Jane Goodall' (living_person).",
+      "evidence": [
+        {
+          "source_url": "https://www.biography.com/scientists/jane-goodall",
+          "title": "How Jane Goodall\u2019s Research Changed Everything We Know About Chimpanzees",
+          "excerpt": "Jane Goodall was a <strong>world-renowned primatologist who revolutionized the study of chimpanzees</strong>. The London native first set out to study wild chimpanzees in Tanzania in 1960. She immersed herself in their lives, bypassing more rigid procedures",
+          "publisher": "biography.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Jane_Goodall",
+          "title": "Jane Goodall - Wikipedia",
+          "excerpt": "# Early life and education\n## Legacy\n### Awards and recognition\nFurther information: [List of awards and honours received by Jane Goodall](https://en.wikipedia.org/wiki/List_of_awards_and_honours_received_by_Jane_Goodall \"List of awards and honours received by Jane Goodall\")",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://janegoodall.org/",
+          "title": "the Jane Goodall Institute the Jane Goodall Institute https://janegoodall.org",
+          "excerpt": "# She blazed the trail.\n## We are a global community conservation organization that advances the vision and work of Dr. Jane Goodall. By protecting chimpanzees and inspiring people to conserve the natural world we all share, we improve the lives of people, animals and the environment. Everything is ",
+          "publisher": "janegoodall.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.britannica.com/biography/Jane-Goodall",
+          "title": "Jane Goodall | Biography, Awards, Institute, Books, & Facts",
+          "excerpt": "# Jane Goodall\n## Where was Jane Goodall born?\nJane Goodall was born in London, England, on April 3, 1934.\n\n...\n\n### What did Jane Goodall discover?\n**Jane Goodall** (born April 3, 1934, [London](https://www.britannica.com/place/London) , England\u2014died October 1, 2025, [Los Angeles](https://www.brita",
+          "publisher": "britannica.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://shop.janegoodall.org/",
+          "title": "Homepage | Jane Goodall Institute Official Store USA",
+          "excerpt": "Jane Goodall Institute Logo](https://janegoodall.org/) Sign Up & Save Quick Links About Good for All Goods Sustainability Principles Meet Our Makers Shipping, Returns, & Exchanges [JaneGoodall.org](https://janegoodall.org/) Contact Us Jane Goodall Institute USA Official Store: 2701 Centerville Road,",
+          "publisher": "shop.janegoodall.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 5,
+      "confidence": 1.0,
+      "state": "ESCALATE",
+      "reason": "human_review_required",
+      "policy_key": "living_person",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-005",
+      "scene": 3,
+      "type": "living_person",
+      "text_span": "Paul McCartney",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Paul McCartney' (living_person).",
+      "evidence": [
+        {
+          "source_url": "http://en.wikipedia.org/wiki/Paul_McCartney",
+          "title": "Paul McCartney",
+          "excerpt": "# Early life\n## Personal life\n### Creative outlets\nMiles later wrote McCartney's official biography, _[Many Years from Now](https://en.wikipedia.org/wiki/Many_Years_from_Now \"Many Years from Now\")_ (1997). [[ 339 ]]()",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://britannica.com/biography/Paul-McCartney",
+          "title": "Paul McCartney | Biography, Songs, Wife, Beatles, Bands ...",
+          "excerpt": "* [Official Site of Paul McCartney](https://www.paulmccartney.com/)\n* [Rock and Roll Hall of Fame - Paul McCartney](https://www.rockhall.com/inductees/paul-mccartney)\n* [The Kennedy Center - Paul McCartney](https://www.kennedy-center.org/artists/m/ma-mn/paul-mccartney/)",
+          "publisher": "britannica.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.biography.com/musicians/paul-mccartney",
+          "title": "Paul McCartney - Wikipedia",
+          "excerpt": "Paul McCartney - Wikipedia",
+          "publisher": "biography.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.allmusic.com/artist/paul-mccartney-mn0000029884",
+          "title": "Paul McCartney \u2014 Biography, Discography, Albums & Expert Reviews | AllMusic",
+          "excerpt": "# Paul McCartney (followed by 1,215 users)\n## [Paul McCartney Biography](https://www.allmusic.com/artist/paul-mccartney-mn0000029884 \"Paul McCartney Biography\")\n### Paul McCartney Biography\nIn 1988, he recorded a collection of rock & roll oldies called [Choba B CCCP](https://www.allmusic.com/album/c",
+          "publisher": "allmusic.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://kennedy-center.org/artists/m/ma-mn/paul-mccartney",
+          "title": "Paul McCartney",
+          "excerpt": "# Paul McCartney\n* Honoree\n  The 2010 Kennedy Center Honors\n(Songwriter and musician; born June 18, 1942, in Liverpool, England)\n\n...\n\nJames Paul McCartney was born in Liverpool on June 18, 1942, the son of Mary and James McCartney. His mother was a midwife. His father, a volunteer fireman during Wo",
+          "publisher": "kennedy-center.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 5,
+      "confidence": 1.0,
+      "state": "ESCALATE",
+      "reason": "human_review_required",
+      "policy_key": "living_person",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-006",
+      "scene": 3,
+      "type": "organization",
+      "text_span": "World Health Organization",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'World Health Organization' (organization).",
+      "evidence": [
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/53155f2be4b0493e538d5c4b/who?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "WHO",
+          "excerpt": "All Locations: United States  \nName: WHO\nWebsite Url: https://www.who.int/\nShort Description: Organisation aims to expand universal health coverage\nStage: Funding Raised\nLocation Country: United States\nAll Locations: [{\"country\":\"United States\"}]\nCountries Count: 1\nPrimary Sector: Healthcare\nPrimary",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.who.int/",
+          "title": "World Health Organization (WHO)",
+          "excerpt": "# WHO support continues in Gaza and the wider region\n## Campaigns\n[All \u2192](https://www.who.int/campaigns)\nIllustration World Hearing Day 3 March\nTwo smiling men holding basketballs while another looks on Global health days and weeks\n\n...\n\n## Events\n[](https://www.linkedin.com/company/world-health-org",
+          "publisher": "who.int",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/World_Health_Organization",
+          "title": "World Health Organization - Wikipedia",
+          "excerpt": "|Website |[who .int](https://who.int/) |\n\n...\n\n# History\n## External links\n* [Official website](https://www.who.int) [Edit this at Wikidata](https://www.wikidata.org/wiki/Q7817 \"Edit this at Wikidata\")\n* [WHO fact sheets](https://www.who.int/news-room/fact-sheets)",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.state.gov/policy-issues/world-health-organization-who/",
+          "title": "World Health Organization (WHO) - United States Department of State",
+          "excerpt": "An official website of the United States Government Here's how you know **Official websites use .gov**\nA **.gov** website belongs to an official government organization in the United States.\n**Secure .gov websites use HTTPS**",
+          "publisher": "state.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://who.int/about",
+          "title": "\n\tAbout WHO\n",
+          "excerpt": "# About WHO\n## Who we are\nFounded in 1948 , WHO is the United Nations agency that connects nations, partners and people to promote health, keep the world safe and serve the vulnerable \u2013 so everyone, everywhere can attain the highest level of health.\nThe people at WHO",
+          "publisher": "who.int",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "organization",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-007",
+      "scene": 4,
+      "type": "organization",
+      "text_span": "NASA",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'NASA' (organization).",
+      "evidence": [
+        {
+          "source_url": "http://NASA.gov",
+          "title": "NASA",
+          "excerpt": "NASA.gov <strong>brings you the latest news, images and videos from America&#x27;s space agency</strong>, pioneering the future in space exploration, scientific discovery and aeronautics research.",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/52d14ceae4b00c95d627560c/nasa?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "NASA",
+          "excerpt": "com/2026/07/01/nasa-adds-kuva-us-to-476-million-commercial-satellite-data-acquisition-on-ramp-contract 2026-07 \nName: NASA\nWebsite Url: https://www.nasa.gov/\nFounded Year: 1958\nShort Description: Provider of government space exploration & research and news services\n\n...\n\ncom/news-release/2026/07/29/",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.nasa.gov/",
+          "title": "NASA.gov",
+          "excerpt": "# Suggested Searches\n## MAX POWER\nA red, white, and blue NASA F\u201115 is shown beside another jet aircraft during a cross\u2011country flight. The full F\u201115 is visible, while only a portion of the F/A\u201118\u2019s red\u2011and\u2011white wing appears in the frame.\n\n...\n\n## More Topics from NASA\n### Follow NASA\n* Responsible ",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://en.wikipedia.org/wiki/NASA",
+          "title": "NASA - Wikipedia",
+          "excerpt": "* Cape Canaveral Space Force Station\n* Vandenberg Space Force Base\n* Wallops Flight Facility\nMarshall Space Flight Center |\n|Employees |17,960 (2022) [[ 3 ]]() |\n|Annual budget |Decrease US$24.4 billion (2026) |\n|Website |[nasa.gov](https://www.nasa.gov/) |\n| Part of a series on the |\n| United State",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://trumpadministration.archives.performance.gov/NASA",
+          "title": "NASA",
+          "excerpt": "# National Aeronautics and Space Administration [agency seal](https://www.nasa.gov/)\n## Overview\nTo access additional agency performance documents [visit the agency\u2019s website](https://www.nasa.gov/news/budget/index.html) .\nGSA logo Executive Office of the President of the United States logo",
+          "publisher": "trumpadministration.archives.performance.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "organization",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-008",
+      "scene": 4,
+      "type": "location",
+      "text_span": "Golden Gate Bridge",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Golden Gate Bridge' (location).",
+      "evidence": [
+        {
+          "source_url": "https://www.goldengate.org/bridge/history-research/",
+          "title": "History & Research - Bridge | Golden Gate",
+          "excerpt": "Golden Gate Bridge, Highway and Transportation District\nSearch\nSearch\n\n...\n\n# History & Research\nbridge-construction Bridge Construction\nfeatures Bridge Features\n\n## Getting Around\nOur mission is to provide safe and reliable operation of the Golden Gate Bridge and to provide transportation services ",
+          "publisher": "goldengate.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.goldengate.org/bridge/history-research/bridge-construction/",
+          "title": "Bridge Construction - History & Research | Golden Gate",
+          "excerpt": "# Bridge Construction\nThe Golden Gate Bridge stands at the entrance to California's San Francisco Bay as a symbol of American ingenuity and resolve, having been constructed during the era of the Great Depression.\n\n...\n\nRead [The History of the Building of the Golden Gate Bridge](https://www.goldenga",
+          "publisher": "goldengate.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge",
+          "title": "Golden Gate Bridge",
+          "excerpt": "Golden Gate Bridge\nThe Golden Gate Bridge is a suspension bridge spanning the Golden Gate, the one-mile-wide (1.6 km) strait connecting San Francisco Bay and the Pacific Ocean",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.goldengate.org/bridge/history-research/bridge-construction/construction/",
+          "title": "\n\tConstruction - Bridge Construction | Golden Gate\n",
+          "excerpt": "# Construction\n## Ground Breaking\nConstruction began on January 5, 1933. This was followed by the official ground breaking ceremony held on February 26, 1933, at nearby Crissy Field (now part of the Golden Gate National Recreation Area). The start of construction was met with great delight.\n\n...\n\n##",
+          "publisher": "goldengate.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://presidio.gov/explore/blog/history-of-the-golden-gate-bridge-in-the-presidio",
+          "title": "History of the Golden Gate Bridge | The Presidio (San Francisco)",
+          "excerpt": "# History of the Golden Gate Bridge in the Presidio\n## **3. How was the Golden Gate Bridge built?**\nTo build a bridge capable of supporting motorists, the first step was to construct huge concrete piers in the bay at each end of the bridge. Then the towers were built, and the cables drawn between th",
+          "publisher": "presidio.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 3,
+      "confidence": 1.0,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "location",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-009",
+      "scene": 5,
+      "type": "location",
+      "text_span": "Shibuya Crossing in Tokyo",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Shibuya Crossing in Tokyo' (location).",
+      "evidence": [
+        {
+          "source_url": "https://platform.tracxn.com/a/d/company/53327cede4b0398cae2705ae/cross%20head?utm_source=parallel&utm_medium=ai#a:about",
+          "title": "Cross Head",
+          "excerpt": "All Locations: Japan Tokyo Shibuya\nName: Cross Head\nWebsite Url: https://www.crosshead.co.jp\nFounded Year: 1992\nShort Description: Provider of digital transformation services\nStage: Unfunded\nHas Investment: Yes\nLocation Country: Japan\nLocation State: Tokyo\nLocation City: Shibuya\nAll Locations: [{\"co",
+          "publisher": "platform.tracxn.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.japan.travel/en/spot/2177",
+          "title": "Shibuya Crossing (Shibuya Scramble Crossing) in Tokyo, Japan, is",
+          "excerpt": "# Shibuya Crossing \u6e0b\u8c37\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9\n## The busiest crossing in Tokyo\nYour explorations of [Tokyo](https://www.japan.travel/en/destinations/kanto/tokyo/) will eventually bring you here to make your crossing and take advantage of Shibuya's wealth of shopping, dining and entertainment options.",
+          "publisher": "japan.travel",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.gotokyo.org/en/spot/78/index.html",
+          "title": "Shibuya Scramble Crossing: a must-see landmark in Tokyo | The Official Tokyo Travel Guide, GO TOKYO",
+          "excerpt": "# Shibuya Scramble Crossing: a must-see landmark in Tokyo \u6e0b\u8c37\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9\n## Keywords\n* Free\n* Landmarks\n* Pop Culture\nFor updated information on opening hours, closings, prices, and more, please check the official website or ask the facility directly.\nGO TOKYO",
+          "publisher": "gotokyo.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Shibuya_Crossing",
+          "title": "Shibuya Crossing - Wikipedia",
+          "excerpt": "**Shibuya Scramble Crossing** ( \u6e0b\u8c37\u30b9\u30af\u30e9\u30f3\u30d6\u30eb\u4ea4\u5dee\u70b9 , _Shibuya sukuranburu k\u014dsaten_ ) , commonly known as **Shibuya Crossing** , is a [scramble crossing](https://en.wikipedia.org/wiki/Pedestrian_scramble \"Pedestrian scramble\") in [Shibuya](https://en.wikipedia.org/wiki/Shibuya_(district) \"Shibuya (district)",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.gotokyo.org/en/destinations/western-tokyo/shibuya/index.html",
+          "title": "Shibuya - the epicenter of modern Japanese culture",
+          "excerpt": "# Shibuya - the epicenter of modern Japanese culture\n## The frenetic and scrambling center of modern Japanese culture\nThe chaotic, yet miraculously organized crossing has become a symbol of Tokyo's dynamism, and represents Shibuya\u2014Japan's trend-setting powerhouse dedicated to fashion and arts.",
+          "publisher": "gotokyo.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "location",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-010",
+      "scene": 5,
+      "type": "song",
+      "text_span": "Yesterday",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'Yesterday' (song).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Yesterday_(song)",
+          "title": "Yesterday (song) - Wikipedia",
+          "excerpt": "# Origin\n## Reception and legacy\n\"Yesterday\" is one of the most recorded songs in the history of popular music. Its entry in _[Guinness World Records](https://en.wikipedia.org/wiki/Guinness_World_Records \"Guinness World Records\")_ states that, by January 1986, 1,600 cover versions had been made.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.udiscovermusic.com/stories/yesterday-beatles-song-story/",
+          "title": "'Yesterday': The Story Behind The Beatles\u2019 Song | uDiscover",
+          "excerpt": "# \u2018Yesterday\u2019: The Story Behind The Beatles\u2019 Song\n## The origins of the song\nAs the most-covered song in The Beatles\u2019 catalogue, \u201cYesterday\u201d\u2019s origins have been pored over many times. It was written at 57 Wimpole Street, London, where Paul lived in attic rooms at the top of the family home of his gi",
+          "publisher": "udiscovermusic.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.thebeatles.com/yesterday",
+          "title": "Yesterday | The Beatles",
+          "excerpt": "# Yesterday\n\"Yesterday\" is a song originally recorded by the Beatles for their 1965 album Help!. Although credited to \"Lennon-McCartney\", the song was written solely by Paul McCartney. It remains popular today with more than 2,200 cover versions, and is one of the most covered songs in the history o",
+          "publisher": "thebeatles.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.beatlesbible.com/songs/yesterday/",
+          "title": "Yesterday \u2013 song facts, recording info and more! | The Beatles Bible",
+          "excerpt": "# Yesterday\n## In the studio\n### 96 thoughts on \u201cYesterday\u201d\nJohn Lennon\u2019s wife Yoko Ono was his solo heir, so she has received the royalties earned from the Song\u2019s continued popularity. \u201cYesterday\u201d is one of the played Songs in Radio History and has bought in an estimated US 30 million.",
+          "publisher": "beatlesbible.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.the-paulmccartney-project.com/song/yesterday",
+          "title": "Yesterday (song)",
+          "excerpt": "# Yesterday\n## Other Beatles songs where Paul McCartney is the only Beatle playing\nThe version begins with the acoustic guitar intro from the song \u201cBlackbird\u201d transposed down a whole step to F major from its original key G to transition smoothly into \u201cYesterday\u201d.**Reception and legacy**\u201cYesterday\u201d i",
+          "publisher": "the-paulmccartney-project.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 5,
+      "confidence": 1.0,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "music_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-011",
+      "scene": 6,
+      "type": "historical_claim",
+      "text_span": "the Apollo 11 Moon landing in 1969",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'the Apollo 11 Moon landing in 1969' (historical_claim).",
+      "evidence": [
+        {
+          "source_url": "http://en.wikipedia.org/wiki/Apollo_11",
+          "title": "Apollo 11",
+          "excerpt": "**Apollo 11** (July 16\u201324, 1969) was the American [spaceflight](https://en.wikipedia.org/wiki/Spaceflight \"Spaceflight\") that first landed [humans](https://en.wikipedia.org/wiki/Human \"Human\") on the [Moon](https://en.wikipedia.org/wiki/Moon \"Moon\") , and the fifth [crewed mission](https://en.wikipe",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://airandspace.si.edu/explore/stories/apollo-missions/apollo-11-moon-landing/apollo-11-timeline",
+          "title": "Apollo 11 Timeline | National Air and Space Museum",
+          "excerpt": "# Apollo 11 Timeline\n1. Home\n2. Explore\n3. Stories\n4. The Apollo Missions\n5. Apollo 11 Timeline\n**On July 20, 1969, a human walked on the Moon for the first time.**\n**Relive the full journey to and from the the Moon with the timeline below.**\nSpiro Agnew and Lyndon Johnson Watch the Apollo 11 Liftof",
+          "publisher": "airandspace.si.edu",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.nasa.gov/missions/apollo/apollo-11/apollo-11-mission-overview",
+          "title": "Apollo 11 Mission Overview - NASA",
+          "excerpt": "# Apollo 11 Mission Overview\n## Landing\nJuly 24, 1969; 12:50 p.m. EDT\nPacific Ocean\nRecovery Ship: USS Hornet\n[Get more details on the Apollo 11 mission](https://www.nasa.gov/wp-content/uploads/2023/04/sp-4029.pdf=99)",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "http://nasa.gov/mission/apollo-11",
+          "title": "Apollo 11",
+          "excerpt": "# Apollo 11 Mission Overview\n## Who Was Neil Armstrong? (Grades 5-8)\nNeil Armstrong was the first human to walk on the surface of the moon. He was an astronaut who flew on two space missions. The first was Gemini 8. The second was Apollo 11, which landed on the moon in 1969. Armstrong was also an en",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.history.com/articles/moon-landing-1969",
+          "title": "1969 Apollo 11 Moon Landing: Timeline, Facts, Video History.com https://www.history.com \u203a Articles",
+          "excerpt": "# 1969 Moon Landing\n## Apollo 11\nThis is an image of Buzz Aldrin\u2019s bootprint from the Apollo 11 mission in 1969, one of the first steps taken on the Moon.\nNASA",
+          "publisher": "history.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "historical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-012",
+      "scene": 6,
+      "type": "historical_claim",
+      "text_span": "the fall of the Berlin Wall in 1989",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'the fall of the Berlin Wall in 1989' (historical_claim).",
+      "evidence": [
+        {
+          "source_url": "http://en.wikipedia.org/wiki/Fall_of_the_Berlin_Wall",
+          "title": "Fall of the Berlin Wall - Wikipedia",
+          "excerpt": "* \" [Ich bin ein Berliner](https://en.wikipedia.org/wiki/Ich_bin_ein_Berliner \"Ich bin ein Berliner\") \" (1963)\n* \" [Tear down this wall!](https://en.wikipedia.org/wiki/Tear_down_this_wall! \"Tear down this wall!\") \" (1987)\n* [Fall of the Berlin Wall](https://en.wikipedia.org/wiki/Fall_of_the_Berlin_W",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://germanhistorydocs.org/en/a-new-germany-1990-2023/the-fall-of-the-berlin-wall-november-9-1989",
+          "title": "The Fall of the Berlin Wall (November 9, 1989) | German History in Documents and Images",
+          "excerpt": "# The Fall of the Berlin Wall (November 9, 1989)\n## Abstract\nTwo journalists from Die Tageszeitung (taz), a left-of-center West Berlin newspaper,\ndescribe the excitement generated by the sudden opening of the Berlin\nWall on November 9, 1989. The event was the result of internal\npressure applied by E",
+          "publisher": "germanhistorydocs.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://streamlinefeed.co.ke/history/the-fall-of-the-berlin-wall-the-november-1989-collapse-of-the-iron-curtain",
+          "title": "Fall of the Berlin Wall - 1989 Historical Analysis - Streamline",
+          "excerpt": "# Company\n## Information\n### Social\nBuilt for accountable discovery across local and global markets.\nFall of the Berlin Wall - 1989 Historical Analysis | Historical Events | Streamline | Streamline",
+          "publisher": "streamlinefeed.co.ke",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.academia.edu/41584685/The_Fall_of_the_Berlin_Wall_Its_Causes_and_Consequences",
+          "title": "(PDF) The Fall of the Berlin Wall. Its Causes and Consequences",
+          "excerpt": "... Mikhail Gorbachev\u2019s reform movement of perestroika and glasnost contributed in fall of Berlin wall on November 9th, 1989 \u2013 thus marking the fall of East Germany. The investigation looks into the historical context of Soviet\u2019s \u201cnew thinking\u201d and c",
+          "publisher": "academia.edu",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://cdn.watch.aetnd.com/sites/2/2020/03/TDIH-FallofBerlinWall-11.9.1989.pdf",
+          "title": "Nov. 9, 1989: Fall of the Berlin Wall - THIS DAY IN HISTORY",
+          "excerpt": "# **PEOPLE TO KNOW**\nTHIS DAY IN HISTORY / 6 **NOV. 9, 1989 \u2219 FALL OF THE BERLIN WALL**\n\n...\n\n## **GEORGE H. W. BUSH**\n**1924 -**\nGuards at Berlin\u2019s Brandenburg Gate on the day the wall was erected, Au- gust 13, 1961\nGraffiti at the Berlin Wall. Credit: Panterdesign\nCheckpoint Charlie on the night t",
+          "publisher": "cdn.watch.aetnd.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 5,
+      "confidence": 1.0,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "historical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-013",
+      "scene": 7,
+      "type": "medical_claim",
+      "text_span": "handwashing reduces respiratory virus transmission.",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'handwashing reduces respiratory virus transmission.' (medical_claim).",
+      "evidence": [
+        {
+          "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9250256/",
+          "title": "The effectiveness of hand hygiene interventions for preventing community transmission or acquisition of novel coronavirus or influenza infections: a systematic review - PMC",
+          "excerpt": "# The effectiveness of hand hygiene interventions for preventing community transmission or acquisition of novel coronavirus or influenza infections: a systematic review\n## Results\n### Table 2.\ntransmission |Hand washing \u22655 times/day was associated with reduced infection risk (52.8% vs.76.9%, _p_ = 0",
+          "publisher": "pmc.ncbi.nlm.nih.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.news-medical.net/health/How-can-Hand-Hygiene-Prevent-the-Spread-of-Disease.aspx",
+          "title": "How can Hand Hygiene Prevent the Spread of Disease?",
+          "excerpt": "# How can Hand Hygiene Prevent the Spread of Disease?\n## How to Practice Proper Hand Hygiene to Prevent Infection Transmission?\n### Related Stories\nAlcohol-based hand sanitizer is extremely effective against most pathogens (viruses and bacteria) that are prone to get transmitted via hands. However, ",
+          "publisher": "news-medical.net",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9044525/",
+          "title": "The effect of hand hygiene frequency on reducing acute respiratory infections in the community: a meta-analysis - PMC",
+          "excerpt": "# The effect of hand hygiene frequency on reducing acute respiratory infections in the community: a meta-analysis\n## Discussion\n### Fig. 3.\nA crucial, but often overlooked, determinant of the relationship between hand hygiene frequency and risk of infection is persistence of infectious virus on hand",
+          "publisher": "pmc.ncbi.nlm.nih.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://pubmed.ncbi.nlm.nih.gov/21735402",
+          "title": "Physical interventions to interrupt or reduce the spread of respiratory viruses",
+          "excerpt": "# Physical interventions to interrupt or reduce the spread of respiratory viruses\n## Abstract\nAdding virucidals or antiseptics to normal handwashing to decrease respiratory disease transmission remains uncertain. Global measures, such as screening at entry ports, led to a non-significant marginal de",
+          "publisher": "pubmed.ncbi.nlm.nih.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.sciencedirect.com/science/article/abs/pii/S0195670115001474",
+          "title": "Reducing viral contamination from finger pads: handwashing is more effective than alcohol-based hand disinfectants - ScienceDirect",
+          "excerpt": "... science/hand-sanitizer) has been shown for bacteria but their effectiveness in reducing transmission of viruses is ambiguous.\n\n### Aim\n\nTo test efficacy ... of alcohol hand disinfectant against human enteric and [respiratory viruses](/topics/phar",
+          "publisher": "sciencedirect.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 4,
+      "confidence": 1.0,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "medical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-014",
+      "scene": 7,
+      "type": "fictional_brand",
+      "text_span": "LunarFizz",
+      "context": "",
+      "query": "Provide authoritative, independent sources about 'LunarFizz' (fictional_brand).",
+      "evidence": [
+        {
+          "source_url": "https://www.drinklunar.com/",
+          "title": "LUNAR: Refreshingly Different | Yuzu, Lychee, Plum, Passion Fruit",
+          "excerpt": "# \n## Available at:\n* [](https://www.target.com/p/lunar-hard-seltzer-variety-8pk-12-fl-oz-cans/-/A-89003509)\n* [](https://www.gopuff.com/p/lunar-hard-seltzer-variety-pack-8pk-12oz-can-4-7-abv/p58385)\n* [](https://www.freshdirect.com/supergro/beer/beer_hard_soda/sc/beer_hard_soda_variety_pack/p/gro_p",
+          "publisher": "drinklunar.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://epicenter-nyc.com/lunar-hard-seltzer-infuses-the-beverage-market-with-asian-flavors/",
+          "title": "Lunar Hard Seltzer infuses the beverage market with Asian flavors - Epicenter NYC",
+          "excerpt": "# Lunar Hard Seltzer infuses the beverage market with Asian flavors\n## Share this:\nSince then, their brand, [Lunar Hard Seltzer](https://www.drinklunar.com/) , has become a staple at [Lunar New Year celebrations](https://www.instagram.com/reel/DTp0BdjALKc/?hl=en) and [high-profile nonprofit events](",
+          "publisher": "epicenter-nyc.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://vinepair.com/articles/2022-next-wave-lunar-hard-seltzer/",
+          "title": "Next Wave Awards Rising Drinks Brand of the Year: Lunar Hard Seltzer | VinePair",
+          "excerpt": "# Next Wave Awards Rising Drinks Brand of the Year: Lunar Hard Seltzer\nIn a vast sea of artificially flavored hard seltzers, Lunar is the first craft brand made from real fruits imported from Asia. Much more than just another slim can, Lunar is a product that brings the Asian American diaspora to th",
+          "publisher": "vinepair.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://republic.com/lunar-hard-seltzer",
+          "title": "Lunar Hard Seltzer \u2014 Republic",
+          "excerpt": "# Lunar Hard Seltzer\n## Lunar Hard Seltzer Team\nBrewbound \u00b7 May 9, 2022 NEW YORK, New York - On May 15th, the first-ever Asian craft hard seltzer brand, Lunar, will launch the second in its ser...](https://www.brewbound.com/news/lunar-hard-seltzer-joins-forces-with-3-iconic-asian-restaurants-for-lim",
+          "publisher": "republic.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.kevinkos.com/post/lunar-gin-fizz",
+          "title": "LUNAR Gin Fizz",
+          "excerpt": "# LUNAR Gin Fizz\nA Gin Fizz is essentially a Tom Collins made with egg white and served without ice, but for this version, Kevin added violet liqueur and homemade lavender bitters, creating a beautiful, aromatic cocktail he named the **Lunar Fizz** .",
+          "publisher": "kevinkos.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 5,
+      "confidence": 1.0,
+      "state": "ESCALATE",
+      "reason": "human_review_required",
+      "policy_key": "fictional_brand_negative_context",
+      "human_decision": null
+    }
+  ],
+  "summary": {
+    "REVIEW": 6,
+    "ESCALATE": 3,
+    "CLEAR": 5
+  },
+  "metrics": {
+    "references_detected": 14,
+    "evidence_backed": 14,
+    "multi_source_required": 3,
+    "multi_source_satisfied": 3,
+    "traceable": 14
+  },
+  "governance": {
+    "unauthorized_blocked": 1,
+    "audit_events": 50,
+    "audit_verified": true,
+    "audit_head": "c2449dfb858841fddd32f4365f0fd6af65484e61e1ab7356d8c44b02dda99ae1"
+  },
+  "audit_chain": [
+    {
+      "body": {
+        "action": "script_uploaded",
+        "script_id": "demo_script_001"
+      },
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "f085ff79bf705a59f894ff0d9b6c317157e840814ea3baafc0084decfbd67a8d"
+    },
+    {
+      "body": {
+        "action": "items_extracted",
+        "count": 14
+      },
+      "prev_hash": "f085ff79bf705a59f894ff0d9b6c317157e840814ea3baafc0084decfbd67a8d",
+      "hash": "215305256f81c595c5a85f1491ff43c54b521ebde75bf0156d20a7f493de4de6"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "brands_and_orgs",
+        "items": 6
+      },
+      "prev_hash": "215305256f81c595c5a85f1491ff43c54b521ebde75bf0156d20a7f493de4de6",
+      "hash": "fbe22a90182cc751705c13fb889782e2670290dc396a005710b22fe1fc50179f"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "people",
+        "items": 2
+      },
+      "prev_hash": "fbe22a90182cc751705c13fb889782e2670290dc396a005710b22fe1fc50179f",
+      "hash": "777d7d3806f1450b797f0a512d56e29281cca5ad5b7b962c97d4458a9b1d4d12"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "claims",
+        "items": 3
+      },
+      "prev_hash": "777d7d3806f1450b797f0a512d56e29281cca5ad5b7b962c97d4458a9b1d4d12",
+      "hash": "76f242a76f1c798c698e898ca10ac83683b697159f3f73b0ccfd6834c838c050"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "places_and_media",
+        "items": 3
+      },
+      "prev_hash": "76f242a76f1c798c698e898ca10ac83683b697159f3f73b0ccfd6834c838c050",
+      "hash": "70779f99d66682e1ddf5df0e823f60511133de1c51ab948bf87d67244fc8f09e"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "unapproved_legal_database.search",
+        "decision": "DENY",
+        "reason": "tool_not_authorized"
+      },
+      "prev_hash": "70779f99d66682e1ddf5df0e823f60511133de1c51ab948bf87d67244fc8f09e",
+      "hash": "2b5f821214c81d231afd83482bd457e3215a9668782a1db73951be4b967127e1"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "2b5f821214c81d231afd83482bd457e3215a9668782a1db73951be4b967127e1",
+      "hash": "44802e8b4df76eb69a30f949dea2a13da86d87de2df9b66d17304253deb1575c"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-001",
+        "sources": 3
+      },
+      "prev_hash": "44802e8b4df76eb69a30f949dea2a13da86d87de2df9b66d17304253deb1575c",
+      "hash": "2976d23dc027e43d6f9f84abcbd2c08f0a275e3bef8c8a368e4325f60c1c4eca"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-001",
+        "state": "REVIEW"
+      },
+      "prev_hash": "2976d23dc027e43d6f9f84abcbd2c08f0a275e3bef8c8a368e4325f60c1c4eca",
+      "hash": "f139501908db95f9818846be4c03e8aa6e91f1189f9e5e15aebe38f7711ef938"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "f139501908db95f9818846be4c03e8aa6e91f1189f9e5e15aebe38f7711ef938",
+      "hash": "a8c8d0f6748a6dd92b43fbe12d0c267cb92073443a674d792d995b35748cba37"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-002",
+        "sources": 4
+      },
+      "prev_hash": "a8c8d0f6748a6dd92b43fbe12d0c267cb92073443a674d792d995b35748cba37",
+      "hash": "7a463f7d8a34f34aa64f37c978133289f9aaf8ba5ab6c82377d023e4c449f71a"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-002",
+        "state": "REVIEW"
+      },
+      "prev_hash": "7a463f7d8a34f34aa64f37c978133289f9aaf8ba5ab6c82377d023e4c449f71a",
+      "hash": "dff75f8544d67198987d2049af424be3f72f2308608d5b88001597410d5cf820"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "dff75f8544d67198987d2049af424be3f72f2308608d5b88001597410d5cf820",
+      "hash": "8c71a38286d6204b3ce8224cc8203beb025b2a2113c614953175274076b92748"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-003",
+        "sources": 4
+      },
+      "prev_hash": "8c71a38286d6204b3ce8224cc8203beb025b2a2113c614953175274076b92748",
+      "hash": "ad4ae012ff25a7f52463eb2674fe00d11ed4814dca714a05861d478bf91067cb"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-003",
+        "state": "REVIEW"
+      },
+      "prev_hash": "ad4ae012ff25a7f52463eb2674fe00d11ed4814dca714a05861d478bf91067cb",
+      "hash": "dd1cde886a8036a600bb8fa04d26863f1eae99daa4c55f3a757a64b2d22f122a"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "dd1cde886a8036a600bb8fa04d26863f1eae99daa4c55f3a757a64b2d22f122a",
+      "hash": "c7e48629615269d97aa28f9872db7dd0c02051781e376374a1d25e370e904063"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-004",
+        "sources": 5
+      },
+      "prev_hash": "c7e48629615269d97aa28f9872db7dd0c02051781e376374a1d25e370e904063",
+      "hash": "a437f927c34ed74e8e053c02764a3603be110cd787423054240f0d4487e7c520"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-004",
+        "state": "ESCALATE"
+      },
+      "prev_hash": "a437f927c34ed74e8e053c02764a3603be110cd787423054240f0d4487e7c520",
+      "hash": "e70caa86b6a40aad92a0e4064a87109c0e3265e2f3109ce196fde7a82980397b"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "e70caa86b6a40aad92a0e4064a87109c0e3265e2f3109ce196fde7a82980397b",
+      "hash": "46cdf514c456ccbe98e3e548f04b07d524dd9a952f344b51619af07c90e02c1e"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-005",
+        "sources": 5
+      },
+      "prev_hash": "46cdf514c456ccbe98e3e548f04b07d524dd9a952f344b51619af07c90e02c1e",
+      "hash": "49e0867a0810aff20c9e988e91e7870eabbdd26022cb6f5ac9cbee0c03ba317b"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-005",
+        "state": "ESCALATE"
+      },
+      "prev_hash": "49e0867a0810aff20c9e988e91e7870eabbdd26022cb6f5ac9cbee0c03ba317b",
+      "hash": "106645ca62fbf5e27ae9fa4555794c13a03b2497be93791f289c93cbffd5632b"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "106645ca62fbf5e27ae9fa4555794c13a03b2497be93791f289c93cbffd5632b",
+      "hash": "1aeabfaaf7f7ab524f10e17a8a707eb4d070611889a9193e818868b3637576a1"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-006",
+        "sources": 4
+      },
+      "prev_hash": "1aeabfaaf7f7ab524f10e17a8a707eb4d070611889a9193e818868b3637576a1",
+      "hash": "4b26ac41046dc92c328851409f5f3442b829cd5625f0159f127874a42869f126"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-006",
+        "state": "REVIEW"
+      },
+      "prev_hash": "4b26ac41046dc92c328851409f5f3442b829cd5625f0159f127874a42869f126",
+      "hash": "c8e20832089d33cad22e99afac588badc588b018a87656200c6c1940ff8c4f22"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "c8e20832089d33cad22e99afac588badc588b018a87656200c6c1940ff8c4f22",
+      "hash": "079ca242889dde131ca9a94bb9fefdde0c2adfb55e1cd40a0968efccc3f3761a"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-007",
+        "sources": 4
+      },
+      "prev_hash": "079ca242889dde131ca9a94bb9fefdde0c2adfb55e1cd40a0968efccc3f3761a",
+      "hash": "e8b91536994770a3eac1ee1c4f8423a02a70e712774316f13c3d3ebbf794f6e8"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-007",
+        "state": "REVIEW"
+      },
+      "prev_hash": "e8b91536994770a3eac1ee1c4f8423a02a70e712774316f13c3d3ebbf794f6e8",
+      "hash": "8f88e8e2ce1d2621155a3947ab91fe9aa42eca8affbc36902e989bdcea3e9f0b"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "8f88e8e2ce1d2621155a3947ab91fe9aa42eca8affbc36902e989bdcea3e9f0b",
+      "hash": "2019d6f172277132566d5008c474d5a71dd78c268910113857194b0679613452"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-008",
+        "sources": 3
+      },
+      "prev_hash": "2019d6f172277132566d5008c474d5a71dd78c268910113857194b0679613452",
+      "hash": "448101c9b164c8c0723907da04be32036f094b940ff975f1c88835cc16fdfa10"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-008",
+        "state": "CLEAR"
+      },
+      "prev_hash": "448101c9b164c8c0723907da04be32036f094b940ff975f1c88835cc16fdfa10",
+      "hash": "6c8b8eb6a835f37be9f1197036d0d4d29e1c5233c1947ace2d01c2058efdd138"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "6c8b8eb6a835f37be9f1197036d0d4d29e1c5233c1947ace2d01c2058efdd138",
+      "hash": "91eb9d55b56e1bf9d10739e8ada03c1b1467f32318101b9f1d4f555bbd81909e"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-009",
+        "sources": 4
+      },
+      "prev_hash": "91eb9d55b56e1bf9d10739e8ada03c1b1467f32318101b9f1d4f555bbd81909e",
+      "hash": "b7fb766788ae00a07609397ce061d018e7498afe627b01fd2b4169a37afa1f69"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-009",
+        "state": "CLEAR"
+      },
+      "prev_hash": "b7fb766788ae00a07609397ce061d018e7498afe627b01fd2b4169a37afa1f69",
+      "hash": "4d18cae34ee3aefc937b3c3d58f661c33a362e4512fa46c12f6369be2a394583"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "4d18cae34ee3aefc937b3c3d58f661c33a362e4512fa46c12f6369be2a394583",
+      "hash": "e7473263740908c4177929ba8c67831dfff702509e3d1962ecfd642d2e9cde4b"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-010",
+        "sources": 5
+      },
+      "prev_hash": "e7473263740908c4177929ba8c67831dfff702509e3d1962ecfd642d2e9cde4b",
+      "hash": "822fb630ac08c85f1c51293bb682dd3b9083f586702d20d5518705a58b241d8d"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-010",
+        "state": "REVIEW"
+      },
+      "prev_hash": "822fb630ac08c85f1c51293bb682dd3b9083f586702d20d5518705a58b241d8d",
+      "hash": "bf256c211e4bff0c415da5a60cc553a372238c8c004dc57ccbfb8d25af3d4620"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "bf256c211e4bff0c415da5a60cc553a372238c8c004dc57ccbfb8d25af3d4620",
+      "hash": "737bb39e861c07a0c5574e5a9fe62feaab5b362df32394b0e286adcde7334c09"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-011",
+        "sources": 4
+      },
+      "prev_hash": "737bb39e861c07a0c5574e5a9fe62feaab5b362df32394b0e286adcde7334c09",
+      "hash": "c4039355bdde471788d759323e47943661c605e0a354e85422caa144fb2b2bf0"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-011",
+        "state": "CLEAR"
+      },
+      "prev_hash": "c4039355bdde471788d759323e47943661c605e0a354e85422caa144fb2b2bf0",
+      "hash": "35202ace57d9d6a8698823840863e123b7eee9754255f87febf63fe98a83e079"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "35202ace57d9d6a8698823840863e123b7eee9754255f87febf63fe98a83e079",
+      "hash": "cf65b60908dd5797835961731b86782a3eac0789d86e44bc39cf6be4097577d7"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-012",
+        "sources": 5
+      },
+      "prev_hash": "cf65b60908dd5797835961731b86782a3eac0789d86e44bc39cf6be4097577d7",
+      "hash": "ef5e2092d06a4f03cb609153f6c6ea770d16a9ce97ae936472baf768155ac774"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-012",
+        "state": "CLEAR"
+      },
+      "prev_hash": "ef5e2092d06a4f03cb609153f6c6ea770d16a9ce97ae936472baf768155ac774",
+      "hash": "cdf0c9fb2d1e13f311e5145da810381bb5623fb657d6ebb3e97dffbd7092aa4c"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "cdf0c9fb2d1e13f311e5145da810381bb5623fb657d6ebb3e97dffbd7092aa4c",
+      "hash": "2682ced359ae525ab54eca569d3964437f070bb0015c2440fdde578bee5a203a"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-013",
+        "sources": 4
+      },
+      "prev_hash": "2682ced359ae525ab54eca569d3964437f070bb0015c2440fdde578bee5a203a",
+      "hash": "3186c577324c32b3a15de699bce3e12b7cd36ee8f94d94006fe1595c0ed41f33"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-013",
+        "state": "CLEAR"
+      },
+      "prev_hash": "3186c577324c32b3a15de699bce3e12b7cd36ee8f94d94006fe1595c0ed41f33",
+      "hash": "a326474bc04121b1d0984adcafa8fc957cff960012bb2dbeb6bebe62c979b12a"
+    },
+    {
+      "body": {
+        "run_id": "run_adk",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "a326474bc04121b1d0984adcafa8fc957cff960012bb2dbeb6bebe62c979b12a",
+      "hash": "a60a515e2c6cf34e9f3ec38422664e69e0f5a5efcbc799d2c3edb2601fb56cd0"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-014",
+        "sources": 5
+      },
+      "prev_hash": "a60a515e2c6cf34e9f3ec38422664e69e0f5a5efcbc799d2c3edb2601fb56cd0",
+      "hash": "1b425d76c1c40da2ccce1c49c5d01225e3176116fafc2a2ebc3ad8bd163b567a"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-014",
+        "state": "ESCALATE"
+      },
+      "prev_hash": "1b425d76c1c40da2ccce1c49c5d01225e3176116fafc2a2ebc3ad8bd163b567a",
+      "hash": "7d45678efe37262213ecee96c02945af785026cc3be686eb7c5b5e1406125820"
+    },
+    {
+      "body": {
+        "action": "report_generated"
+      },
+      "prev_hash": "7d45678efe37262213ecee96c02945af785026cc3be686eb7c5b5e1406125820",
+      "hash": "c2449dfb858841fddd32f4365f0fd6af65484e61e1ab7356d8c44b02dda99ae1"
+    }
+  ]
+}

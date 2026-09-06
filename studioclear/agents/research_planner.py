@@ -45,6 +45,23 @@ def item_query(item: ClearanceItem) -> str:
     )
 
 
-def build_planner():  # pragma: no cover - stub
-    """STUB: ADK Agent wrapping plan_batches; replans on DENY (sol.md §17)."""
-    raise NotImplementedError("Wire the ADK planner agent on the Day-1/2 build.")
+PLANNER_INSTRUCTION = (
+    "You are StudioClear's research planner. Group unresolved clearance items "
+    "into 3-4 efficient research batches (brands+orgs, people, historical+medical "
+    "claims, places+media). If a capability is denied, replan using only "
+    "approved tools (parallel.search.public_web)."
+)
+
+
+def build_planner():
+    """Return the planner ADK Agent. Batch grouping itself stays deterministic
+    via plan_batches(); the agent narrates/sequences the plan (sol.md §9)."""
+    from google.adk.agents import Agent
+
+    from studioclear.config import Config
+
+    return Agent(
+        name="research_planner",
+        model=Config.from_env().extraction_model,  # gemini-2.5-pro
+        instruction=PLANNER_INSTRUCTION,
+    )
