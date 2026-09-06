@@ -1,0 +1,28 @@
+# StudioClear — pinned at first working build (sol.md E1.4).
+# Python >=3.10 (dev machine is 3.10.5; sol.md targets 3.11 — both fine).
+
+# Agent orchestration (REQUIRED by the track — sol.md E1.3 / §25)
+google-adk
+
+# Gemini on Vertex AI
+google-genai
+google-cloud-aiplatform
+
+# Cloud data + secrets
+google-cloud-firestore
+google-cloud-secret-manager
+
+# The runtime research/evidence engine (Parallel track core — sol.md E1.3)
+parallel-web>=1.0.1
+
+# API + models + parsing
+fastapi
+uvicorn[standard]
+pydantic>=2
+pyyaml
+pypdf
+python-dotenv
+
+# Dev / test
+pytest
+ruff

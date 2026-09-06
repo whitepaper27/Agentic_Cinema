@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+.pytest_cache/
+.ruff_cache/
+tests/
+deploy/
+.env
+*.md
+!README.md
+app/data/
+app/frontend/*.map

@@ -1,0 +1,25 @@
+{
+  "CLR-001": [{"source_url": "https://en.wikipedia.org/wiki/Nikon", "title": "Nikon", "excerpt": "Nikon Corporation is a Japanese optics and imaging products manufacturer."}],
+  "CLR-002": [{"source_url": "https://en.wikipedia.org/wiki/Tesla,_Inc.", "title": "Tesla, Inc.", "excerpt": "Tesla, Inc. is an American automotive and clean energy company."}],
+  "CLR-003": [{"source_url": "https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co.", "title": "Levi Strauss & Co.", "excerpt": "Levi Strauss & Co. is an American clothing company known for Levi's jeans."}],
+  "CLR-004": [{"source_url": "https://en.wikipedia.org/wiki/Jane_Goodall", "title": "Jane Goodall", "excerpt": "Jane Goodall is an English primatologist and anthropologist."}],
+  "CLR-005": [{"source_url": "https://en.wikipedia.org/wiki/Paul_McCartney", "title": "Paul McCartney", "excerpt": "Sir Paul McCartney is an English singer-songwriter."}],
+  "CLR-006": [{"source_url": "https://www.who.int/about", "title": "About WHO", "excerpt": "The World Health Organization is a UN agency for international public health."}],
+  "CLR-007": [{"source_url": "https://www.nasa.gov/about", "title": "About NASA", "excerpt": "NASA is the U.S. government agency responsible for civil space program."}],
+  "CLR-008": [{"source_url": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge", "title": "Golden Gate Bridge", "excerpt": "The Golden Gate Bridge is a suspension bridge spanning the Golden Gate."}],
+  "CLR-009": [{"source_url": "https://en.wikipedia.org/wiki/Shibuya", "title": "Shibuya", "excerpt": "Shibuya is a special ward in Tokyo, known for its scramble crossing."}],
+  "CLR-010": [{"source_url": "https://en.wikipedia.org/wiki/Yesterday_(Beatles_song)", "title": "Yesterday (Beatles song)", "excerpt": "\"Yesterday\" is a song by the English rock band the Beatles."}],
+  "CLR-011": [
+    {"source_url": "https://www.nasa.gov/mission/apollo-11", "title": "Apollo 11", "excerpt": "Apollo 11 was the spaceflight that first landed humans on the Moon on July 20, 1969."},
+    {"source_url": "https://en.wikipedia.org/wiki/Apollo_11", "title": "Apollo 11", "excerpt": "Apollo 11 landed the first two people on the Moon in 1969."}
+  ],
+  "CLR-012": [
+    {"source_url": "https://www.britannica.com/event/the-fall-of-the-Berlin-Wall", "title": "Fall of the Berlin Wall", "excerpt": "The Berlin Wall fell on November 9, 1989."},
+    {"source_url": "https://en.wikipedia.org/wiki/Berlin_Wall", "title": "Berlin Wall", "excerpt": "The Berlin Wall fell in 1989 amid political change in Eastern Europe."}
+  ],
+  "CLR-013": [
+    {"source_url": "https://www.cdc.gov/handwashing/why-handwashing.html", "title": "Handwashing", "excerpt": "Handwashing reduces the spread of respiratory and diarrheal illness."},
+    {"source_url": "https://www.who.int/health-topics/hand-hygiene", "title": "Hand hygiene", "excerpt": "Hand hygiene reduces transmission of infectious agents including respiratory viruses."}
+  ],
+  "CLR-014": []
+}

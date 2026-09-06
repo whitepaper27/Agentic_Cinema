@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets / local config — NEVER commit
+.env
+*.key
+service-account*.json
+gcp-*.json
+
+# Node / frontend
+node_modules/
+app/frontend/dist/
+app/frontend/.next/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Runtime artifacts
+*.log
+demo/cached_run.local.json
+app/data/

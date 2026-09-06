@@ -1,0 +1,19 @@
+{
+  "_note": "Simulated extractor output (what gemini-2.5-pro would return) for offline runs. Separate from the eval answer key demo/expected_items.json. sol.md E2.5.",
+  "items": [
+    {"item_id": "CLR-001", "scene": 1, "type": "brand", "text_span": "a Nikon DSLR", "context": "neutral prop reference"},
+    {"item_id": "CLR-002", "scene": 1, "type": "brand", "text_span": "a Tesla Model 3", "context": "neutral prop reference"},
+    {"item_id": "CLR-003", "scene": 2, "type": "brand", "text_span": "a pair of Levi's 501s", "context": "neutral wardrobe reference"},
+    {"item_id": "CLR-004", "scene": 2, "type": "living_person", "text_span": "a documentary about Jane Goodall", "context": "neutral factual reference"},
+    {"item_id": "CLR-005", "scene": 3, "type": "living_person", "text_span": "a lyric attributed to Paul McCartney", "context": "neutral factual reference"},
+    {"item_id": "CLR-006", "scene": 3, "type": "organization", "text_span": "the World Health Organization", "context": "neutral factual reference"},
+    {"item_id": "CLR-007", "scene": 4, "type": "organization", "text_span": "NASA mission control", "context": "neutral factual reference"},
+    {"item_id": "CLR-008", "scene": 4, "type": "location", "text_span": "the Golden Gate Bridge", "context": "establishing shot"},
+    {"item_id": "CLR-009", "scene": 5, "type": "location", "text_span": "Shibuya Crossing in Tokyo", "context": "establishing shot"},
+    {"item_id": "CLR-010", "scene": 5, "type": "song", "text_span": "the song \"Yesterday\"", "context": "playing on a radio"},
+    {"item_id": "CLR-011", "scene": 6, "type": "historical_claim", "text_span": "the Apollo 11 Moon landing in 1969", "context": "dialogue fact"},
+    {"item_id": "CLR-012", "scene": 6, "type": "historical_claim", "text_span": "the fall of the Berlin Wall in 1989", "context": "dialogue fact"},
+    {"item_id": "CLR-013", "scene": 7, "type": "medical_claim", "text_span": "handwashing reduces respiratory virus transmission", "context": "dialogue claim"},
+    {"item_id": "CLR-014", "scene": 7, "type": "fictional_brand", "text_span": "LunarFizz soda", "context": "negative product dialogue"}
+  ]
+}

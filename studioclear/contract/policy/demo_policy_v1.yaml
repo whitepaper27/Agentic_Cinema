@@ -1,0 +1,58 @@
+# StudioClear demo studio policy (sol.md §6 / E2.4).
+# Executable, deterministic triage policy. The system does NOT decide legality
+# (sol.md §12/§13) — it maps item + evidence to a research/triage state.
+clearance_contract:
+  policy_id: demo_policy_v1
+
+  studio_policy:
+    brand_reference:
+      action: REVIEW
+      evidence_required: true
+
+    living_person:
+      action: ESCALATE
+      human_review_required: true
+
+    organization:
+      action: REVIEW
+      evidence_required: true
+
+    location:
+      action: VERIFY
+      minimum_independent_sources: 1
+
+    music_reference:
+      action: REVIEW
+      rights_review_required: true
+
+    historical_claim:
+      action: VERIFY
+      minimum_independent_sources: 2
+
+    medical_claim:
+      action: VERIFY
+      minimum_independent_sources: 2
+
+    fictional_brand_negative_context:
+      action: ESCALATE
+      evidence_required: true
+      insufficient_evidence_allowed: true
+
+  authority:
+    researcher:
+      allowed:
+        - parallel.search.public_web
+    policy_agent:
+      allowed:
+        - evidence.read
+        - policy.evaluate
+      forbidden:
+        - final_legal_clearance
+        - iam.modify
+        - oauth.scope.expand
+    coordinator:
+      human_actions:
+        - clear
+        - send_to_review
+        - escalate
+        - override_with_reason

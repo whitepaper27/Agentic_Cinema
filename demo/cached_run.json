@@ -1,0 +1,923 @@
+{
+  "script_id": "demo_script_001",
+  "title": "Midnight Signal",
+  "run_id": "run_demo",
+  "policy_id": "demo_policy_v1",
+  "generated_at": "2026-09-05T12:00:00Z",
+  "batches": [
+    {
+      "name": "brands_and_orgs",
+      "items": [
+        "CLR-001",
+        "CLR-002",
+        "CLR-003",
+        "CLR-006",
+        "CLR-007",
+        "CLR-014"
+      ]
+    },
+    {
+      "name": "people",
+      "items": [
+        "CLR-004",
+        "CLR-005"
+      ]
+    },
+    {
+      "name": "claims",
+      "items": [
+        "CLR-011",
+        "CLR-012",
+        "CLR-013"
+      ]
+    },
+    {
+      "name": "places_and_media",
+      "items": [
+        "CLR-008",
+        "CLR-009",
+        "CLR-010"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": "CLR-001",
+      "scene": 1,
+      "type": "brand",
+      "text_span": "a Nikon DSLR",
+      "context": "neutral prop reference",
+      "query": "Provide authoritative, independent sources about 'a Nikon DSLR' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Nikon",
+          "title": "Nikon",
+          "excerpt": "Nikon Corporation is a Japanese optics and imaging products manufacturer.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-002",
+      "scene": 1,
+      "type": "brand",
+      "text_span": "a Tesla Model 3",
+      "context": "neutral prop reference",
+      "query": "Provide authoritative, independent sources about 'a Tesla Model 3' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Tesla,_Inc.",
+          "title": "Tesla, Inc.",
+          "excerpt": "Tesla, Inc. is an American automotive and clean energy company.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-003",
+      "scene": 2,
+      "type": "brand",
+      "text_span": "a pair of Levi's 501s",
+      "context": "neutral wardrobe reference",
+      "query": "Provide authoritative, independent sources about 'a pair of Levi's 501s' (brand).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Levi_Strauss_%26_Co.",
+          "title": "Levi Strauss & Co.",
+          "excerpt": "Levi Strauss & Co. is an American clothing company known for Levi's jeans.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "brand_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-004",
+      "scene": 2,
+      "type": "living_person",
+      "text_span": "a documentary about Jane Goodall",
+      "context": "neutral factual reference",
+      "query": "Provide authoritative, independent sources about 'a documentary about Jane Goodall' (living_person).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Jane_Goodall",
+          "title": "Jane Goodall",
+          "excerpt": "Jane Goodall is an English primatologist and anthropologist.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "ESCALATE",
+      "reason": "human_review_required",
+      "policy_key": "living_person",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-005",
+      "scene": 3,
+      "type": "living_person",
+      "text_span": "a lyric attributed to Paul McCartney",
+      "context": "neutral factual reference",
+      "query": "Provide authoritative, independent sources about 'a lyric attributed to Paul McCartney' (living_person).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Paul_McCartney",
+          "title": "Paul McCartney",
+          "excerpt": "Sir Paul McCartney is an English singer-songwriter.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "ESCALATE",
+      "reason": "human_review_required",
+      "policy_key": "living_person",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-006",
+      "scene": 3,
+      "type": "organization",
+      "text_span": "the World Health Organization",
+      "context": "neutral factual reference",
+      "query": "Provide authoritative, independent sources about 'the World Health Organization' (organization).",
+      "evidence": [
+        {
+          "source_url": "https://www.who.int/about",
+          "title": "About WHO",
+          "excerpt": "The World Health Organization is a UN agency for international public health.",
+          "publisher": "who.int",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "organization",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-007",
+      "scene": 4,
+      "type": "organization",
+      "text_span": "NASA mission control",
+      "context": "neutral factual reference",
+      "query": "Provide authoritative, independent sources about 'NASA mission control' (organization).",
+      "evidence": [
+        {
+          "source_url": "https://www.nasa.gov/about",
+          "title": "About NASA",
+          "excerpt": "NASA is the U.S. government agency responsible for civil space program.",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "organization",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-008",
+      "scene": 4,
+      "type": "location",
+      "text_span": "the Golden Gate Bridge",
+      "context": "establishing shot",
+      "query": "Provide authoritative, independent sources about 'the Golden Gate Bridge' (location).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge",
+          "title": "Golden Gate Bridge",
+          "excerpt": "The Golden Gate Bridge is a suspension bridge spanning the Golden Gate.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "location",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-009",
+      "scene": 5,
+      "type": "location",
+      "text_span": "Shibuya Crossing in Tokyo",
+      "context": "establishing shot",
+      "query": "Provide authoritative, independent sources about 'Shibuya Crossing in Tokyo' (location).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Shibuya",
+          "title": "Shibuya",
+          "excerpt": "Shibuya is a special ward in Tokyo, known for its scramble crossing.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "location",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-010",
+      "scene": 5,
+      "type": "song",
+      "text_span": "the song \"Yesterday\"",
+      "context": "playing on a radio",
+      "query": "Provide authoritative, independent sources about 'the song \"Yesterday\"' (song).",
+      "evidence": [
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Yesterday_(Beatles_song)",
+          "title": "Yesterday (Beatles song)",
+          "excerpt": "\"Yesterday\" is a song by the English rock band the Beatles.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 1,
+      "confidence": 0.6000000000000001,
+      "state": "REVIEW",
+      "reason": "studio_review_required",
+      "policy_key": "music_reference",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-011",
+      "scene": 6,
+      "type": "historical_claim",
+      "text_span": "the Apollo 11 Moon landing in 1969",
+      "context": "dialogue fact",
+      "query": "Provide authoritative, independent sources about 'the Apollo 11 Moon landing in 1969' (historical_claim).",
+      "evidence": [
+        {
+          "source_url": "https://www.nasa.gov/mission/apollo-11",
+          "title": "Apollo 11",
+          "excerpt": "Apollo 11 was the spaceflight that first landed humans on the Moon on July 20, 1969.",
+          "publisher": "nasa.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Apollo_11",
+          "title": "Apollo 11",
+          "excerpt": "Apollo 11 landed the first two people on the Moon in 1969.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 2,
+      "confidence": 0.8,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "historical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-012",
+      "scene": 6,
+      "type": "historical_claim",
+      "text_span": "the fall of the Berlin Wall in 1989",
+      "context": "dialogue fact",
+      "query": "Provide authoritative, independent sources about 'the fall of the Berlin Wall in 1989' (historical_claim).",
+      "evidence": [
+        {
+          "source_url": "https://www.britannica.com/event/the-fall-of-the-Berlin-Wall",
+          "title": "Fall of the Berlin Wall",
+          "excerpt": "The Berlin Wall fell on November 9, 1989.",
+          "publisher": "britannica.com",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://en.wikipedia.org/wiki/Berlin_Wall",
+          "title": "Berlin Wall",
+          "excerpt": "The Berlin Wall fell in 1989 amid political change in Eastern Europe.",
+          "publisher": "en.wikipedia.org",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 2,
+      "confidence": 0.8,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "historical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-013",
+      "scene": 7,
+      "type": "medical_claim",
+      "text_span": "handwashing reduces respiratory virus transmission",
+      "context": "dialogue claim",
+      "query": "Provide authoritative, independent sources about 'handwashing reduces respiratory virus transmission' (medical_claim).",
+      "evidence": [
+        {
+          "source_url": "https://www.cdc.gov/handwashing/why-handwashing.html",
+          "title": "Handwashing",
+          "excerpt": "Handwashing reduces the spread of respiratory and diarrheal illness.",
+          "publisher": "cdc.gov",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        },
+        {
+          "source_url": "https://www.who.int/health-topics/hand-hygiene",
+          "title": "Hand hygiene",
+          "excerpt": "Hand hygiene reduces transmission of infectious agents including respiratory viruses.",
+          "publisher": "who.int",
+          "retrieved_at": "2026-09-05T12:00:00Z",
+          "supports": true
+        }
+      ],
+      "source_count": 2,
+      "confidence": 0.8,
+      "state": "CLEAR",
+      "reason": "verified_for_research",
+      "policy_key": "medical_claim",
+      "human_decision": null
+    },
+    {
+      "item_id": "CLR-014",
+      "scene": 7,
+      "type": "fictional_brand",
+      "text_span": "LunarFizz soda",
+      "context": "negative product dialogue",
+      "query": "Provide authoritative, independent sources about 'LunarFizz soda' (fictional_brand).",
+      "evidence": [],
+      "source_count": 0,
+      "confidence": 0.4,
+      "state": "INSUFFICIENT_EVIDENCE",
+      "reason": "no_authoritative_match",
+      "policy_key": "fictional_brand_negative_context",
+      "human_decision": null
+    }
+  ],
+  "summary": {
+    "REVIEW": 6,
+    "ESCALATE": 2,
+    "CLEAR": 5,
+    "INSUFFICIENT_EVIDENCE": 1
+  },
+  "metrics": {
+    "references_detected": 14,
+    "evidence_backed": 13,
+    "multi_source_required": 3,
+    "multi_source_satisfied": 3,
+    "traceable": 14
+  },
+  "governance": {
+    "unauthorized_blocked": 1,
+    "audit_events": 50,
+    "audit_verified": true,
+    "audit_head": "3bc10d50ecab6c0d0498ce8e1a763b3973f4fa4fad4c2efbfafac606055d086b"
+  },
+  "audit_chain": [
+    {
+      "body": {
+        "action": "script_uploaded",
+        "script_id": "demo_script_001"
+      },
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "f085ff79bf705a59f894ff0d9b6c317157e840814ea3baafc0084decfbd67a8d"
+    },
+    {
+      "body": {
+        "action": "items_extracted",
+        "count": 14
+      },
+      "prev_hash": "f085ff79bf705a59f894ff0d9b6c317157e840814ea3baafc0084decfbd67a8d",
+      "hash": "215305256f81c595c5a85f1491ff43c54b521ebde75bf0156d20a7f493de4de6"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "brands_and_orgs",
+        "items": 6
+      },
+      "prev_hash": "215305256f81c595c5a85f1491ff43c54b521ebde75bf0156d20a7f493de4de6",
+      "hash": "fbe22a90182cc751705c13fb889782e2670290dc396a005710b22fe1fc50179f"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "people",
+        "items": 2
+      },
+      "prev_hash": "fbe22a90182cc751705c13fb889782e2670290dc396a005710b22fe1fc50179f",
+      "hash": "777d7d3806f1450b797f0a512d56e29281cca5ad5b7b962c97d4458a9b1d4d12"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "claims",
+        "items": 3
+      },
+      "prev_hash": "777d7d3806f1450b797f0a512d56e29281cca5ad5b7b962c97d4458a9b1d4d12",
+      "hash": "76f242a76f1c798c698e898ca10ac83683b697159f3f73b0ccfd6834c838c050"
+    },
+    {
+      "body": {
+        "action": "batch_created",
+        "batch": "places_and_media",
+        "items": 3
+      },
+      "prev_hash": "76f242a76f1c798c698e898ca10ac83683b697159f3f73b0ccfd6834c838c050",
+      "hash": "70779f99d66682e1ddf5df0e823f60511133de1c51ab948bf87d67244fc8f09e"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "unapproved_legal_database.search",
+        "decision": "DENY",
+        "reason": "tool_not_authorized"
+      },
+      "prev_hash": "70779f99d66682e1ddf5df0e823f60511133de1c51ab948bf87d67244fc8f09e",
+      "hash": "b42582ead0611319aa227b4a56c23d5f16097871798934ce8e04e436ab3d91b5"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "b42582ead0611319aa227b4a56c23d5f16097871798934ce8e04e436ab3d91b5",
+      "hash": "0777e529c5a6fad360bebe623fa4b0f12b10a208447644a7679f1c23d9d1cd48"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-001",
+        "sources": 1
+      },
+      "prev_hash": "0777e529c5a6fad360bebe623fa4b0f12b10a208447644a7679f1c23d9d1cd48",
+      "hash": "9a7459ad08b0022a5a33c0734615a1e8b7ffd56b4ba6548a402e2f2e51e39787"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-001",
+        "state": "REVIEW"
+      },
+      "prev_hash": "9a7459ad08b0022a5a33c0734615a1e8b7ffd56b4ba6548a402e2f2e51e39787",
+      "hash": "74342d718fcba2ebbd2b829c0e73a51bf5f9f14bf3181ee56124abb9dd57ce10"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "74342d718fcba2ebbd2b829c0e73a51bf5f9f14bf3181ee56124abb9dd57ce10",
+      "hash": "819899e38ffb00e75df19d8c121453a7e6a225a1f329cdc5edd38051a9331388"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-002",
+        "sources": 1
+      },
+      "prev_hash": "819899e38ffb00e75df19d8c121453a7e6a225a1f329cdc5edd38051a9331388",
+      "hash": "a2f9257e9ef518a731ecba6876a5e1375503f640f0b06951110b2e54c9248f83"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-002",
+        "state": "REVIEW"
+      },
+      "prev_hash": "a2f9257e9ef518a731ecba6876a5e1375503f640f0b06951110b2e54c9248f83",
+      "hash": "144f3769b72b3472fbbee8a7073f41f84be548aa00f4f15f9f2223d4b6f68cab"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "144f3769b72b3472fbbee8a7073f41f84be548aa00f4f15f9f2223d4b6f68cab",
+      "hash": "ac2dcd9625b1fd06a4c51eae4f7bd90c763d999f7c90d497e42418eeee8ec1ca"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-003",
+        "sources": 1
+      },
+      "prev_hash": "ac2dcd9625b1fd06a4c51eae4f7bd90c763d999f7c90d497e42418eeee8ec1ca",
+      "hash": "f8430835a8f8653fb5ebc50ad814b6db471f6c5d1acedfd54b64d46880fb157b"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-003",
+        "state": "REVIEW"
+      },
+      "prev_hash": "f8430835a8f8653fb5ebc50ad814b6db471f6c5d1acedfd54b64d46880fb157b",
+      "hash": "375505070541f26571d27683d87df734b86a14dff4c902b57b76e9e854ec565c"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "375505070541f26571d27683d87df734b86a14dff4c902b57b76e9e854ec565c",
+      "hash": "55d33bff07f1c193be18b9942a4af096d87f790ca5995f645ba9c399fd4ebd91"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-004",
+        "sources": 1
+      },
+      "prev_hash": "55d33bff07f1c193be18b9942a4af096d87f790ca5995f645ba9c399fd4ebd91",
+      "hash": "616698204e69cd796e6ca9ed6f57ae542081006cefdf770838fac7108ade482c"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-004",
+        "state": "ESCALATE"
+      },
+      "prev_hash": "616698204e69cd796e6ca9ed6f57ae542081006cefdf770838fac7108ade482c",
+      "hash": "6a5535c6587a8a2402da472cc88a7856250f058911495616f5eddb234be02b79"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "6a5535c6587a8a2402da472cc88a7856250f058911495616f5eddb234be02b79",
+      "hash": "b61dc98f4bf639a8c9e706203e9aa113b69ad33b0f5fd0996ae66bf823d937f3"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-005",
+        "sources": 1
+      },
+      "prev_hash": "b61dc98f4bf639a8c9e706203e9aa113b69ad33b0f5fd0996ae66bf823d937f3",
+      "hash": "0e78652c9f2f46cada43ea9a23dd52b133eb0ed7252aaa98a4308ae77e17cae1"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-005",
+        "state": "ESCALATE"
+      },
+      "prev_hash": "0e78652c9f2f46cada43ea9a23dd52b133eb0ed7252aaa98a4308ae77e17cae1",
+      "hash": "c996c1d434d78724e4a7f738b410e58e77343411bbdd07829b4bdc632d98b26b"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "c996c1d434d78724e4a7f738b410e58e77343411bbdd07829b4bdc632d98b26b",
+      "hash": "c0bb1d1b6a39d405628fdeacd5b8a1ff9d3236f0bd8c8b88ebd84992d1023b82"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-006",
+        "sources": 1
+      },
+      "prev_hash": "c0bb1d1b6a39d405628fdeacd5b8a1ff9d3236f0bd8c8b88ebd84992d1023b82",
+      "hash": "57ddf1467c1b3a2e2c0372624cb7ca44d78285fe7c40f7f096723b573a057c29"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-006",
+        "state": "REVIEW"
+      },
+      "prev_hash": "57ddf1467c1b3a2e2c0372624cb7ca44d78285fe7c40f7f096723b573a057c29",
+      "hash": "b2d13fd7fbd63ccec4dcb87799337caee2c18b5a675b415d59ad85ad65aec5c0"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "b2d13fd7fbd63ccec4dcb87799337caee2c18b5a675b415d59ad85ad65aec5c0",
+      "hash": "d5ab80cc05589b222b5baba111aeb46a5888b49e7700c46193eddab9ed6ab68b"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-007",
+        "sources": 1
+      },
+      "prev_hash": "d5ab80cc05589b222b5baba111aeb46a5888b49e7700c46193eddab9ed6ab68b",
+      "hash": "a4b058eacd7e24f0f7db1d46ea2785ab28861944edf179386c4cab94b43599f6"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-007",
+        "state": "REVIEW"
+      },
+      "prev_hash": "a4b058eacd7e24f0f7db1d46ea2785ab28861944edf179386c4cab94b43599f6",
+      "hash": "5b8161c2df87179ac5d1e31669e5bbad80bdde2cb9f35c478c623e46434dec58"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "5b8161c2df87179ac5d1e31669e5bbad80bdde2cb9f35c478c623e46434dec58",
+      "hash": "ca774db71cc8f66e304c6ca95232aa3d6a39c3a1d9907d29e248c388db0d3446"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-008",
+        "sources": 1
+      },
+      "prev_hash": "ca774db71cc8f66e304c6ca95232aa3d6a39c3a1d9907d29e248c388db0d3446",
+      "hash": "62fd88cdaa13cb67aef182bad7d94cdbb382985bb52ceb2728b186ad10d9be3b"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-008",
+        "state": "CLEAR"
+      },
+      "prev_hash": "62fd88cdaa13cb67aef182bad7d94cdbb382985bb52ceb2728b186ad10d9be3b",
+      "hash": "1ee2efb6e08fe90d5060a92c29f1b43aec7287c6611f95b4ff75ec357f0e4cd6"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "1ee2efb6e08fe90d5060a92c29f1b43aec7287c6611f95b4ff75ec357f0e4cd6",
+      "hash": "351514d907f8ac9fea99054d90b795e1d71b12718ffe658ca9cc3dc1d5a49502"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-009",
+        "sources": 1
+      },
+      "prev_hash": "351514d907f8ac9fea99054d90b795e1d71b12718ffe658ca9cc3dc1d5a49502",
+      "hash": "121fa45e33a792494106a26692114bccbd298646738d006b1bbc849a794c898c"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-009",
+        "state": "CLEAR"
+      },
+      "prev_hash": "121fa45e33a792494106a26692114bccbd298646738d006b1bbc849a794c898c",
+      "hash": "74dc6b85f0e6eb65978daf5413a18fd94607841e2a737dd59571d739faf9fc78"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "74dc6b85f0e6eb65978daf5413a18fd94607841e2a737dd59571d739faf9fc78",
+      "hash": "91d09962c71a022141313774046c50611611a7def641df47e9de5fd58eafe304"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-010",
+        "sources": 1
+      },
+      "prev_hash": "91d09962c71a022141313774046c50611611a7def641df47e9de5fd58eafe304",
+      "hash": "7bd140e6de70095031ce24eea188d7f80e32aa6efd46ae42aaad42fc10a159c1"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-010",
+        "state": "REVIEW"
+      },
+      "prev_hash": "7bd140e6de70095031ce24eea188d7f80e32aa6efd46ae42aaad42fc10a159c1",
+      "hash": "7c9798872a1502ee1c6535ce3b3c03c8f27336301dd42bdfa7d27626e9007c47"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "7c9798872a1502ee1c6535ce3b3c03c8f27336301dd42bdfa7d27626e9007c47",
+      "hash": "e392c6abddf818bb28d3a968222bdcafa813ff06eb32d05f1dd9937447692a29"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-011",
+        "sources": 2
+      },
+      "prev_hash": "e392c6abddf818bb28d3a968222bdcafa813ff06eb32d05f1dd9937447692a29",
+      "hash": "babf5bc47d5c21b390b5d7417a069e8c5717403ccc3a35b8a7ca4084d9652264"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-011",
+        "state": "CLEAR"
+      },
+      "prev_hash": "babf5bc47d5c21b390b5d7417a069e8c5717403ccc3a35b8a7ca4084d9652264",
+      "hash": "4bbe2d94d70f5cbeed386094f6c8184238bfa0a683815ee24a7262933563e6eb"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "4bbe2d94d70f5cbeed386094f6c8184238bfa0a683815ee24a7262933563e6eb",
+      "hash": "bcc4e9dc17e8e481a27e64d2650af049066476879d86d07a889b08677c7ab191"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-012",
+        "sources": 2
+      },
+      "prev_hash": "bcc4e9dc17e8e481a27e64d2650af049066476879d86d07a889b08677c7ab191",
+      "hash": "69322b1d0b5eacb0af05582250bedcdf6c0fb821e778232882fb781f5d3b5e3a"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-012",
+        "state": "CLEAR"
+      },
+      "prev_hash": "69322b1d0b5eacb0af05582250bedcdf6c0fb821e778232882fb781f5d3b5e3a",
+      "hash": "2dbfd086066839a7ebe97add225edab142ca0a8a8784065a20c48330cb48aa9a"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "2dbfd086066839a7ebe97add225edab142ca0a8a8784065a20c48330cb48aa9a",
+      "hash": "90331950c2f6b3703020997ffe8b3163e5d9a27c416b4801ab9ef21f04c0e494"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-013",
+        "sources": 2
+      },
+      "prev_hash": "90331950c2f6b3703020997ffe8b3163e5d9a27c416b4801ab9ef21f04c0e494",
+      "hash": "428e090e96d66b7b2000202873319ac0b9871ee8500d372d77b350e8a50c911f"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-013",
+        "state": "CLEAR"
+      },
+      "prev_hash": "428e090e96d66b7b2000202873319ac0b9871ee8500d372d77b350e8a50c911f",
+      "hash": "f67e22d6af45fbb5ec736fcb4b019d8aa7bf4b0bfccf27f57490e2ca26d59cd9"
+    },
+    {
+      "body": {
+        "run_id": "run_demo",
+        "script_id": "demo_script_001",
+        "agent_id": "research_agent",
+        "action": "authorize",
+        "tool": "parallel.search.public_web",
+        "decision": "ALLOW",
+        "reason": "approved"
+      },
+      "prev_hash": "f67e22d6af45fbb5ec736fcb4b019d8aa7bf4b0bfccf27f57490e2ca26d59cd9",
+      "hash": "c782359c88bd0df5e6142d708bee1e8bcab3c3e6499fc57ac2973b6fc7033f61"
+    },
+    {
+      "body": {
+        "action": "evidence_returned",
+        "item_id": "CLR-014",
+        "sources": 0
+      },
+      "prev_hash": "c782359c88bd0df5e6142d708bee1e8bcab3c3e6499fc57ac2973b6fc7033f61",
+      "hash": "9e065abf3f3ce2cae76112c3cb79ccaeb45e042807660becdda9b05be5c7e268"
+    },
+    {
+      "body": {
+        "action": "policy_evaluated",
+        "item_id": "CLR-014",
+        "state": "INSUFFICIENT_EVIDENCE"
+      },
+      "prev_hash": "9e065abf3f3ce2cae76112c3cb79ccaeb45e042807660becdda9b05be5c7e268",
+      "hash": "a1f1bedf58b2e28d8cf8977b8868ae4b3a30afa43a9b69ecb3b61d19d200fb1e"
+    },
+    {
+      "body": {
+        "action": "report_generated"
+      },
+      "prev_hash": "a1f1bedf58b2e28d8cf8977b8868ae4b3a30afa43a9b69ecb3b61d19d200fb1e",
+      "hash": "3bc10d50ecab6c0d0498ce8e1a763b3973f4fa4fad4c2efbfafac606055d086b"
+    }
+  ]
+}
