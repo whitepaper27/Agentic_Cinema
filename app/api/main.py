@@ -95,6 +95,7 @@ class SceneRequest(BaseModel):
     mode: str = "live"                   # "live" | "example" (no silent fallback)
     source_type: str = "paste"           # "paste" | "images"
     title: str = "Untitled scene"
+    task: str = "plan"                   # "plan" | "review" | "improve" (sol.md §5)
     instruction: str = ""
     script_text: str | None = None
     images: list[str] = []               # data: URLs, validated server-side
@@ -134,6 +135,16 @@ class RecheckRequest(BaseModel):
 class FindingDecisionRequest(BaseModel):
     action: str                          # "keep" | "review" | "escalate"
     note: str = ""
+
+
+class CreativeProposalRequest(BaseModel):
+    instruction: str = ""
+    kind: str = "elaborate"              # "elaborate" | "dialogue"
+
+
+class CreativeDecisionRequest(BaseModel):
+    action: str                          # "accept" | "reject"
+    expected_version: int | None = None
 
 
 class ShootComparisonRequest(BaseModel):
@@ -396,7 +407,7 @@ def create_scene(req: SceneRequest, request: Request, response: Response) -> dic
     scene = scene_store.create_scene(
         owner, source_type=req.source_type, title=req.title,
         instruction=req.instruction, draft_scenes=draft, items=items,
-        provider_mode=mode, locks=req.locks,
+        provider_mode=mode, locks=req.locks, task=req.task,
     )
     return scene
 
@@ -576,6 +587,53 @@ def delete_scene(scene_id: str, request: Request, response: Response) -> dict:
     except OwnershipError as e:
         raise HTTPException(403, "not your scene") from e
     return {"deleted": scene_id}
+
+
+# ---------------- Creative proposals (sol.md §7 — no evidence required) ----------------
+
+
+@app.post("/scenes/{scene_id}/creative-proposals")
+def create_creative_proposal(scene_id: str, req: CreativeProposalRequest,
+                             request: Request, response: Response) -> dict:
+    """Propose AI-authored scene text; needs no factual finding (sol.md §7)."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    providers = _providers_for(scene.get("provider_mode", "example"))
+    try:
+        rev = revision.propose_creative(scene, req.instruction, req.kind, providers)
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+    scene_store.save_scene(scene)
+    return rev
+
+
+@app.post("/scenes/{scene_id}/creative-proposals/{proposal_id}/decision")
+def decide_creative_proposal(scene_id: str, proposal_id: str,
+                             req: CreativeDecisionRequest, request: Request,
+                             response: Response) -> dict:
+    """Accept or reject a creative proposal; accept creates a new scene version."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    try:
+        out = revision.decide_creative(scene, proposal_id, req.action,
+                                       expected_version=req.expected_version)
+    except KeyError as e:
+        raise HTTPException(404, f"proposal not found: {e}") from e
+    except ValueError as e:
+        code = 409 if str(e) == "stale_version" else 422
+        raise HTTPException(code, str(e)) from e
+    scene_store.save_scene(scene)
+    return out
 
 
 # ---------------- Shoot comparison (sol.md §6A / §9) ----------------

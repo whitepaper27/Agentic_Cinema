@@ -84,6 +84,7 @@ def create_scene(
     items: list[dict],
     provider_mode: str,
     locks: list[str] | None = None,
+    task: str = "plan",
 ) -> dict:
     """Persist a new scene at version 1 with its editable extraction draft."""
     scene_id = new_id("scene")
@@ -93,6 +94,7 @@ def create_scene(
         "owner": owner,
         "source_type": source_type,          # "paste" | "images"
         "title": title or "Untitled scene",
+        "task": task,                         # "plan" | "review" | "improve" (sol.md §5)
         "provider_mode": provider_mode,       # "live" | "example"
         "instruction": instruction,
         "locks": locks or [],

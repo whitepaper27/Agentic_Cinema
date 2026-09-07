@@ -77,6 +77,7 @@ def propose(run: dict, scene: dict, finding_id: str, providers: Providers) -> di
 
     rev = {
         "revision_id": f"REV-{len(run.get('revisions', [])) + 1:03d}",
+        "proposal_kind": "factual_correction",   # evidence-backed (sol.md §7)
         "finding_id": finding_id,
         "item_id": finding["item_id"],
         "scene": finding["scene"],
@@ -93,6 +94,79 @@ def propose(run: dict, scene: dict, finding_id: str, providers: Providers) -> di
     }
     run.setdefault("revisions", []).append(rev)
     return rev
+
+
+def propose_creative(scene: dict, instruction: str, kind: str, providers: Providers) -> dict:
+    """Propose an AI-authored creative edit against the scene (sol.md §7). Stored on
+    the scene, needs no run/finding, and carries no evidence — but still requires
+    acceptance and preserves locks. An empty original_text is an addition."""
+    version = scene["versions"][-1]
+    scene_text = "\n\n".join(s.get("text", "") for s in version["scenes"])
+    raw = providers.llm.propose_creative(scene_text, instruction, kind)
+    original = raw.get("original_text", "") or ""
+    proposed = raw.get("proposed_text", "")
+    if original and original not in scene_text:
+        raise ValueError("original_not_in_scene")
+
+    proposals = scene.setdefault("creative_proposals", [])
+    rev = {
+        "proposal_id": f"CRE-{len(proposals) + 1:03d}",
+        "proposal_kind": "creative_edit",     # AI-proposed creative text, no citations
+        "kind": kind,
+        "base_scene_version": scene["current_version"],
+        "original_text": original,
+        "proposed_text": proposed,
+        "rationale": raw.get("rationale", ""),
+        "status": "proposed",
+        "created_at": _now(),
+    }
+    proposals.append(rev)
+    return rev
+
+
+def decide_creative(scene: dict, proposal_id: str, action: str, *,
+                    expected_version: int | None = None) -> dict:
+    """Accept or reject a creative proposal (sol.md §7). Accept creates a new scene
+    version; an addition appends, a replacement swaps the exact span."""
+    rev = next((r for r in scene.get("creative_proposals", [])
+                if r["proposal_id"] == proposal_id), None)
+    if rev is None:
+        raise KeyError(proposal_id)
+    if action == "reject":
+        rev["status"] = "rejected"
+        rev["decided_at"] = _now()
+        return {"proposal": rev}
+    if action != "accept":
+        raise ValueError(f"unknown action: {action}")
+
+    current = scene["current_version"]
+    if expected_version is not None and expected_version != current:
+        raise ValueError("stale_version")
+    if rev["base_scene_version"] != current:
+        raise ValueError("stale_version")
+
+    base = scene["versions"][-1]
+    original, proposed = rev["original_text"], rev["proposed_text"]
+    new_scenes = [dict(s) for s in base["scenes"]]
+    if original:
+        for s in new_scenes:
+            if original in s.get("text", ""):
+                s["text"] = s["text"].replace(original, proposed, 1)
+                break
+    else:  # addition: append to the last scene
+        new_scenes[-1]["text"] = new_scenes[-1].get("text", "") + "\n\n" + proposed
+
+    new_version = current + 1
+    scene["versions"].append({
+        "version": new_version, "parent_version": current, "created_at": _now(),
+        "scenes": new_scenes, "items": base["items"],
+        "instruction": base["instruction"], "locks": base["locks"],
+    })
+    scene["current_version"] = new_version
+    rev["status"] = "accepted"
+    rev["decided_at"] = _now()
+    rev["result_scene_version"] = new_version
+    return {"proposal": rev, "scene_version": new_version}
 
 
 def decide(

@@ -130,6 +130,7 @@
 "use strict";
 const S = {                       // minimal frontend state (sol_ui.md §16)
   view:"analyze", mode:"paste",   // input mode: paste | images
+  task:"plan",                    // plan | review | improve (sol_ui.md §4)
   runMode:"live",                 // provider mode: live | example
   images:[],                      // {name, dataUrl}
   scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false, handoff:null,
@@ -201,24 +202,26 @@ document.querySelectorAll("nav .tab").forEach(t=>t.onclick=()=>setView(t.dataset
 
 /* ---------------- Analyze a scene ---------------- */
 function viewAnalyze(){
+  const TASKS=[["plan","Plan this shoot"],["review","Review factual details"],["improve","Improve this scene"]];
   return `<div class="card">
-    <h1>Make the smallest change your scene needs.</h1>
-    <p class="lede">Bring a storyboard or paste a scene. Investigate factual details,
-      compare evidence-backed revisions, and keep your creative intent.</p>
+    <h1>Find a practical way to film your scene.</h1>
+    <p class="lede">Bring a scene or storyboard. Compare a nearby location, a travel location, and
+      local filming with VFX using evidence and editable cost assumptions. Factual review and
+      scene rewriting are available too.</p>
     ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
+    <label>What do you want to do?</label>
+    <div class="seg" role="tablist" style="margin-bottom:14px">
+      ${TASKS.map(([k,l])=>`<button class="${S.task===k?"on":""}" data-task="${k}">${l}</button>`).join("")}
+    </div>
     <div class="seg" role="tablist">
       <button class="${S.mode==="images"?"on":""}" data-m="images">Storyboard / comic pages</button>
       <button class="${S.mode==="paste"?"on":""}" data-m="paste">Paste a scene</button>
     </div>
     ${S.mode==="images"?imagesInput():textInput()}
     <div style="margin-top:16px">
-      <label for="instr">What should we investigate or preserve?</label>
-      <textarea id="instr" rows="2" placeholder="Check historical accuracy. Preserve the characters, joke, and ending."></textarea>
-      <div class="chips">
-        <span class="chip" data-ins="Check factual details">Check factual details</span>
-        <span class="chip" data-ins="Investigate this reference">Investigate this reference</span>
-        <span class="chip" data-ins="Preserve my dialogue">Preserve my dialogue</span>
-      </div>
+      <label for="instr">What matters for this scene?</label>
+      <textarea id="instr" rows="2" placeholder="Keep the gold-touching power and dialogue. Compare practical locations with a local/VFX approach."></textarea>
+      <p class="hint">An empty instruction is not turned into a historical fact-check. Your fantasy premises are preserved.</p>
     </div>
     <p class="hint">Your material is read by Google Gemini; research questions are sent to Parallel.
       Nothing here promises legal clearance, automatic redrawing, or guaranteed accuracy.</p>
@@ -248,6 +251,7 @@ function imagesInput(){
 }
 function wireAnalyze(){
   document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;S.error="";render()});
+  document.querySelectorAll("[data-task]").forEach(b=>b.onclick=()=>{S.task=b.dataset.task;S.error="";render()});
   document.querySelectorAll("[data-ins]").forEach(c=>c.onclick=()=>{const t=el("instr");t.value=(t.value?t.value+" ":"")+c.dataset.ins});
   const txt=el("txt"); if(txt) txt.oninput=()=>{el("cc").textContent=txt.value.length};
   const file=el("file");
@@ -284,8 +288,9 @@ She lifts a Nikon camera to the window.`;
 
 async function readScene(mode){
   S.error=""; S.runMode=mode;
-  const instruction=(el("instr").value||"").trim()||"Check historical accuracy. Preserve the dialogue.";
-  let payload={mode,source_type:S.mode,instruction,title:"Scene"};
+  // No silent historical-accuracy fallback (sol_ui.md §4): empty instruction stays empty.
+  const instruction=(el("instr").value||"").trim();
+  let payload={mode,source_type:S.mode,task:S.task,instruction,title:"Scene"};
   if(mode==="example" && S.mode==="paste" && !(el("txt").value||"").trim()){
     // "Try an example" loads a built-in scene, analyzed in simulated mode.
     payload.script_text=EXAMPLE_SCENE; payload.title="Example scene";
@@ -332,7 +337,8 @@ function renderConfirm(){
     </div>
     <p class="hint">Editing confirmed text creates a new version and invalidates dependent findings.</p>
     <div class="row" style="margin-top:8px">
-      <button id="confirmBtn">${S.busy?'<span class="spin"></span> Researching…':'Confirm and research'}</button>
+      <button id="confirmBtn">${S.busy?'<span class="spin"></span> Working…':
+        (S.task==="plan"?'Confirm and plan the shoot':S.task==="improve"?'Confirm and review the scene':'Confirm and research')}</button>
       <button class="ghost" id="backBtn">Back</button>
     </div>
     ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
@@ -356,6 +362,9 @@ async function confirmAndResearch(){
   try{
     await api(`/scenes/${S.scene.scene_id}`,{method:"PATCH",body:JSON.stringify(
       {expected_version:S.scene.current_version,scenes,items,instruction,locks})});
+    S.scene=await refreshScene();
+    if(S.task==="plan"){ S.comparison=null; S.busy=false; S.view="shoot"; render(); return; }
+    // review / improve → run evidence research (creative writing also uses the desk)
     S.run=await api("/runs",{method:"POST",body:JSON.stringify(
       {scene_id:S.scene.scene_id,mode:S.runMode})});
     S.scene=await refreshScene();

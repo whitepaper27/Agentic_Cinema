@@ -49,6 +49,15 @@ class MockLLMProvider:
         # the live provider's job — the API must never use this for a live upload.
         return [ClearanceItem(**it) for it in self._items]
 
+    def propose_creative(self, scene_text, instruction, kind):
+        # Deterministic offline creative proposal: an addition (elaboration) that
+        # invents no facts and preserves the existing text/locks.
+        return {
+            "original_text": "",   # empty → an addition, appended to the scene
+            "proposed_text": "A held breath, then the room settles into quiet resolve.",
+            "rationale": "AI-proposed creative elaboration (no factual claim).",
+        }
+
     def propose_revision(self, scene_text, claim, evidence, instruction, locks):
         # Deterministic offline stand-in for a revision proposal. Correct the
         # claim's year to the year stated in the evidence; if none differs, make a

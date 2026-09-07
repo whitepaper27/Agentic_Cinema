@@ -30,6 +30,13 @@ class LLMProvider(Protocol):
         sources via research.evidence_normalizer.resolve_assessments."""
         ...
 
+    def propose_creative(self, scene_text: str, instruction: str, kind: str) -> dict:
+        """Propose optional AI-authored scene text (sol.md §7) — an elaboration or a
+        dialogue/action rewrite. Returns {original_text, proposed_text, rationale};
+        NO citations (it is creative, not researched). `original_text` empty means an
+        addition; otherwise a replacement. Preserves author fantasy premises."""
+        ...
+
     def propose_revision(
         self, scene_text: str, claim: str, evidence: list[dict],
         instruction: str, locks: list[str],
