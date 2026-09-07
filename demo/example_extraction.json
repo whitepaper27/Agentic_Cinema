@@ -1,0 +1,8 @@
+{
+  "_note": "Simulated extractor output for the labeled example (Try an example). Contains one intentional factual mismatch (Apollo year) and one ambiguous detail (sol.md §14). Not the eval answer key.",
+  "items": [
+    {"item_id": "CLR-001", "scene": 1, "type": "historical_claim", "text_span": "the Apollo 11 Moon landing in 1968", "context": "narration voice-over"},
+    {"item_id": "CLR-002", "scene": 1, "type": "historical_claim", "text_span": "the Berlin Wall fell in 1989", "context": "dialogue fact"},
+    {"item_id": "CLR-003", "scene": 1, "type": "brand", "text_span": "a Nikon camera", "context": "neutral prop reference"}
+  ]
+}

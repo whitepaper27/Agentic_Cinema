@@ -24,13 +24,85 @@ class ItemType(str, Enum):
 
 
 class ClearanceState(str, Enum):
-    """The only allowed output states (sol.md §13). No LEGAL/ILLEGAL/SAFE."""
+    """LEGACY triage states (schema v1). Retained only to read/label old saved
+    runs (sol.md §7 Compatibility). New runs use ResearchStatus + Routing."""
 
     CLEAR = "CLEAR"
     REVIEW = "REVIEW"
     ESCALATE = "ESCALATE"
     INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
     UNRESOLVED = "UNRESOLVED"
+
+
+class ResearchStatus(str, Enum):
+    """What the retrieved evidence says about a claim (sol.md §7). This is a
+    research finding, NOT a legal/clearance verdict and NOT a human decision."""
+
+    SUPPORTED = "SUPPORTED"          # applicable evidence meets the studio research policy
+    CONTRADICTED = "CONTRADICTED"    # applicable evidence directly challenges the claim
+    MIXED = "MIXED"                  # material support and contradiction, unresolved
+    UNRESOLVED = "UNRESOLVED"        # evidence/context/quality/applicability insufficient
+    NOT_RESEARCHED = "NOT_RESEARCHED"  # out of scope or skipped by a recorded budget
+    STALE = "STALE"                  # belongs to an older scene version; awaits recheck
+
+
+class Routing(str, Enum):
+    """Human-review routing, kept separate from research status (sol.md §7).
+    A factually SUPPORTED scene may still need rights/producer review."""
+
+    NONE = "NONE"
+    REVIEW = "REVIEW"
+    ESCALATE = "ESCALATE"
+
+
+class Relation(str, Enum):
+    """How one retrieved passage bears on a specific claim (sol.md §7)."""
+
+    SUPPORTS = "supports"
+    CONTRADICTS = "contradicts"
+    CONTEXT_ONLY = "context_only"
+    UNCLEAR = "unclear"
+
+
+class SourceType(str, Enum):
+    PRIMARY = "primary"
+    SECONDARY = "secondary"
+    UNKNOWN = "unknown"
+
+
+class Source(BaseModel):
+    """A raw retrieved source with a server-assigned immutable id (sol.md §7).
+
+    Passages are the exact retrieved text; a displayed quote must match one of
+    them. The model may reference `source_id` but never supplies `url`."""
+
+    source_id: str
+    url: str
+    title: str = ""
+    passages: list[str] = Field(default_factory=list)
+    query: str = ""
+    retrieved_at: str = ""
+    operation_id: str = ""
+    publisher: str = ""
+    independence: str = "unknown"      # "documented" | "unknown"
+
+
+class ClaimAssessment(BaseModel):
+    """A validated source/claim assessment (sol.md §7 claim-assessment table).
+
+    The model selects a stored `source_id` and passage; it never supplies a URL.
+    `publisher`/`independence` are resolved from the stored Source by code, not
+    the model, and drive the deterministic corroboration rule."""
+
+    source_id: str
+    relation: Relation
+    applicable: bool = False           # directly applicable to entity/date/place/scope
+    source_type: SourceType = SourceType.UNKNOWN
+    publisher: str = ""
+    independence: str = "unknown"      # "documented" | "unknown"
+    passage: str = ""                  # exact retrieved text, matched to the source
+    explanation: str = ""              # may paraphrase; never a substitute for the passage
+    limitations: str = ""
 
 
 class ClearanceItem(BaseModel):

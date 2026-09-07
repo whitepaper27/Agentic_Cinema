@@ -9,24 +9,35 @@ Parallel key (hybrid), or fully offline with neither.
 
 from __future__ import annotations
 
+import base64
+import binascii
 import uuid
 from pathlib import Path
 
 # --- Required partner runtimes, initialized at import for discoverability (§27) ---
 import google.adk as adk  # noqa: E402,F401  (agent orchestration layer)
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse
 from parallel import Parallel  # noqa: E402,F401  (runtime research/evidence engine)
 from pydantic import BaseModel
 
-from studioclear import store
+from studioclear import revision, scene_store, store
 from studioclear.agents.research_planner import build_planner  # noqa: E402
 from studioclear.agents.researcher import build_researcher  # noqa: E402
 from studioclear.agents.reviewer import build_reviewer  # noqa: E402
+from studioclear.analyzer.script_parser import parse_screenplay_text
 from studioclear.config import Config
 from studioclear.contract.clearance_contract import load_policy
+from studioclear.models import ClearanceItem
 from studioclear.pipeline import run_pipeline
-from studioclear.providers import build_providers, describe_providers
+from studioclear.providers import (
+    LiveKeysMissing,
+    build_providers,
+    build_providers_for_mode,
+    describe_providers,
+)
+from studioclear.research_pipeline import run_research
+from studioclear.scene_store import OwnershipError
 
 # The three ADK agents required by the track (§25/§27). Built lazily so the app
 # starts without credentials, but their builders are real google.adk Agents.
@@ -50,6 +61,92 @@ class DecisionRequest(BaseModel):
     item_id: str
     action: str                         # clear | send_to_review | escalate | override
     reason: str = ""
+
+
+# ---------------- Schema-v2 scene/research workflow (sol.md §9) ----------------
+
+# Input limits (sol.md §4). Enforced server-side; the UI mirrors them.
+MAX_TEXT_CHARS = 20_000
+MAX_IMAGES = 3
+MAX_IMAGE_BYTES = 4 * 1024 * 1024
+MAX_TOTAL_IMAGE_BYTES = 12 * 1024 * 1024
+ALLOWED_IMAGE_MIME = {"image/png", "image/jpeg", "image/webp"}
+
+
+class SceneRequest(BaseModel):
+    mode: str = "live"                   # "live" | "example" (no silent fallback)
+    source_type: str = "paste"           # "paste" | "images"
+    title: str = "Untitled scene"
+    instruction: str = ""
+    script_text: str | None = None
+    images: list[str] = []               # data: URLs, validated server-side
+    locks: list[str] = []
+
+
+class SceneUpdateRequest(BaseModel):
+    expected_version: int
+    scenes: list[dict] | None = None     # corrected transcript
+    items: list[dict] | None = None      # corrected candidate claims
+    instruction: str | None = None
+    locks: list[str] | None = None
+
+
+class RunRequest(BaseModel):
+    scene_id: str
+    mode: str = "live"                    # "live" | "example"
+    use_adk: bool = False
+
+
+class ReviseRequest(BaseModel):
+    finding_id: str
+
+
+class RevisionDecisionRequest(BaseModel):
+    run_id: str
+    action: str                          # "accept" | "reject"
+    expected_version: int | None = None
+    idempotency_key: str | None = None
+
+
+class RecheckRequest(BaseModel):
+    run_id: str                          # the prior (accepted) run
+    mode: str | None = None              # defaults to the prior run's mode
+
+
+def _session(request: Request, response: Response) -> str:
+    """Opaque per-visitor session id, set as an httponly cookie (sol.md §10)."""
+    sid = request.cookies.get("sc_session")
+    if not sid:
+        sid = scene_store.new_id("sess")
+        response.set_cookie("sc_session", sid, httponly=True, samesite="lax",
+                            max_age=86_400)
+    return sid
+
+
+def _decode_images(data_urls: list[str]) -> list[dict]:
+    """Validate and decode base64 data: URLs into {data, mime_type} (sol.md §4)."""
+    if len(data_urls) > MAX_IMAGES:
+        raise HTTPException(413, f"at most {MAX_IMAGES} pages")
+    out: list[dict] = []
+    total = 0
+    for i, url in enumerate(data_urls, start=1):
+        if not url.startswith("data:") or ";base64," not in url:
+            raise HTTPException(422, f"page {i}: not a base64 data URL")
+        header, b64 = url.split(";base64,", 1)
+        mime = header[5:]
+        if mime not in ALLOWED_IMAGE_MIME:
+            raise HTTPException(422, f"page {i}: unsupported type {mime}")
+        try:
+            raw = base64.b64decode(b64, validate=True)
+        except (binascii.Error, ValueError) as e:
+            raise HTTPException(422, f"page {i}: undecodable image") from e
+        if len(raw) > MAX_IMAGE_BYTES:
+            raise HTTPException(413, f"page {i}: exceeds {MAX_IMAGE_BYTES} bytes")
+        total += len(raw)
+        if total > MAX_TOTAL_IMAGE_BYTES:
+            raise HTTPException(413, "total image size exceeds limit")
+        out.append({"data": raw, "mime_type": mime})
+    return out
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -134,21 +231,35 @@ def _iam_checks() -> list[dict]:
     ]
 
 
-@app.get("/run/{run_id}")
-def get_run(run_id: str) -> dict:
+def _legacy_run(run_id: str) -> dict | None:
     report = store.load_run(run_id)
     if report is None:
-        raise HTTPException(404, "run not found")
-    # Read-only presentational fields for the Run view (claude_ui.md §7) — added
-    # at serve time so the determinism-locked run_pipeline / stored run are untouched.
+        return None
     report.setdefault("agents", _agents_meta())
     report.setdefault("iam_checks", _iam_checks())
     return report
 
 
+@app.get("/run/{run_id}")
+def get_run(run_id: str, request: Request, response: Response) -> dict:
+    """Read a run. Schema-v2 runs are session-scoped (scene_store); if none
+    matches, fall back to the legacy run store for the labeled legacy demo."""
+    owner = _session(request, response)
+    try:
+        v2 = scene_store.get_run(run_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your run") from e
+    if v2 is not None:
+        return v2
+    legacy = _legacy_run(run_id)
+    if legacy is None:
+        raise HTTPException(404, "run not found")
+    return legacy
+
+
 @app.get("/report/{run_id}")
-def get_report(run_id: str) -> dict:
-    return get_run(run_id)
+def get_report(run_id: str, request: Request, response: Response) -> dict:
+    return get_run(run_id, request, response)
 
 
 @app.get("/audit/{run_id}")
@@ -170,3 +281,196 @@ def decision(req: DecisionRequest) -> dict:
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
     return {"ok": True, "item": item}
+
+
+# ---------------- Schema-v2 endpoints (sol.md §9) ----------------
+
+
+def _extract_scene(req: SceneRequest):
+    """Run extraction for a scene request; returns (draft_scenes, items, mode).
+
+    Enforces no-silent-fallback: live mode without keys is a 503, never mock
+    fixtures over user material (sol.md §12)."""
+    try:
+        providers = build_providers_for_mode(req.mode, use_adk=False)
+    except LiveKeysMissing as e:
+        raise HTTPException(503, f"live providers unavailable: missing {e}") from e
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+
+    if req.source_type == "images":
+        images = _decode_images(req.images)
+        if not images:
+            raise HTTPException(422, "no pages provided")
+        items = providers.llm.extract_items_from_images(images)
+        # Page-linked transcript placeholder; corrected by the user before research.
+        draft = [{"scene": p, "text": "", "source": "image"}
+                 for p in range(1, len(images) + 1)]
+    else:
+        text = (req.script_text or "").strip()
+        if not text:
+            raise HTTPException(422, "no scene text provided")
+        if len(text) > MAX_TEXT_CHARS:
+            raise HTTPException(413, f"text exceeds {MAX_TEXT_CHARS} characters")
+        draft = parse_screenplay_text(text)
+        for s in draft:
+            s["source"] = "paste"
+        items = providers.llm.extract_items(draft)
+
+    return draft, [it.model_dump(mode="json") for it in items], req.mode
+
+
+@app.post("/scenes")
+def create_scene(req: SceneRequest, request: Request, response: Response) -> dict:
+    """Validate material, extract an editable draft, persist a v1 scene (sol.md §9)."""
+    owner = _session(request, response)
+    draft, items, mode = _extract_scene(req)
+    scene = scene_store.create_scene(
+        owner, source_type=req.source_type, title=req.title,
+        instruction=req.instruction, draft_scenes=draft, items=items,
+        provider_mode=mode, locks=req.locks,
+    )
+    return scene
+
+
+@app.get("/scenes/{scene_id}")
+def read_scene(scene_id: str, request: Request, response: Response) -> dict:
+    """Read a scene (session-scoped) so the client can recover its current version."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    return scene
+
+
+@app.patch("/scenes/{scene_id}")
+def update_scene(scene_id: str, req: SceneUpdateRequest, request: Request,
+                 response: Response) -> dict:
+    """Save a corrected transcript / intent / locks as a new scene version."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    try:
+        version = scene_store.update_scene_version(
+            scene, expected_version=req.expected_version, scenes=req.scenes,
+            items=req.items, instruction=req.instruction, locks=req.locks,
+        )
+    except ValueError as e:
+        raise HTTPException(409, str(e)) from e
+    return {"scene_id": scene_id, "current_version": scene["current_version"],
+            "version": version}
+
+
+@app.post("/runs")
+def create_run(req: RunRequest, request: Request, response: Response) -> dict:
+    """Research a confirmed scene version → schema-v2 findings (sol.md §7)."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(req.scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+
+    try:
+        providers = build_providers_for_mode(req.mode, use_adk=req.use_adk)
+    except LiveKeysMissing as e:
+        raise HTTPException(503, f"live providers unavailable: missing {e}") from e
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+
+    version = scene_store.latest_version(scene)
+    items = [ClearanceItem(**it) for it in version["items"]]
+    run_id = f"run_{uuid.uuid4().hex[:8]}"
+    report = run_research(
+        items, providers, run_id=run_id, scene_id=req.scene_id,
+        scene_version=scene["current_version"], provider_mode=req.mode,
+    )
+    report["title"] = scene["title"]
+    report["instruction"] = version.get("instruction", "")
+    scene_store.save_run(report, owner)
+    return report
+
+
+def _load_run_and_scene(run_id: str, owner: str) -> tuple[dict, dict]:
+    try:
+        run = scene_store.get_run(run_id, owner=owner)
+        if run is None:
+            raise HTTPException(404, "run not found")
+        scene = scene_store.get_scene(run["scene_id"], owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your run") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    return run, scene
+
+
+def _providers_for(mode: str):
+    try:
+        return build_providers_for_mode(mode, use_adk=False)
+    except LiveKeysMissing as e:
+        raise HTTPException(503, f"live providers unavailable: missing {e}") from e
+    except ValueError as e:
+        raise HTTPException(422, str(e)) from e
+
+
+@app.post("/runs/{run_id}/revisions")
+def propose_revision(run_id: str, req: ReviseRequest, request: Request,
+                     response: Response) -> dict:
+    """Propose an evidence-backed edit against the current scene version (sol.md §8)."""
+    owner = _session(request, response)
+    run, scene = _load_run_and_scene(run_id, owner)
+    providers = _providers_for(run.get("provider_mode", "example"))
+    try:
+        rev = revision.propose(run, scene, req.finding_id, providers)
+    except KeyError as e:
+        raise HTTPException(404, f"finding not found: {e}") from e
+    except ValueError as e:
+        # e.g. no_applicable_evidence, original_not_in_scene
+        raise HTTPException(422, str(e)) from e
+    scene_store.save_run(run, owner)
+    return rev
+
+
+@app.post("/revisions/{revision_id}/decision")
+def decide_revision(revision_id: str, req: RevisionDecisionRequest,
+                    request: Request, response: Response) -> dict:
+    """Accept or reject a proposal; accept creates a new scene version (sol.md §8)."""
+    owner = _session(request, response)
+    run, scene = _load_run_and_scene(req.run_id, owner)
+    try:
+        out = revision.decide(run, scene, revision_id, req.action,
+                              expected_version=req.expected_version,
+                              idempotency_key=req.idempotency_key)
+    except KeyError as e:
+        raise HTTPException(404, f"revision not found: {e}") from e
+    except ValueError as e:
+        code = 409 if str(e) in ("stale_version", "lock_conflict") else 422
+        raise HTTPException(code, str(e)) from e
+    scene_store.save_run(run, owner)
+    scene_store.save_scene(scene)
+    return out
+
+
+@app.post("/scenes/{scene_id}/recheck")
+def recheck_scene(scene_id: str, req: RecheckRequest, request: Request,
+                  response: Response) -> dict:
+    """Re-research the changed scene version and report claim lineage (sol.md §8)."""
+    owner = _session(request, response)
+    prior, scene = _load_run_and_scene(req.run_id, owner)
+    if scene["scene_id"] != scene_id:
+        raise HTTPException(422, "scene_id does not match the run")
+    mode = req.mode or prior.get("provider_mode", "example")
+    providers = _providers_for(mode)
+    new_run_id = f"run_{uuid.uuid4().hex[:8]}"
+    new_run = revision.recheck(scene, providers, prior, new_run_id, provider_mode=mode)
+    new_run["title"] = scene["title"]
+    scene_store.save_run(new_run, owner)
+    return new_run

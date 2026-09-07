@@ -1,323 +1,1125 @@
-# claude_ui.md — StudioClear UI, built to be judged
+# claude_ui.md — StudioClear UI, built to feel like a real product
 
-Companion to: `SOL.md` (frozen build contract)
-Frontend: `app/frontend/index.html` — one file, no framework, no build step
-Status: BUILD SPEC — sized for one day (Sep 7), freeze at end of day
-Supersedes: `sol_ui_win.md` where the two disagree
-
----
-
-## 0. The bet this spec makes
-
-Judges score four equal criteria. A UI can win or lose exactly one of them outright — **Design: "a complete, coherent product experience, not a technical proof of concept."** It can also quietly _lose_ Technological Implementation if anything on screen looks scripted.
-
-So this spec optimizes for two things and nothing else:
-
-1. A producer can finish their job on the default screen without reading anything.
-2. Every technical claim on screen is one click from the data that proves it.
-
-The agent graph is not the hero. The evidence is. A judge who clicks CLR-009 and sees three real Parallel sources with real timestamps and a policy rule that explains the verdict has just verified Gemini, Parallel, policy, and traceability in one motion. No graph does that.
+Companion to: `SOL.md` (frozen product / execution plan)  
+Frontend: `app/frontend/index.html`  
+Status: **FINAL UI BUILD SPEC**  
+Purpose: define the frontend experience for a real, user-driven StudioClear product — not a canned demo.
 
 ---
 
-## 1. Three views, one default
+# 0. Product experience we are building
+
+StudioClear is not a static demo that only replays `Midnight Signal`.
+
+The real product flow is:
 
 ```text
-[ Decision desk ]   [ Run ]   [ Report ]
+USER UPLOAD
+    ↓
+OPTIONAL RESEARCH INSTRUCTION
+    ↓
+STUDIO POLICY
+    ↓
+GOOGLE ADK AGENTS
+    ↓
+PARALLEL RESEARCH
+    ↓
+SOURCE-BACKED FINDINGS
+    ↓
+POLICY TRIAGE
+    ↓
+HUMAN DECISION
+    ↓
+TRACEABLE REPORT
 ```
 
-- **Decision desk** — default. The producer's work surface.
-- **Run** — how the agents did it. Graph, trust, audit. For technical judges.
-- **Report** — the deliverable. Printable. This is what "leaves with the script."
+The deterministic demo fixture still exists, but only as a **judge-safe fallback**.
 
-No fourth tab. No settings. No login screen.
+The product must prove:
+
+> **The judge can upload their own script, give StudioClear a research focus, and watch the same real pipeline run on new input.**
 
 ---
 
-## 2. Decision desk (default screen)
+# 1. UI principles
+
+The UI should feel like enterprise studio software that could be used Monday morning.
+
+It must not feel like:
 
 ```text
-┌────────────────────────────────────────────────────────────────────────────────┐
-│ StudioClear                                          Midnight Signal · v1      │
-│ Script clearance research desk                       Run 009 · completed 14:02 │
-├────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                │
-│  Analyzer ✓ 14 items   Planner ✓ 3 batches   Parallel ✓ 28 sources             │
-│  Policy ✓ 14 evaluated   Authorization · 1 request denied   Waiting on you: 5  │
-│                                                                                │
-├───────────────────────────────────────────────┬────────────────────────────────┤
-│  Items needing your decision (5)              │                                │
-│                                               │   CLR-007  Brand reference     │
-│  CLR-007  Brand reference   sc.4   REVIEW     │   Scene 4                      │
-│  CLR-011  Living person     sc.6   ESCALATE   │                                │
-│  CLR-012  Living person     sc.9   ESCALATE   │   ┃ "...she slams the         │
-│  CLR-003  Song reference    sc.2   REVIEW     │   ┃  [brand] on the counter   │
-│  CLR-014  Medical claim     sc.11  INSUFF.    │   ┃  and says it's worthless" │
-│                                               │                                │
-│  Cleared to continue (9)                 ▸    │   Recommendation               │
-│                                               │   ┌──────────┐                 │
-│                                               │   │  REVIEW  │  brand_disp... │
-│                                               │   └──────────┘  → human review│
-│                                               │                                │
-│                                               │   Evidence — 2 sources         │
-│                                               │   via Parallel Search, 14:01   │
-│                                               │   1  <title>                   │
-│                                               │      <excerpt>                 │
-│                                               │      example.com  · 14:01:22   │
-│                                               │   2  <title>                   │
-│                                               │      <excerpt>                 │
-│                                               │      example.org  · 14:01:23   │
-│                                               │                                │
-│                                               │   Your decision                │
-│                                               │   [Clear] [Send to legal]      │
-│                                               │   [Override recommendation…]   │
-│                                               │                                │
-└───────────────────────────────────────────────┴────────────────────────────────┘
+a black AI dashboard
+a hackathon control panel
+a scripted demo
+a chatbot
+a table with hidden backend complexity
 ```
 
-Rules for this screen:
+It should feel like:
 
-- The list is sorted by **what needs the producer**, not by item ID. Items already CLEAR are collapsed under one row. The producer's queue is the first thing on screen.
-- Selecting a row loads the right pane. No modal, no drawer animation. Click, read, decide.
-- The status strip (row 3) is the _only_ place the agent pipeline appears on this screen. Each chip is a link into the Run view at that node. It is the entire "this is agentic" argument on the producer's screen, and it is enough.
-- "Waiting on you: 5" is the single number that tells a judge this is a human-in-the-loop product, not an autopilot.
+```text
+professional
+light
+calm
+production-ready
+evidence-driven
+human-controlled
+enterprise-governed
+```
 
-### 2.1 The evidence pane is the hero
+The default user story is:
 
-This pane is where Design and Technological Implementation are both won. It must show, in this order:
-
-1. Script context — the actual text span, quoted, with scene number. Set in the screenplay face.
-2. Recommendation — one verdict stamp, plus the policy rule ID that produced it and the rule's action in plain words ("brand disparagement → human review"). Clicking the rule ID opens the policy table filtered to that rule.
-3. Evidence — every source: title, excerpt, domain, retrieval time, a real link. Header says _via Parallel Search_ with the batch ID. If evidence is insufficient, say so and show what was searched.
-4. Your decision — three actions. "Override recommendation…" requires a reason field before it enables. After any decision the stamp updates and a line appears at the bottom: _Recorded · audit #051 · 14:07:12_.
-
-Nothing on this pane is decorative. If a field has no data, hide it rather than show a dash.
-
-### 2.2 Copy rules
-
-- Buttons say what happens: "Send to legal", not "Escalate"; "Clear to continue", not "Approve".
-- The system never says _cleared_, _legal_, _safe_, or _approved_ about itself. Agents _recommend_. Producers _decide_.
-- Sentence case everywhere. No tracked-out uppercase labels except the verdict stamps.
-- Empty and error states give the next action: "No script loaded. Upload a PDF or load the demo script." / "Parallel search timed out on batch B. Retry batch."
+> **Upload a script. Tell StudioClear what to focus on. Review what the agents found. Make the decision.**
 
 ---
 
-## 3. Run view
+# 2. Visual identity
 
-Two columns. Left: what the agents did. Right: what they were allowed to do.
+## 2.1 Palette
+
+Use a professional light enterprise visual system.
 
 ```text
-┌──────────────────────────────────────┬─────────────────────────────────────────┐
-│  Execution                           │  Authority                              │
-│                                      │                                         │
-│  Script upload            ✓  14:00:41│  Acting as                              │
-│    │                                 │    producer_123 → run_009 → researcher  │
-│  Script analyzer          ✓  14:00:58│                                         │
-│    14 items · Gemini <model>         │  Effective access = intersection of     │
-│    │                                 │    user · script · agent · tool · IAM   │
-│  Research planner         ✓  14:01:03│                                         │
-│    ├─ Batch A  brands/orgs   4 items │  Researcher may                         │
-│    ├─ Batch B  people/events 5 items │    ✓ parallel.search.public_web         │
-│    └─ Batch C  facts/medical 5 items │    ✓ evidence.write                     │
-│    │                                 │    ✕ final_legal_clearance              │
-│  Authorization gate                  │    ✕ iam.modify                         │
-│    ✓ parallel.search    ALLOW        │                                         │
-│    ✕ legal_database     DENY 14:01:04│  Denied this run                        │
-│    │                                 │    unapproved_legal_database.search     │
-│  Parallel Search          ✓  14:01:31│    tool_not_authorized · audit #049     │
-│    3 calls · 28 sources · 14/14 items│    Planner replanned → Parallel         │
-│    │                                 │                                         │
-│  Reviewer / policy        ✓  14:01:38│  Cloud IAM (service identity)           │
-│    9 clear · 3 review · 2 escalate   │    studioclear-researcher@…             │
-│    │                                 │    ✓ Secret Manager: parallel-api-key   │
-│  Human decisions          ● 5 waiting│    ✕ <resource outside project>         │
-│                                      │                                         │
-├──────────────────────────────────────┴─────────────────────────────────────────┤
-│  Audit — 51 events                                              [Show raw JSON]│
-│  #049  14:01:04  authz.deny      researcher  unapproved_legal_database.search  │
-│  #050  14:01:05  plan.replanned  planner     batch_b → parallel.search         │
-│  #051  14:07:12  human.override  producer    CLR-003  reason: "…"              │
-└────────────────────────────────────────────────────────────────────────────────┘
+Background       #F7F8FA
+Surface          #FFFFFF
+Primary text     #18212F
+Secondary text   #667085
+Border           #E4E7EC
+Primary accent   #2457C5 or similarly restrained enterprise blue
+
+CLEAR             #2F7A4F
+REVIEW            #A8780A
+ESCALATE          #B23A2E
+INSUFFICIENT      #6B5B95
+
+ALLOW             #2F7A4F
+DENY              #B23A2E
+RUNNING           #2457C5
+```
+
+Color is used for state, not decoration.
+
+## 2.2 Type
+
+```text
+UI / reading      system sans-serif
+Script excerpts   Courier / monospace
+IDs / trace IDs   monospace
+```
+
+No external font dependency required.
+
+## 2.3 Avoid
+
+```text
+✕ neon
+✕ glowing nodes
+✕ particle backgrounds
+✕ agent avatars
+✕ excessive cards
+✕ giant metrics wall
+✕ fake terminal animation
+✕ fake "AI thinking"
+```
+
+---
+
+# 3. Entry / enterprise trust screen
+
+The first screen establishes that this is real studio software.
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ StudioClear                                      Google Cloud│
+│                                                              │
+│              Script clearance intelligence                   │
+│                                                              │
+│  Upload a production script.                                 │
+│  Let agents research what needs attention.                   │
+│  Keep final decisions with the studio.                       │
+│                                                              │
+│                [ Continue with Google ]                       │
+│                                                              │
+│                         or                                   │
+│                                                              │
+│                [ Open Demo Workspace ]                        │
+│                                                              │
+│      Governed agents · source-backed evidence · audit        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+Important:
+
+- Judges must never be blocked by authentication.
+- `Open Demo Workspace` must work without provisioning.
+- If real login exists, use it.
+- If login is not fully implemented, do not fake enterprise authentication.
+
+---
+
+# 4. Enterprise workspace shell
+
+After entry:
+
+```text
+┌──────────────────────────────────────────────────────────────────────┐
+│ StudioClear        Demo Studio ▾                Search      User ▾   │
+├──────────────────┬───────────────────────────────────────────────────┤
+│                  │                                                   │
+│ + New clearance  │                                                   │
+│                  │                                                   │
+│ Projects         │                                                   │
+│ Runs             │                                                   │
+│ Reports          │                                                   │
+│                  │                                                   │
+│ Evidence         │                                                   │
+│ Agents           │                                                   │
+│                  │                                                   │
+│ Governance       │                                                   │
+│  Policy          │                                                   │
+│  Access & roles  │                                                   │
+│  Audit           │                                                   │
+│                  │                                                   │
+└──────────────────┴───────────────────────────────────────────────────┘
+```
+
+Left navigation is persistent.
+
+Do not create empty pages just to look enterprise.
+
+Only show sections with real data.
+
+---
+
+# 5. New Clearance — default screen
+
+This is the single most important change from the prior UI.
+
+The product starts from **real user input**, not from a fixed demo.
+
+```text
+New clearance
+
+
+1  Upload production material
+
+┌───────────────────────────────────────────────────────┐
+│                                                       │
+│             Drop your screenplay here                 │
+│                                                       │
+│                   PDF · TXT                           │
+│                                                       │
+│                  [ Browse files ]                     │
+└───────────────────────────────────────────────────────┘
+
+
+2  Research instructions (optional)
+
+┌───────────────────────────────────────────────────────┐
+│ Focus on factual claims, living people, brands,      │
+│ historical references, and medical statements.       │
+└───────────────────────────────────────────────────────┘
+
+
+3  Studio policy
+
+[ Production Standard v1 ▾ ]
+
+
+                [ Start research ]
+
+
+──────────────────── or ────────────────────
+
+             [ Try Midnight Signal ]
+```
+
+This screen proves StudioClear is not hard-coded.
+
+---
+
+# 6. Research instruction examples
+
+The prompt does **not** rewrite the script.
+
+It changes the research focus.
+
+Examples:
+
+```text
+"Check every scientific claim."
+
+"Focus on brands and living people."
+
+"Verify historical references with at least two sources."
+
+"Find all medical claims that need producer review."
+
+"Research every real-world location."
+
+"Prioritize references that could require human/legal review."
+```
+
+The prompt should influence the ADK Planner.
+
+Example:
+
+```text
+USER INSTRUCTION
+
+"Focus on scientific and medical claims."
+
+        ↓
+
+ADK PLANNER
+
+Batch A
+Scientific claims      6
+
+Batch B
+Medical claims         3
+
+Batch C
+People / brands        lower priority
+```
+
+The run plan should visibly differ when the instruction differs.
+
+---
+
+# 7. Supported input scope
+
+For the hackathon P0:
+
+```text
+PDF screenplay
+TXT script
+```
+
+Only show additional formats if the backend actually supports them.
+
+Do not advertise:
+
+```text
+comic
+storyboard
+image
+FDX
+DOCX
+```
+
+unless those paths really work end to end.
+
+---
+
+# 8. Main project navigation
+
+Once the run starts:
+
+```text
+Decision desk
+Run
+Report
+```
+
+No fourth tab.
+
+No settings tab.
+
+No architecture tab.
+
+Technical details live in `Run`.
+
+---
+
+# 9. Decision Desk — default project view
+
+This is where the producer works.
+
+```text
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ StudioClear                                          Midnight Signal · v1    │
+│ Script clearance research desk                      Run 009 · completed      │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ Analyzer ✓ 14 items   Planner ✓ 3 batches   Parallel ✓ 28 sources           │
+│ Policy ✓ 14 evaluated   Authorization · 1 denied   Waiting on you: 5         │
+│                                                                              │
+├───────────────────────────────────────────────┬──────────────────────────────┤
+│ Items needing your decision                   │                              │
+│                                               │ CLR-009                      │
+│ CLR-009  Historical claim      REVIEW         │ Historical claim             │
+│ CLR-011  Living person         ESCALATE       │ Scene 6                      │
+│ CLR-003  Song reference        REVIEW         │                              │
+│ CLR-014  Medical claim         INSUFFICIENT   │ Script context               │
+│ CLR-007  Brand reference       REVIEW         │ "..."                        │
+│                                               │                              │
+│ Clear to continue (9)                    ▸    │ Recommendation               │
+│                                               │ REVIEW                       │
+│                                               │                              │
+│                                               │ Policy basis                 │
+│                                               │ historical_claim             │
+│                                               │ minimum_sources = 2          │
+│                                               │                              │
+│                                               │ Parallel evidence            │
+│                                               │ 3 sources                    │
+│                                               │                              │
+│                                               │ Your decision                │
+│                                               │ [Clear to continue]          │
+│                                               │ [Send to legal]              │
+│                                               │ [Override recommendation]    │
+└───────────────────────────────────────────────┴──────────────────────────────┘
 ```
 
 Rules:
 
-- The execution column is a **vertical list with real timestamps**, not a canvas graph. It is derived entirely from the audit events. It is buildable in two hours and cannot be accused of being scripted. If the full node graph gets built later (P2), it replaces this column; the data is the same.
-- Every node line shows the count that proves it ran. Every count comes from the report or audit objects (see §7).
-- The DENY appears in the execution column, the authority column, and the audit table — one event, rendered three ways. Do not invent a second denial for effect.
-- StudioClear AuthZ and Cloud IAM are separate blocks with separate headings. Never merge them; the distinction is the architectural point.
-- The audit table is the source of truth. Raw JSON is one click away, never the default.
-
-### 3.1 Live run vs. replay
-
-Two entry points, clearly labeled:
-
-- **Load demo run** — instant. Shows a completed run 009 from stored data. This is what a judge sees at t+0 when they open the hosted URL. It is real data from a real run; the header says _completed 14:02, Sep 8_.
-- **Run live** — kicks off a real pipeline on the demo script with live Parallel calls. The status strip and execution list update by polling `/run/{id}` every 2s. Nodes turn from pending to running to done as events arrive. No fixed cadence. If Parallel takes 20 seconds, the UI waits 20 seconds and says _searching batch B…_.
-
-Never animate ahead of data.
+- Sort by **needs human decision** first.
+- Collapse already-clear items.
+- Selecting a row updates the right pane.
+- No modal required.
+- `Waiting on you: N` is prominent.
+- Every visible count comes from real run data.
 
 ---
 
-## 4. Report view
+# 10. Evidence pane — hero technical proof
 
-A single scrolling document, printable to PDF from the browser.
+This is the strongest product surface.
+
+For every item show, in this order:
+
+## 10.1 Script context
 
 ```text
-Script clearance research report
-Midnight Signal · v1 · run 009 · generated <timestamp>
+Scene 6
 
-References detected     14
-Evidence-backed         14
-Independent citations   28
-Clear to continue        9
-Review                   3
-Escalate                 2
-Human decisions          5   (1 override)
-Unauthorized tool calls  1 blocked
-
-────────────────────────────────────────────────
-CLR-007  Brand reference                     Scene 4
-Script:   "…"
-Recommendation:  REVIEW  —  brand_disparagement → human review
-Evidence:  [1] title · domain · retrieved 14:01:22
-           [2] title · domain · retrieved 14:01:23
-Decision:  Sent to legal · producer_123 · 14:05:40 · audit #050
-────────────────────────────────────────────────
-… 13 more
+"..."
 ```
 
-Footer: _Agents research and recommend. The studio clears._ — the only place the tagline appears in the product.
-
-Every summary number is computed client-side from `report.items[]`, never typed in.
-
----
-
-## 5. Visual identity
-
-Ground it in the object this replaces: the clearance binder that sits on a production coordinator's desk — script pages, a rubber verdict stamp, a sources log.
-
-**Palette**
-
-| Role         | Hex       | Note                           |
-| ------------ | --------- | ------------------------------ |
-| Paper        | `#F3F4F1` | cool archival white, not cream |
-| Ink          | `#1C2331` | navy-black for text and rules  |
-| Rule         | `#BFC4BD` | dividers, disabled             |
-| Clear        | `#2F7A4F` |                                |
-| Review       | `#A8780A` |                                |
-| Escalate     | `#B23A2E` |                                |
-| Insufficient | `#6B5B95` |                                |
-
-Color is reserved for **state**: verdicts, allow/deny, running. Nothing else is colored. A judge's eye lands on stamps and denials because nothing competes.
-
-**Type**
-
-- UI: IBM Plex Sans, 15px base, weights 400/600 only.
-- Script excerpts and item IDs: Courier Prime — the screenplay face, used only where the content _is_ screenplay or an ID. Not for labels, not for numbers, not for "cinematic" flavor.
-
-**The one memorable element**
-
-The verdict stamp. Rendered as a bordered rectangle, 1.5px ink-colored border in the verdict color, slight rotation (−1.5°), letterspaced uppercase. It is the only uppercase, the only rotated element, and the only thing on the page that looks like an object. When a producer clicks a decision, the stamp changes — that is the one moment of motion in the product.
-
-**Do not**
-
-- No cards-with-shadows grid. Content is separated by rules and whitespace.
-- No page-load fade-ins, no pulsing nodes, no particle backgrounds, no avatars.
-- No provider logos anywhere in the UI. Parallel, Gemini, ADK, Cloud IAM appear as text in the status strip and Run view.
-- No middle-dot chains in headings. Dots are allowed in metadata lines only (timestamps, domains).
-
----
-
-## 6. Demo-safe mode
-
-`?demo_safe=1` (also default when hostname is the Cloud Run URL):
-
-- Source domains are shown; page titles and excerpts are shown; no favicons or logos fetched.
-- Demo script uses real, neutral, well-sourced entities for facts / locations / organizations, and fictional names for the "negative context" items. Fictional items resolve to INSUFFICIENT EVIDENCE → ESCALATE, which is the honest and correct behavior.
-- No item in the demo script portrays a real person or brand negatively. (Rules prohibit disparaging content and third-party trademarks in the video.)
-
-Live Parallel calls are unaffected.
-
----
-
-## 7. Data contract
-
-Every number on screen maps to a field. If the field doesn't exist, the number doesn't appear.
+## 10.2 Agent recommendation
 
 ```text
-status strip counts        report.summary.*
-items table                report.items[]
-script excerpt             item.text_span, item.scene
-recommendation + rule      item.recommendation, item.policy_rule_id, policy.rules[id]
-evidence                   item.evidence[] (source_url, title, excerpt, retrieved_at)
-batch label                item.batch_id → report.batches[]
-model name                 run.agents[].model   (never hardcoded)
-execution list             audit.events[] filtered by type, ordered by ts
-allow / deny               audit.events[] where type in (authz.allow, authz.deny)
-IAM block                  run.iam_checks[]      (read-only; add to /run output if missing)
-human decisions            item.human_decision + audit.events[] type human.*
-report totals              computed from report.items[] in the browser
+REVIEW
 ```
 
-Backend additions permitted before freeze: **only** read-only fields on the existing `/run/{id}` response (`agents[]`, `iam_checks[]`) if they are not already there. No new endpoints. No pipeline changes.
-
----
-
-## 8. Build order — Sep 7
-
-Single `index.html`, vanilla JS, fetch against the existing API. Hours are estimates for one person.
-
-| #   | What                                                                         | Hours | Done when                            |
-| --- | ---------------------------------------------------------------------------- | ----- | ------------------------------------ |
-| 1   | Shell: header, three-tab switch, status strip from `report.summary`          | 1.5   | Tabs switch, counts real             |
-| 2   | Decision desk: queue table sorted by needs-decision, collapsed cleared group | 1.5   | Click row → pane loads               |
-| 3   | Evidence pane: excerpt, stamp, rule, sources with links + times              | 2     | Judge can verify a Parallel source   |
-| 4   | Decisions: three actions, override reason gate, audit line on success        | 1.5   | Stamp updates, audit grows           |
-| 5   | Run view: execution list from audit, authority column, DENY in 3 places      | 2     | DENY visible with timestamp + reason |
-| 6   | Report view + print stylesheet                                               | 1     | Prints to a clean PDF                |
-| 7   | Load demo run / Run live with polling                                        | 1     | Cold URL shows data in <2s           |
-| 8   | Demo-safe mode, empty/error states, keyboard focus                           | 1     | No dashes, no blank panes            |
-
-**Freeze at end of step 8.** ~11.5 hours. If behind schedule at step 5, cut the authority column to a single DENY card and move on.
-
-**Not built this hackathon:** canvas node graph, capability matrix, trace inspector, replay animation, architecture overlay (put the Mermaid in the README — judges read it there).
-
----
-
-## 9. Three-minute demo on this UI
+Plus:
 
 ```text
-0:00–0:15  Decision desk, empty. "Before a studio shoots, someone researches
-           every name, brand, claim." Upload Midnight Signal.
-0:15–0:40  Status strip fills as the live run progresses. Queue populates.
-           "14 items. 5 need me. Parallel found 28 sources."
-0:40–1:15  Click CLR-009 (historical claim). Read the excerpt. Show the rule:
-           2 sources required. Show 3 sources, click one, it opens.
-           "Every verdict shows me why, and where the evidence came from."
-1:15–1:35  Click CLR-011 (living person). ESCALATE. "Policy says this is a human
-           call. The system never clears it."
-1:35–1:55  Run tab. Execution list. Point at the DENY: researcher asked for a
-           tool outside its registry, denied, audited, planner replanned to
-           Parallel. Authority column: what the agent may and may not do.
-1:55–2:30  Back to desk. Clear one. Send one to legal. Override one with a
-           reason. Audit count ticks each time.
-2:30–2:50  Report tab. Scroll. "14 references, 28 citations, every decision
-           traceable to a source, a rule, and a person."
-2:50–3:00  "Agents research and recommend. The studio clears."
+policy rule
+plain-English action
 ```
 
-The Run tab gets 20 seconds. The producer's work gets 90. That ratio is the point.
+Example:
+
+```text
+historical_claim
+→ verify with at least 2 independent sources
+```
+
+## 10.3 Parallel evidence
+
+```text
+via Parallel Search
+Batch C
+
+Source 1
+Title
+Excerpt
+Domain
+Retrieved 14:01:22
+[Open source]
+
+Source 2
+...
+```
+
+No fabricated URL.
+
+No source appears unless it exists in backend data.
+
+## 10.4 Human decision
+
+```text
+[ Clear to continue ]
+[ Send to legal ]
+[ Override recommendation ]
+```
+
+Override requires a reason before submission.
+
+After action:
+
+```text
+Recorded
+audit #051
+14:07:12
+```
 
 ---
 
-## 10. How this scores
+# 11. Copy rules
 
-| Criterion                    | What the judge sees                                              | Risk if this spec is followed                     |
-| ---------------------------- | ---------------------------------------------------------------- | ------------------------------------------------- |
-| Technological implementation | Real sources, real timestamps, real DENY, model name from config | Low — nothing is animated ahead of data           |
-| Design                       | A producer finishes a real task in one screen; report prints     | Low — this is the criterion the spec is built for |
-| Potential impact             | "Waiting on you: 5" and the report make the workflow tangible    | Low                                               |
-| Quality of idea              | Unchanged from SOL.md                                            | None added, none lost                             |
+Use human language.
 
-The only way this UI loses is if step 3 (evidence pane) is shipped half-done. Protect that step above all others.
+Preferred:
+
+```text
+Clear to continue
+Send to legal
+Needs review
+Not enough evidence
+Try again
+Retry research
+```
+
+Avoid:
+
+```text
+Approve
+Legal
+Legally cleared
+Safe from liability
+AI approved
+```
+
+The system recommends.
+
+The human decides.
+
+---
+
+# 12. Run view — real AI working
+
+This is the technical judge view.
+
+Two columns:
+
+```text
+Execution
+Authority
+```
+
+Example:
+
+```text
+┌──────────────────────────────────────┬─────────────────────────────────────────┐
+│ Execution                            │ Authority                               │
+│                                      │                                         │
+│ Upload                    ✓ 14:00:41 │ Acting as                               │
+│   │                                  │ producer_123 → run_009 → researcher    │
+│ Analyzer                  ✓ 14:00:58 │                                         │
+│   14 items · Gemini                  │ Effective access                         │
+│   │                                  │ user ∩ script ∩ agent ∩ tool ∩ IAM     │
+│ Planner                   ✓ 14:01:03 │                                         │
+│   ├ Batch A brands        4 items    │ Researcher may                          │
+│   ├ Batch B people        5 items    │ ✓ parallel.search.public_web            │
+│   └ Batch C facts         5 items    │ ✓ evidence.write                        │
+│   │                                  │ ✕ final_legal_clearance                 │
+│ Authorization                       │ ✕ iam.modify                            │
+│   ✓ Parallel            ALLOW       │                                         │
+│   ✕ legal_database      DENY        │ Denied this run                         │
+│   │                                  │ unapproved_legal_database.search        │
+│ Parallel Search           ✓         │ reason: tool_not_authorized             │
+│   3 calls · 28 sources             │                                         │
+│   │                                  │ Cloud IAM                               │
+│ Reviewer                  ✓         │ service identity                        │
+│   9 clear · 3 review · 2 escalate │ ✓ Secret Manager                        │
+│   │                                  │ ✕ unrelated project resource           │
+│ Human                     ● waiting │                                         │
+├──────────────────────────────────────┴─────────────────────────────────────────┤
+│ Audit — verified                                                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# 13. Execution trace rules
+
+The execution list must come from real events.
+
+Possible states:
+
+```text
+pending
+running
+done
+denied
+waiting
+error
+```
+
+Do not animate ahead of backend state.
+
+For live mode:
+
+```text
+poll /run/{run_id}
+```
+
+or use an existing stream if implemented.
+
+For completed demo mode:
+
+- replay real stored events;
+- label it `Completed demo run`;
+- do not pretend it is executing live.
+
+---
+
+# 14. Agent detail inspector
+
+Clicking a run stage may show:
+
+```text
+RESEARCHER
+
+Runtime
+Google ADK
+
+Model
+<actual model>
+
+Input
+14 research items
+
+Plan
+3 batches
+
+Tool calls
+Parallel Search: 3
+
+Sources
+28
+
+Authority
+✓ parallel.search.public_web
+✓ evidence.write
+✕ final_legal_clearance
+✕ iam.modify
+```
+
+Do not show private chain-of-thought.
+
+Show structured operational facts only.
+
+---
+
+# 15. Dynamic planning proof
+
+The run view should make the user's optional research instruction visible.
+
+Example:
+
+```text
+Research instruction
+"Focus on science and medical claims."
+
+Planner output
+
+Batch A   Science        6
+Batch B   Medical        3
+Batch C   Other          5
+```
+
+This is the proof that the judge's own input changes the run.
+
+---
+
+# 16. Parallel visibility
+
+Parallel must be visually unmistakable.
+
+Show:
+
+```text
+Parallel Search
+
+3 research batches
+14 items researched
+28 source citations
+14 / 14 evidence-backed
+```
+
+When clicked:
+
+```text
+Batch C
+Facts / medical
+
+Queries
+...
+
+Items
+...
+
+Sources
+...
+```
+
+No provider logo required.
+
+Text is enough.
+
+---
+
+# 17. Governance / authority
+
+StudioClear AuthZ and Cloud IAM must stay separate.
+
+## 17.1 StudioClear AuthZ
+
+```text
+Can this user / agent / project use this capability?
+```
+
+## 17.2 Cloud IAM
+
+```text
+Can the running workload access this Google Cloud resource?
+```
+
+Do not combine them into one generic "security" status.
+
+---
+
+# 18. Effective Access
+
+Show the permissions-only-shrink idea.
+
+```text
+Effective Access
+
+User
+Producer
+    ∩
+Script
+Midnight Signal
+    ∩
+Agent
+Researcher
+    ∩
+Tool
+Parallel Search
+    ∩
+Cloud IAM
+service identity
+    ↓
+
+ALLOWED
+```
+
+Denied:
+
+```text
+Researcher
+    ↓
+unapproved_legal_database.search
+    ↓
+Tool Registry
+    ✕
+    ↓
+DENIED
+```
+
+---
+
+# 19. Real DENY
+
+The same denied event should appear in:
+
+1. Execution
+2. Authority
+3. Audit
+
+Example:
+
+```text
+DENIED
+
+Agent
+researcher
+
+Capability
+unapproved_legal_database.search
+
+Reason
+tool_not_authorized
+
+Recovery
+Planner replanned using Parallel
+
+Audit
+#049
+```
+
+One real event.
+
+Never invent a second one for visual effect.
+
+---
+
+# 20. Access & roles
+
+If the backend has real permission metadata, show a compact view.
+
+```text
+RESEARCHER
+
+✓ script.read
+✓ parallel.search
+✓ evidence.write
+
+✕ final_clearance
+✕ policy.modify
+✕ iam.modify
+```
+
+For the human:
+
+```text
+PRODUCER
+
+✓ upload script
+✓ review evidence
+✓ clear to continue
+✓ send to legal
+✓ override with reason
+
+✕ iam.modify
+```
+
+If this metadata does not exist, do not hardcode the page.
+
+---
+
+# 21. Audit view
+
+Show a readable event list.
+
+```text
+#047 14:00:58  analysis.completed
+#048 14:01:03  plan.created
+#049 14:01:04  authz.deny
+#050 14:01:05  plan.replanned
+#051 14:07:12  human.override
+```
+
+If hash verification exists:
+
+```text
+Audit integrity
+✓ verified
+```
+
+Raw JSON may be available behind:
+
+```text
+[View raw event]
+```
+
+but is never the default.
+
+---
+
+# 22. Report view
+
+The report is the final studio deliverable.
+
+```text
+SCRIPT CLEARANCE RESEARCH REPORT
+
+Midnight Signal · v1
+
+References detected       14
+Evidence-backed           14
+Independent citations     28
+Clear to continue          9
+Review                     3
+Escalate                   2
+Human decisions            5
+Unauthorized calls         1 blocked
+
+--------------------------------------------------
+
+CLR-009
+Historical claim
+Scene 6
+
+Script
+"..."
+
+Recommendation
+REVIEW
+
+Policy
+historical_claim
+minimum_sources = 2
+
+Evidence
+Source 1
+Source 2
+Source 3
+
+Human decision
+Clear to continue
+
+Audit
+#051
+```
+
+Footer:
+
+> **Agents research and recommend. The studio clears.**
+
+---
+
+# 23. Demo fixture
+
+The demo remains:
+
+```text
+Try Midnight Signal
+```
+
+It uses a tested, real prior run.
+
+Purpose:
+
+```text
+reliable judging path
+fast initial experience
+stable video recording
+known evidence
+known UI states
+```
+
+The demo is not proof of generality.
+
+The **Upload your own** path is proof of generality.
+
+---
+
+# 24. Live vs demo
+
+Make the distinction explicit.
+
+```text
+Demo run
+Completed from a verified prior execution
+
+Run live
+Gemini + ADK + Parallel
+```
+
+Never label cached replay as live.
+
+Never animate a replay as though API calls are currently running unless clearly marked `Replay`.
+
+---
+
+# 25. Demo-safe content
+
+For the hosted/video fixture:
+
+```text
+real brands only in neutral context
+real people only in neutral factual context
+no logos
+no slogans
+fictional entity for negative-context example
+```
+
+If a fictional entity has no real-world evidence:
+
+```text
+INSUFFICIENT EVIDENCE
+→ ESCALATE
+```
+
+This is an honesty feature.
+
+---
+
+# 26. Real data contract
+
+Every visible field must map to backend data.
+
+```text
+script metadata          run / upload response
+user instruction         run.research_instruction
+summary counts           report.summary
+items                    report.items[]
+script context           item.text_span / scene
+recommendation           item.recommendation
+policy                    item.policy_rule_id + /policy
+evidence                  item.evidence[]
+batch                     item.batch_id → report.batches[]
+agent model               run.agents[].model
+execution                 audit.events[]
+ALLOW / DENY              authz events
+Parallel counts           actual research trace
+IAM status                backend IAM check result
+human decisions           item.human_decision / audit
+report totals             computed from report.items[]
+```
+
+If the field does not exist:
+
+```text
+hide the UI
+```
+
+Do not invent data.
+
+---
+
+# 27. Empty / loading / error states
+
+Examples:
+
+```text
+No script loaded.
+Upload a PDF or TXT file, or try the demo.
+
+Analyzing your script...
+
+Planning research...
+
+Researching batch B with Parallel...
+
+Parallel search timed out.
+[Retry batch]
+
+Not enough evidence.
+This item requires human review.
+
+This file type is not supported.
+Use PDF or TXT.
+
+Authorization denied.
+The agent replanned with an approved tool.
+```
+
+---
+
+# 28. Three-minute demo
+
+```text
+0:00–0:12
+StudioClear enterprise workspace.
+
+0:12–0:25
+New Clearance.
+Upload script.
+Show optional research instruction.
+
+0:25–0:45
+Start run.
+Analyzer finds items.
+Planner creates research batches.
+
+0:45–1:10
+Run tab.
+Parallel researches live / verified run.
+Show source count.
+
+1:10–1:40
+Decision Desk.
+Open one item.
+Show script context + policy + 2–3 real sources.
+
+1:40–1:55
+Open a human-only item.
+Show ESCALATE.
+
+1:55–2:10
+Run tab.
+Show real DENY → audit → replan.
+
+2:10–2:35
+Back to desk.
+Clear one.
+Send one to legal.
+Override one with reason.
+
+2:35–2:53
+Report.
+Show every item traceable to:
+script → source → policy → human decision.
+
+2:53–3:00
+Close.
+```
+
+Closing line:
+
+> **Agents research and recommend. The studio clears.**
+
+---
+
+# 29. Build priority
+
+If time is limited:
+
+```text
+P0-1  Upload your own script
+P0-2  Optional research instruction
+P0-3  Start same real pipeline
+P0-4  Evidence pane
+P0-5  Decision actions
+P0-6  Run view
+P0-7  DENY + audit
+P0-8  Report
+P1    enterprise shell polish
+P1    Access & roles
+P1    agent inspector
+P2    richer graph visualization
+```
+
+Do not trade P0 reliability for P2 visuals.
+
+---
+
+# 30. Definition of Done
+
+The UI is done when a judge can answer YES:
+
+```text
+Can I upload my own script?                                  YES
+Can I give StudioClear a research focus?                     YES
+Does the run use that input?                                 YES
+Do real agents perform the workflow?                         YES
+Does Parallel run in the application?                        YES
+Can I see real sources and timestamps?                       YES
+Can I understand why each item was flagged?                  YES
+Can I make the final decision myself?                        YES
+Is an unauthorized agent capability visibly denied?         YES
+Is that denial audited?                                      YES
+Can the workflow continue after denial?                      YES
+Can I see a final traceable report?                          YES
+Can I also use a reliable demo fixture?                      YES
+Does the product feel complete rather than scripted?         YES
+```
+
+If all are YES, stop adding UI features.
+
+---
+
+# 31. Final UI promise
+
+StudioClear should make a skeptical judge understand this immediately:
+
+```text
+I can bring my own script.
+The AI finds what needs investigation.
+The agents plan the research.
+Parallel provides verifiable evidence.
+Policy tells me what needs attention.
+The platform limits agent authority.
+I make the final decision.
+Everything is traceable.
+```
+
+Final product line:
+
+> **Upload a script. StudioClear finds what needs investigation, agents research it, Parallel provides traceable evidence, policy tells you what needs attention, and the studio makes the final decision.**

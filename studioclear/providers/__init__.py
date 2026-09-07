@@ -13,6 +13,7 @@ from studioclear.providers.base import LLMProvider, Providers, SearchProvider
 from studioclear.providers.mock import (
     MockLLMProvider,
     MockSearchProvider,
+    build_example_providers,
     build_mock_providers,
 )
 
@@ -20,8 +21,10 @@ __all__ = [
     "LLMProvider",
     "SearchProvider",
     "Providers",
+    "LiveKeysMissing",
     "build_mock_providers",
     "build_providers",
+    "build_providers_for_mode",
     "describe_providers",
 ]
 
@@ -56,6 +59,30 @@ def build_providers(prefer_live: bool = True, use_adk: bool = False) -> Provider
         search = MockSearchProvider()
 
     return Providers(llm=llm, search=search)
+
+
+class LiveKeysMissing(RuntimeError):
+    """Live mode requested but a required provider key is absent (sol.md §12).
+    The caller must surface this, never silently fall back to mock fixtures."""
+
+
+def build_providers_for_mode(mode: str, use_adk: bool = False) -> Providers:
+    """Explicit provider selection with NO silent fallback (sol.md §10/§12).
+
+    mode="example" → deterministic mocks (labeled Simulated example in the UI).
+    mode="live"    → real Gemini + Parallel; raises LiveKeysMissing if a key is
+    absent so user material is never quietly analyzed by fixtures.
+    """
+    if mode == "example":
+        return build_example_providers()
+    if mode == "live":
+        cfg = Config.from_env()
+        missing = [n for n, v in (("GEMINI_API_KEY", cfg.gemini_api_key),
+                                  ("PARALLEL_API_KEY", cfg.parallel_api_key)) if not v]
+        if missing:
+            raise LiveKeysMissing(", ".join(missing))
+        return build_providers(prefer_live=True, use_adk=use_adk)
+    raise ValueError(f"unknown provider mode: {mode!r}")
 
 
 def describe_providers(p: Providers) -> dict:

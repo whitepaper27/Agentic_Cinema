@@ -10,7 +10,29 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from studioclear.models import ClearanceState, ItemType
+from studioclear.models import (
+    ClaimAssessment,
+    ClearanceState,
+    ItemType,
+    Relation,
+    ResearchStatus,
+    Routing,
+)
+
+# Human-review routing by item type (sol.md §7/§1). Rights and likeness are not
+# resolved by web search, so they always route to a person regardless of what the
+# factual research finds. Factual claims carry their answer in ResearchStatus.
+_ROUTE_BY_TYPE: dict[ItemType, Routing] = {
+    ItemType.LIVING_PERSON: Routing.ESCALATE,   # likeness / personality rights
+    ItemType.BRAND: Routing.REVIEW,             # trademark / rights review
+    ItemType.ORGANIZATION: Routing.REVIEW,
+    ItemType.SONG: Routing.REVIEW,              # music licensing
+}
+
+
+def route_for_type(item_type: ItemType) -> Routing:
+    """Return the human-review routing for an item type, independent of evidence."""
+    return _ROUTE_BY_TYPE.get(item_type, Routing.NONE)
 
 # Map each item type to a key in the studio_policy YAML. `fictional_brand` maps
 # to the negative-context rule (our LunarFizz honesty case, sol.md §4).
@@ -31,6 +53,43 @@ class PolicyResult:
     state: ClearanceState
     reason: str
     policy_key: str
+
+
+def assess_research_status(
+    assessments: list[ClaimAssessment], policy: dict
+) -> ResearchStatus:
+    """Map validated claim assessments to a single research status (sol.md §7).
+
+    Deterministic and pure — the model's job is to produce the assessments; this
+    code decides the status. Only *applicable* passages count. The factual
+    threshold is met by one applicable primary source, OR by corroboration from
+    N sources with documented independence and distinct publishers (default 2).
+    An applicable contradiction can never be cleared away by weak support:
+    support-meets + contradiction -> MIXED; contradiction alone -> CONTRADICTED.
+    """
+    factual = policy.get("factual", {}) if isinstance(policy, dict) else {}
+    min_corroboration = int(factual.get("minimum_corroborating_sources", 2))
+
+    applicable = [a for a in assessments if a.applicable]
+    supports = [a for a in applicable if a.relation is Relation.SUPPORTS]
+    contradicts = [a for a in applicable if a.relation is Relation.CONTRADICTS]
+
+    has_primary_support = any(a.source_type.value == "primary" for a in supports)
+    independent_pubs = {
+        a.publisher
+        for a in supports
+        if a.independence == "documented" and a.publisher
+    }
+    support_meets = has_primary_support or len(independent_pubs) >= min_corroboration
+    has_contradiction = len(contradicts) >= 1
+
+    if support_meets and has_contradiction:
+        return ResearchStatus.MIXED
+    if support_meets:
+        return ResearchStatus.SUPPORTED
+    if has_contradiction:
+        return ResearchStatus.CONTRADICTED
+    return ResearchStatus.UNRESOLVED
 
 
 def evaluate(item_type: ItemType, source_count: int, policy: dict) -> PolicyResult:

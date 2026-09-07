@@ -2,6 +2,43 @@
 
 Working notes for Claude Code. Read this first each session.
 
+> **⚠️ SUPERSEDED (Sep 7 2026).** The product was reframed to a **scene research
+> & revision desk** (bring a scene → intent → confirm extraction → investigate →
+> propose a small revision → accept → recheck → export). The authoritative specs
+> are now **`sol.md`** (product/evidence/gates) and **`sol_ui.md`** (UX). This
+> file and `claude_ui.md`/`PROGRESS.md` are historical; do not follow their
+> product/UI claims. New architecture below under "Schema-v2 (current)".
+
+## Schema-v2 (current) — what actually exists now
+
+- **Evidence contract (sol.md §7):** the model returns `source_id` + a verbatim
+  quote (never a URL); code resolves it (`research/evidence_normalizer.resolve_assessments`),
+  rejecting unknown ids/invented quotes, and deterministically maps validated
+  assessments → **research status** SUPPORTED/CONTRADICTED/MIXED/UNRESOLVED/
+  NOT_RESEARCHED/STALE (`contract/policy_evaluator.assess_research_status`).
+  Human **routing** (NONE/REVIEW/ESCALATE) is a separate field
+  (`route_for_type`). No confidence %. Legacy CLEAR states kept only for labeling.
+- **Pipeline:** `studioclear/research_pipeline.run_research(items, providers, …)`
+  (schema_version 2). Legacy `pipeline.run_pipeline` retained for the labeled
+  legacy `/upload` demo only.
+- **Providers:** `LLMProvider` now has `extract_items`, `extract_items_from_images`
+  (Gemini vision), `assess_claim`, `propose_revision`; `build_providers_for_mode`
+  (`"live"` requires keys → 503, never mock fallback; `"example"` = deterministic
+  fixtures in `demo/example_*.json`).
+- **Revision/recheck:** `studioclear/revision.py` (propose/decide/recheck),
+  `studioclear/scene_store.py` (scenes, versions, v2 runs, session ownership).
+- **API (sol.md §9):** `POST/GET /scenes`, `PATCH /scenes/{id}`, `POST /runs`,
+  `GET /run/{id}`, `POST /runs/{id}/revisions`, `POST /revisions/{id}/decision`,
+  `POST /scenes/{id}/recheck`. Session cookie `sc_session`. Legacy `/upload`,
+  `/policy`, `/health` kept.
+- **Frontend:** `app/frontend/index.html` rebuilt to sol_ui.md's four views —
+  Analyze a scene / Scene desk / Handoff / Execution. Verified via jsdom
+  (`scratchpad/drive_v4.js`): example flip Apollo CONTRADICTED → revise → recheck
+  → SUPPORTED, no JS errors.
+- **Tests:** 98 passing (`pytest tests/`), `ruff check studioclear tests app` clean.
+- **Storage:** local JSON under `STUDIOCLEAR_DATA_DIR` (dev). **Not yet durable
+  on Cloud Run** — GCS bucket + retention is the open Phase-5 item (needs GCP).
+
 ## What this is
 
 **StudioClear** — an agentic *script clearance research desk* for the **Google
