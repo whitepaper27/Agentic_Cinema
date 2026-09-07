@@ -1,196 +1,172 @@
-# StudioClear — Agentic Script Clearance Research Desk
+# StudioClear — Scene Research & Revision Desk
 
 **Google Cloud Agentic Cinema — Parallel Track**
 
 [![CI](https://github.com/whitepaper27/Agentic_Cinema/actions/workflows/ci.yml/badge.svg)](https://github.com/whitepaper27/Agentic_Cinema/actions/workflows/ci.yml)
-&nbsp;License: MIT &nbsp;·&nbsp; Google ADK 2.8 &nbsp;·&nbsp; Gemini 2.5 &nbsp;·&nbsp; Parallel Search
+&nbsp;License: MIT &nbsp;·&nbsp; Google ADK 2.8 &nbsp;·&nbsp; Gemini 2.5 (text + vision) &nbsp;·&nbsp; Parallel Search
 
-**🔗 Live demo:** https://studioclear-602811764567.us-central1.run.app — deployed
-on Google Cloud Run, running **real** Gemini + Parallel. Open it and click
-**"Run demo script."**
+**🔗 Live demo:** https://studioclear-602811764567.us-central1.run.app — click
+**"Try an example"** to run the deterministic showcase, or paste your own scene /
+upload a storyboard page to run it live.
 
-> Turn an unstructured screenplay into a **source-backed, policy-aware clearance
-> research workflow** where every recommendation is traceable and every final
-> decision stays with the studio.
->
-> **Agents research and recommend. The studio clears.**
+> **Bring your storyboard or scene. StudioClear investigates questionable
+> details and helps you make the smallest evidence-backed correction while
+> preserving your creative intent.**
 
-StudioClear extracts real-world references and factual claims from a script,
-uses **Parallel** to build cited, multi-source evidence at runtime, applies a
-deterministic studio policy to triage each item into **CLEAR / REVIEW /
-ESCALATE / INSUFFICIENT EVIDENCE**, enforces bounded agent permissions, and
-hands the producer a fully traceable report. It does **not** issue legal
-clearance — it removes the manual research and triage work that happens *before*
-a human decides.
+A filmmaker brings an unfamiliar scene, gives one instruction, inspects the
+evidence, accepts a single constrained revision, rechecks the changed scene, and
+exports a production handoff. **Gemini** reads and reasons about the material;
+**Parallel** supplies the retrieved evidence that drives the revision; **Google
+Cloud** hosts the app and controls its resource access.
+
+It does **not** issue legal clearance, redraw artwork, or establish a person's
+identity from a drawing. Authoritative specs: [`sol.md`](./sol.md) (product,
+evidence, gates) and [`sol_ui.md`](./sol_ui.md) (UX).
 
 ---
 
-## Why it's built to enterprise standard (not just a demo)
+## The loop
 
-- **Evidence integrity is an enforced invariant.** The LLM can never emit a
-  citation — every `source_url` is passed through verbatim from the Parallel
-  API response and anything else is dropped. See
-  `studioclear/research/evidence_normalizer.py` and
-  `tests/adversarial/test_evidence_integrity.py`.
-- **Governance that resists subversion.** The uploaded script is untrusted
-  input; script text is treated as *data, never instructions*
-  (prompt-injection resistant), and agents can only use registry-approved
-  capabilities — unapproved calls are genuinely **DENIED** and audited.
-- **Tamper-evident audit trail.** Every action is written to an append-only
-  **hash chain** that fails verification if any event is altered or deleted.
-- **Honest metrics, recall-first.** For clearance the dangerous error is a
-  *missed* item — evals foreground recall ("missed clearance risks"), and no
-  fabricated quality scores are ever shown.
-- **Human authority by design.** No "legally cleared by AI" state exists.
+```
+Bring a scene → State intent → Confirm extraction → Investigate
+    → Propose a small revision → Accept or reject → Recheck → Export
+```
 
-Full plan and rationale: [`sol.md`](./sol.md).
+The differentiated moment is an **observable, evidence-backed correction**:
+changing a researched detail changes the relevant finding while protected
+dialogue stays intact, and an ambiguous second finding is honestly left
+unresolved. That demonstrates perception, research, user control, and
+verification in one workflow.
+
+**Showcase (Try an example):** a scene claims *"the Apollo 11 Moon landing in
+1968."* Research returns a NASA primary source dated 1969 → the finding reads
+**Evidence challenges this detail (CONTRADICTED)**. You propose the smallest fix,
+accept it, and recheck → the corrected claim now reads **Supported by retrieved
+evidence**. A separate ambiguous detail stays **Not enough evidence**.
+
+---
+
+## What makes it credible (not just a demo)
+
+- **Evidence is grounded in code, not the model.** The model selects a stored
+  `source_id` and quotes a retrieved passage — it can **never** supply a URL.
+  Code resolves every reference back to a stored source and **rejects unknown
+  IDs and invented quotes**. `research/evidence_normalizer.py:resolve_assessments`,
+  `tests/adversarial/test_evidence_resolution.py`.
+- **Research status is deterministic.** Validated assessments map to
+  **SUPPORTED / CONTRADICTED / MIXED / UNRESOLVED / NOT_RESEARCHED / STALE** by
+  pure code — context-only sources can't clear a claim, one syndicated story
+  isn't corroboration, and an applicable contradiction is never washed out by
+  weak support. `contract/policy_evaluator.py:assess_research_status`,
+  `tests/unit/test_research_status.py`.
+- **No fabricated confidence.** Quality percentages were removed; the UI shows
+  evidence coverage and limitations instead (sol.md §7).
+- **Research vs. human routing are separate.** A factually SUPPORTED item can
+  still route to a human for rights/likeness review. Brand/music/likeness route
+  to a person; web search does not resolve them.
+- **Honest failure modes.** Live mode without keys returns a 503 and **never**
+  substitutes fixtures over your material; empty extraction says so; the
+  "example" is always labeled **Simulated example**, live runs **Processed live**.
+- **Governance you can inspect.** An authorization self-test denies an unapproved
+  tool at the tool boundary; every run keeps a hash-chained event log
+  ("Chain consistency verified" — not a tamper-proof claim). `security/`.
+- **Human authority by design.** No "cleared by AI" state exists.
 
 ---
 
 ## Architecture
 
 ```
-SCRIPT PDF
-  → Gemini extract (references + claims)     gemini-2.5-pro
-  → Research Planner groups items            ADK agent
-  → StudioClear AuthZ (allow / real DENY)    tool registry
-  → Parallel Search (real, multi-batch)      parallel-web SDK
-  → Evidence (cited, integrity-enforced)     gemini-2.5-flash
-  → Deterministic policy evaluation          studio policy YAML
-  → CLEAR / REVIEW / ESCALATE
-  → Human decision desk + override           (all audited)
-  → Traceable clearance report
+Browser: pages/text + instruction + locked spans
+  → POST /scenes    validate + persist source, Gemini extraction (vision|text)
+  → confirm/correct the editable draft            PATCH /scenes/{id}  (new version)
+  → POST /runs      authorize each tool call, Parallel search,
+                    Gemini grades passages by source_id, CODE resolves + scores
+  → POST /runs/{id}/revisions       smallest evidence-backed edit (no mutation)
+  → POST /revisions/{id}/decision   accept → new immutable scene version
+  → POST /scenes/{id}/recheck       re-extract + re-research, claim lineage
+  → GET  /report/{id}               versioned production handoff (text/PDF/JSON)
 ```
 
-Planner, Researcher, and Reviewer are **Google ADK** agents; the backend entry
-point (`app/api/main.py`) initializes **ADK + the Parallel SDK** (track
-requirement). **Deployed on Cloud Run** with the two API keys in **Secret
-Manager**; run data in a JSON store (swappable for Firestore, sol.md §11).
+- **Schema-v2 pipeline:** `studioclear/research_pipeline.py`.
+- **Revision/recheck:** `studioclear/revision.py`; **storage + versions +
+  session ownership:** `studioclear/scene_store.py`.
+- **Providers:** `build_providers_for_mode("live"|"example")` — live is real
+  Gemini + Parallel (keys required, no fallback); example is deterministic
+  fixtures (`demo/example_*.json`). ADK research path retained.
+- **Frontend:** `app/frontend/index.html`, four views — **Analyze a scene /
+  Scene desk / Handoff / Execution** — vanilla JS, no build.
+- **Hosting:** Google Cloud Run; API keys in **Secret Manager**; the runtime
+  service account's only privileged grant is `secretAccessor` on those secrets.
 
-## How it works — one item through all 8 stages
+The legacy clearance-viewer (`/upload`, `run_pipeline`) is retained only as a
+clearly-labeled legacy demo.
 
-Every upload runs the spine in `studioclear/pipeline.py`:
-`parse → extract → plan → authorize(+DENY) → search → integrity → policy → report+audit`.
-Here is a single real item (`the Golden Gate Bridge`) flowing through it:
+---
 
-| # | Stage | What happens to this item |
-|---|-------|---------------------------|
-| 1 | **Parse** | Script loaded as **untrusted data** — never executed as instructions (prompt-injection defense). |
-| 2 | **Extract** (`gemini-2.5-pro`) | Gemini finds the reference and types it: `location → "the Golden Gate Bridge"`. |
-| 3 | **Plan** (ADK Planner) | Item is grouped into a research batch. |
-| 4 | **Authorize (+DENY)** | The `parallel.search.public_web` capability is checked against the approved-tool registry → **ALLOW**. An unapproved tool would be **DENIED** and audited (the run logs `unauthorized_blocked: 1`). |
-| 5 | **Search** (Parallel / ADK Researcher) | Query *"authoritative, independent sources about 'the Golden Gate Bridge' (location)"* → evidence with `en.wikipedia.org/wiki/Golden_Gate_Bridge`, etc. |
-| 6 | **Integrity** | The LLM is **never** allowed to emit a `source_url` — every URL is passed through verbatim from Parallel; `confidence` is a **pure function** of independent-source count (no guessed scores). |
-| 7 | **Policy** (deterministic) | Rule engine assigns a state. |
-| 8 | **Report + audit** | Result written to a **tamper-evident hash chain**; a human then clears / reviews / escalates / overrides. |
+## Try it
 
-The deterministic policy (stage 7) triages the 14 demo items like this:
+**Hosted UI (no setup):** open the live URL, click **Try an example**, then walk
+Analyze → Scene desk → propose/accept a revision → recheck → Handoff. Or paste
+your own scene / upload up to three storyboard pages to run it live.
 
-| Item | Type | Sources | → State | Reason |
-|------|------|---------|---------|--------|
-| the Golden Gate Bridge | location | 1 | **CLEAR** | `verified_for_research` |
-| a Nikon DSLR | brand | 1 | **REVIEW** | `studio_review_required` |
-| a documentary about Jane Goodall | living_person | 1 | **ESCALATE** | `human_review_required` |
-| **LunarFizz soda** (fictional) | fictional_brand | **0** | **INSUFFICIENT** | `no_authoritative_match` |
-
-That last row is the honesty beat: a fictional product finds **zero** authoritative
-sources, so the system says *"I can't back this"* rather than bluffing a citation.
-
-## Security &amp; governance — where it lives
-
-Enterprise credibility here is **agent governance** (least-privilege, provable
-DENY, tamper-evident audit) — not a login screen. Each claim maps to real code:
-
-| Guarantee | How it's enforced | Code |
-|-----------|-------------------|------|
-| **Least-privilege agents** | Agents may only use an **allow-listed** capability; the `ExecutionContext` must also carry the matching permission. Authority only ever *shrinks*: `Effective = User ∩ Script ∩ Agent ∩ Tool ∩ CloudIAM ∩ StudioPolicy`. | `security/authorization.py`, `security/tool_registry.py` |
-| **Real DENY (not theater)** | An unapproved capability (`unapproved_legal_database.search`) returns `DENY → tool_not_authorized`, writes an audit row, and the run reports `unauthorized_blocked`. | `authorization.decide()`, `pipeline.py` |
-| **One real Cloud IAM check** | The Cloud Run runtime service account's only privileged grant is `secretAccessor` on the two API-key secrets — the app's genuine IAM boundary. | `deploy/terraform/`, Secret Manager |
-| **Tamper-evident audit** | Append-only hash chain: `hash = sha256(prev_hash + canonical_json(event))`. Alter or drop any event and verification fails. Human overrides append to the *same* chain. | `security/audit.py`, `store.py` |
-| **Evidence integrity** | The LLM can never fabricate a citation — URLs pass through verbatim from the search API. | `research/evidence_normalizer.py` |
-| **Prompt-injection resistance** | Uploaded script text is treated as data, never as instructions; an embedded "ignore your rules" line is ignored. | `tests/adversarial/`, extractor prompt |
-| **Human authority** | No "cleared by AI" state exists by design; the studio makes the final call. | `models.py` (states), `store.apply_decision()` |
-
-> **Honest scoping:** this is *agent-capability* authorization + audit, not
-> multi-tenant user **RBAC**. That's deliberate for a 4-day build — the judged
-> differentiator on this track is provable agent governance over real Parallel
-> research, which is exactly what the table above delivers. Multi-user RBAC is a
-> named non-goal (sol.md §23).
-
-## Try it live (three ways)
-
-**1. The hosted UI (easiest — no setup):**
-Open **https://studioclear-602811764567.us-central1.run.app** and click
-**"Run demo script."** It runs on a built-in seeded screenplay — you don't need
-to upload anything. Toggles:
-- **"Use live Gemini + Parallel"** — runs the real APIs (~40s) instead of the
-  cached deterministic run.
-- **"Agentic (ADK)"** — routes research through the ADK Researcher agent (~75s;
-  this is the track's agentic path).
-
-Click any row to open the evidence drawer (with real source links), then use the
-**Clear / Review / Escalate / Override** buttons — each appends to the audit chain.
-
-**2. One curl (proves the live pipeline):**
+**One curl — the deterministic example flow (no keys):**
 ```bash
-curl -s -X POST https://studioclear-602811764567.us-central1.run.app/upload \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Smoke Test","prefer_live":true,"use_adk":false}' | python -m json.tool
-# → providers: Gemini + Parallel, 14/14 evidence-backed, audit_verified: true
+BASE=https://studioclear-602811764567.us-central1.run.app
+# 1) bring a scene (simulated example providers)
+SCENE=$(curl -s -X POST $BASE/scenes -H 'Content-Type: application/json' \
+  -d '{"mode":"example","source_type":"paste","title":"Demo",
+       "script_text":"It was the Apollo 11 Moon landing in 1968 that changed everything."}')
+SID=$(echo "$SCENE" | python -c "import sys,json;print(json.load(sys.stdin)['scene_id'])")
+# 2) research it → findings with research status (one CONTRADICTED)
+curl -s -X POST $BASE/runs -H 'Content-Type: application/json' \
+  -d "{\"scene_id\":\"$SID\",\"mode\":\"example\"}" | python -m json.tool
 ```
-Health check: `GET /health` (lists ADK 2.8 + the 3 agents). *Note: `/healthz` is
-reserved by Google's front end on `*.run.app` — use `/health`.*
+Health check: `GET /health` (lists ADK 2.8 + the three agents). `/healthz` is
+reserved by Google's front end on `*.run.app` — use `/health`.
 
-**3. Locally** — see [Quickstart](#quickstart) below.
+---
 
-## Repository layout
-
-```
-studioclear/     analyzer · contract · agents · research · security · evals
-app/             api (FastAPI) · frontend
-demo/            seeded script, golden expected_items.json, cached run
-scripts/         smoke tests + run_spine (the Day-1 critical path)
-tests/           unit · adversarial · integration · parallel
-```
-
-The pure, load-bearing modules (models, policy evaluator, AuthZ, audit chain,
-evidence integrity, confidence, metrics) are **implemented and tested**, and the
-external-API surfaces (Gemini extraction, Parallel search, the ADK agents) are
-**fully wired and verified live** on Cloud Run — both the fast path and the
-agentic ADK path return real, cited, audit-verified results.
-
-## Quickstart
+## Quickstart (local)
 
 ```bash
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env            # add PARALLEL_API_KEY + GCP project
+cp .env.example .env            # add GEMINI_API_KEY + PARALLEL_API_KEY for live mode
 
-# prove the platform before building product code (sol.md E1.5)
-python scripts/smoke_gemini.py
-python scripts/smoke_parallel.py
-
-# run the offline test + eval suite (green today, no API keys needed)
-pytest tests/unit tests/adversarial tests/integration
+uvicorn app.api.main:app --reload        # http://127.0.0.1:8000  (UI at /)
 ```
+
+Example mode needs no keys. Live mode (real Gemini + Parallel) reads
+`GEMINI_API_KEY` / `PARALLEL_API_KEY` from `.env`.
 
 ## Testing & CI
 
-- `pytest tests/unit tests/adversarial` — deterministic, offline, must be green.
-- `pytest tests/parallel` — Parallel reliability harness (priority suite).
-- `python -m studioclear.evals.run_golden --cached demo/cached_run.json` —
-  recall-first golden eval; a missed clearance risk fails the gate.
-- GitHub Actions (`.github/workflows/ci.yml`) runs lint + tests + golden evals
-  on every push.
+```bash
+pytest tests/                                   # 98 passing, offline/deterministic
+ruff check studioclear tests app                # lint
+```
 
-## Responsible AI & limitations
+- `tests/unit`, `tests/adversarial` — pure logic: status mapping, evidence
+  resolution (unknown IDs / invented quotes), routing, parser.
+- `tests/integration` — the schema-v2 pipeline, scene/run API, and the full
+  revision→accept→recheck flow (including the CONTRADICTED→SUPPORTED flip).
 
-StudioClear is a **research and triage system, not legal advice**. It never
-issues legal clearance; humans retain final authority. It surfaces uncertainty
-explicitly (`INSUFFICIENT EVIDENCE`) and makes every recommendation
-source-traceable. Demo content uses real brands and people in **neutral factual
-context only**, uses a **fictional** brand for any negative context, and shows
-no third-party logos, slogans, or trademark graphics.
+## Limitations & scope (honest)
+
+- **Text revisions only** — dialogue/captions + panel-specific notes. Uploaded
+  artwork is never modified; a needed drawing change is exported as a pending art
+  note and is not verified as visually applied.
+- **Visual references are candidates** — StudioClear does not infer identity,
+  ownership, permission, or likeness from a drawing.
+- **Durable hosting is in progress** — runs persist in a JSON store; a private
+  Cloud Storage bucket + 24h retention (sol.md §10) is the open item, so the
+  hosted build currently runs single-instance. PDF/DOCX import is deferred.
+- **Not legal advice** — StudioClear researches and recommends; humans retain
+  final authority and no "cleared by AI" state exists.
+
+Demo content uses real brands/people in **neutral factual context only** and no
+third-party logos, slogans, or trademark graphics.
 
 ## License
 
