@@ -96,6 +96,17 @@
   .spin{display:inline-block;width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
   @keyframes sp{to{transform:rotate(360deg)}}
   @media(prefers-reduced-motion){.spin{animation:none}}
+  .briefgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:8px 0}
+  .briefgrid label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--muted)}
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}
+  @media(max-width:860px){.cards3{grid-template-columns:1fr}}
+  .ocard{border:1px solid var(--line);border-radius:9px;padding:14px;background:#fff}
+  .ocard.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+  .ocard .oh{font-weight:600;font-size:14px}
+  .ocard .ocand{color:var(--muted);font-size:13px;margin:2px 0 8px}
+  .ocard .ototal{font-size:16px}
+  table.ct{width:100%;border-collapse:collapse;margin:6px 0}
+  table.ct td,table.ct th{border-bottom:1px solid var(--line);padding:4px 6px;font-size:12px;text-align:left}
   @media print{header,nav,.noprint{display:none!important}.card{border:0;padding:0}main{max-width:none}}
 </style>
 </head>
@@ -106,6 +117,7 @@
 </header>
 <nav id="nav">
   <div class="tab active" data-view="analyze">Analyze a scene</div>
+  <div class="tab" data-view="shoot" data-gate="scene">Shoot options</div>
   <div class="tab" data-view="desk" data-gate="run">Scene desk</div>
   <div class="tab" data-view="handoff" data-gate="run">Handoff</div>
   <div class="tab" data-view="exec" data-gate="run">Execution</div>
@@ -121,6 +133,8 @@ const S = {                       // minimal frontend state (sol_ui.md §16)
   runMode:"live",                 // provider mode: live | example
   images:[],                      // {name, dataUrl}
   scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false, handoff:null,
+  brief:{reporting_currency:"USD",shoot_days:5,prep_days:2,travel_days:2,traveling_crew:10,
+    local_crew:12,accommodation_nights:7,vfx_shots:6}, comparison:null,
 };
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -147,7 +161,10 @@ function renderExpired(){
 function domainOf(u){try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return u||""}}
 function fmt(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?iso:d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"UTC"})+" UTC"}
 
-async function setView(v){ if(v!=="analyze"&&!S.run)return; S.view=v;
+async function setView(v){
+  if((v==="shoot")&&!S.scene)return;
+  if(v!=="analyze"&&v!=="shoot"&&!S.run)return;
+  S.view=v;
   if(v==="handoff"){ S.handoff=null; render();   // show loading, then fetch the one snapshot
     try{ S.handoff=await api("/report/"+S.run.run_id); }catch(e){ S.error=String(e.message||e); } }
   render(); }
@@ -155,10 +172,12 @@ function render(){
   document.querySelectorAll("nav .tab").forEach(t=>{
     t.classList.toggle("active",t.dataset.view===S.view);
     if(t.dataset.gate==="run") t.setAttribute("aria-disabled", S.run?"false":"true");
+    if(t.dataset.gate==="scene") t.setAttribute("aria-disabled", S.scene?"false":"true");
   });
   el("projmeta").innerHTML = S.scene ? projMeta() : "";
   const host=el("view");
   if(S.view==="analyze") host.innerHTML=viewAnalyze();
+  else if(S.view==="shoot") host.innerHTML=viewShoot();
   else if(S.view==="desk") host.innerHTML=viewDesk();
   else if(S.view==="handoff") host.innerHTML=viewHandoff();
   else if(S.view==="exec") host.innerHTML=viewExec();
@@ -550,9 +569,114 @@ function viewExec(){
   </div>`;
 }
 
+/* ---------------- Shoot options (sol_ui.md §5A) ---------------- */
+const SLOT_LABEL={NEARBY_PRACTICAL:"Nearby practical location",
+  TRAVEL_PRACTICAL:"Alternative travel location",LOCAL_VFX:"Local filming + VFX"};
+function slotLabel(s){return SLOT_LABEL[s]||s}
+function fmtNum(v){const n=Number(v);return isNaN(n)?esc(String(v)):n.toLocaleString(undefined,{maximumFractionDigits:0})}
+function briefField(k,label,type){return `<label>${esc(label)}<input type="${type}" data-brief="${k}" value="${esc(S.brief[k]!=null?S.brief[k]:'')}"></label>`}
+function money(cur,r){return `${esc(cur)} ${fmtNum(r.low)}–${fmtNum(r.high)}`}
+function optionCard(o){
+  const e=o.estimate;
+  const cov=e.coverage==="complete"?'<span class="ok">complete estimate</span>'
+    :`<span class="s-UNRESOLVED">incomplete — missing ${esc((e.missing_categories||[]).join(", "))}</span>`;
+  const lines=(o.cost_lines||[]).map(l=>`<tr><td>${esc(l.category)}</td><td>${esc(l.description||"")}</td>
+    <td class="mono">${l.low_rate==null?'<span class="s-UNRESOLVED">quote needed</span>':fmtNum(l.low_rate)+'–'+fmtNum(l.high_rate)+' × '+esc(String(l.quantity))}</td>
+    <td>${esc(l.provenance)}</td></tr>`).join("");
+  const selected=S.comparison.decision&&S.comparison.decision.option_id===o.option_id;
+  return `<div class="ocard ${selected?'sel':''}">
+    <div class="oh">${esc(slotLabel(o.slot))}</div>
+    <div class="ocand">${esc(o.candidate)}</div>
+    <div class="ototal">Total ${money(e.currency,e.total)}</div>
+    <div class="hint">Subtotal ${money(e.currency,e.subtotal)} + contingency ${money(e.currency,e.contingency)}<br>${cov}</div>
+    <details><summary>Cost lines &amp; basis</summary>
+      <table class="ct"><thead><tr><th>Category</th><th>Detail</th><th>Rate × qty</th><th>Basis</th></tr></thead><tbody>${lines}</tbody></table></details>
+    ${(o.limitations||[]).map(l=>`<div class="hint">• ${esc(l)}</div>`).join("")}
+    <button class="ghost" data-select="${esc(o.option_id)}" style="margin-top:8px">${selected?'Selected ✓':'Select for planning'}</button>
+  </div>`;
+}
+function viewShoot(){
+  const c=S.comparison, mode=S.scene?S.scene.provider_mode:"example";
+  if(!c){
+    return `<div class="card"><h1>Plan this shoot</h1>
+      <p class="lede">Compare a nearby practical location, an alternative travel location, and local
+        filming with VFX. Costs are computed from your inputs.
+        ${mode==="example"?'This is a <b>Simulated example</b> with placeholder rates.':'Live rate research is used.'}</p>
+      ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
+      <h2>Production brief</h2>
+      <div class="briefgrid">
+        ${briefField("base_city","Base city","text")}${briefField("base_country","Base country","text")}
+        ${briefField("reporting_currency","Currency","text")}${briefField("travel_region","Alternative travel region","text")}
+        ${briefField("shoot_days","Shoot days","number")}${briefField("prep_days","Prep days","number")}
+        ${briefField("travel_days","Travel days","number")}${briefField("traveling_crew","Traveling crew","number")}
+        ${briefField("local_crew","Local crew","number")}${briefField("accommodation_nights","Accommodation nights","number")}
+        ${briefField("vfx_shots","VFX shots","number")}${briefField("budget_ceiling","Budget ceiling (optional)","number")}
+      </div>
+      <div class="row" style="margin-top:12px"><button id="cmpBtn">${S.busy?'<span class="spin"></span> Researching shoot options…':'Compare three options'}</button></div>
+      <p class="hint">Missing prices stay <b>incomplete</b>, never zero. Availability and incentives are shown as leads, not confirmations. Selecting an option creates no booking.</p>
+    </div>`;
+  }
+  const rec=c.recommendation||{};
+  const recTxt = rec.preferred? `Consider <b>${esc(slotLabel(rec.preferred))}</b> — its cost range is below the others under the current assumptions.`
+    : rec.reason==="ranges_overlap"? "Cost ranges overlap under these assumptions; no single option is a clear winner."
+    : "Comparison incomplete — some costs are missing.";
+  const sel=c.decision?`<div class="banner info">Selected for planning: <b>${esc(slotLabel(c.decision.option_id))}</b>${c.decision.rationale?' — "'+esc(c.decision.rationale)+'"':''}. This creates no booking or outreach.</div>`:"";
+  return `<div class="card"><h1>Shoot options</h1>
+    ${c.provider_mode==="example"?'<span class="badge sim">Simulated example</span>':'<span class="badge live">Live</span>'}
+    <span class="hint"> · comparison v${esc(c.calculation_version)} · ${esc(c.estimate_status)}</span>
+    ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
+    <div class="banner info">${recTxt}</div>${sel}
+    <div class="cards3">${c.options.map(optionCard).join("")}</div>
+    <h2 style="margin-top:18px">Adjust assumptions and recalculate</h2>
+    <div class="briefgrid">
+      ${briefField("traveling_crew","Traveling crew","number")}${briefField("shoot_days","Shoot days","number")}
+      ${briefField("accommodation_nights","Accommodation nights","number")}${briefField("vfx_shots","VFX shots","number")}
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="ghost" id="recalcBtn">${S.busy?'<span class="spin"></span> Recalculating…':'Recalculate'}</button>
+      <button class="ghost" id="briefDl">Download production brief (JSON)</button>
+    </div>
+    <p class="hint">Recalculation creates a new comparison revision; changing the scene marks a comparison stale.</p>
+  </div>`;
+}
+function wireShoot(){
+  document.querySelectorAll("[data-brief]").forEach(i=>i.oninput=()=>{
+    const k=i.dataset.brief; let v=i.value;
+    if(i.type==="number") v = v===""?null:Number(v);
+    S.brief[k]=v;});
+  const cb=el("cmpBtn"); if(cb) cb.onclick=()=>compareOptions(null);
+  const rc=el("recalcBtn"); if(rc) rc.onclick=()=>compareOptions(S.comparison.comparison_id);
+  document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>selectOption(b.dataset.select));
+  const dl=el("briefDl"); if(dl) dl.onclick=downloadBrief;
+}
+async function compareOptions(parent){
+  S.error=""; S.busy=true; render();
+  try{
+    S.comparison=await api(`/scenes/${S.scene.scene_id}/shoot-comparisons`,{method:"POST",
+      body:JSON.stringify({mode:S.scene.provider_mode||"example", brief:S.brief, parent_comparison_id:parent})});
+    S.busy=false; render();
+  }catch(e){ S.busy=false; S.error=String(e.message||e); render(); }
+}
+async function selectOption(oid){
+  try{
+    await api(`/shoot-comparisons/${S.comparison.comparison_id}/decision`,{method:"POST",
+      body:JSON.stringify({option_id:oid, rationale:""})});
+    S.comparison=await api(`/shoot-comparisons/${S.comparison.comparison_id}`);
+    render();
+  }catch(e){ S.error=String(e.message||e); render(); }
+}
+async function downloadBrief(){
+  try{ const h=await api(`/shoot-comparisons/${S.comparison.comparison_id}/handoff`);
+    const b=new Blob([JSON.stringify(h,null,2)],{type:"application/json"});
+    const u=URL.createObjectURL(b); const a=document.createElement("a");
+    a.href=u; a.download="planning_brief_"+h.comparison_id+".json"; a.click(); URL.revokeObjectURL(u);
+  }catch(e){ S.error=String(e.message||e); render(); }
+}
+
 function wire(){
   if(S.view==="analyze")wireAnalyze();
   else if(S.view==="confirm")return; // handled in renderConfirm
+  else if(S.view==="shoot")wireShoot();
   else if(S.view==="desk")wireDesk();
   else if(S.view==="handoff")wireHandoff();
 }
