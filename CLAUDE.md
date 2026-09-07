@@ -15,18 +15,24 @@ authority, and audits everything. It does **not** issue legal clearance.
 - **Live status / what's next:** `PROGRESS.md`.
 - **Deadline:** Sep 9 2026, 2:00 PM PT. Repo: https://github.com/whitepaper27/Agentic_Cinema (public, MIT).
 
-## Current status (as of Sep 6)
+## Current status (as of Sep 7)
 
 Working and tested **live** (real Gemini + Parallel keys): full spine, FastAPI
 backend + UI, human override→audit, and **real ADK agents** (the §25/§27
 compliance lock is CLOSED — Planner/Researcher/Reviewer are `google.adk` Agents;
-Researcher calls `parallel_search` as an ADK tool at runtime). CI is green (43
-tests). **DEPLOYED & verified live on Cloud Run:**
+Researcher calls `parallel_search` as an ADK tool at runtime). CI is green (**45
+tests**). **DEPLOYED & verified live on Cloud Run:**
 https://studioclear-602811764567.us-central1.run.app (project
-`gen-lang-client-0406755615`, region `us-central1`, keys in Secret Manager).
-A live `/upload` returns real Gemini+Parallel providers, 14/14 evidence-backed,
-audit verified. **Remaining: record the 3-min video.** Do NOT re-do finished
-work — check PROGRESS.md.
+`gen-lang-client-0406755615`, region `us-central1`, keys in Secret Manager,
+`--max-instances 3`). A live `/upload` returns real Gemini+Parallel providers,
+14/14 evidence-backed, audit verified.
+
+**UI was rebuilt Sep 7 to the `claude_ui.md` spec** — a three-view **Decision
+desk / Run / Report** (light "archival binder", IBM Plex Sans + Courier Prime,
+verdict-as-inked-stamp). See the "UI" section below. **Remaining: (1) a human
+visual eyeball of the new UI** (browser automation was unavailable, so it's
+data-verified via a jsdom headless render but not eyeballed); **(2) record the
+3-min video.** Do NOT re-do finished work — check PROGRESS.md.
 
 ## How to run
 
@@ -36,7 +42,7 @@ python -m venv .venv && .venv/Scripts/activate
 pip install -r requirements.txt          # or the .venv already exists
 cp .env.example .env                       # keys already in .env (gitignored)
 
-pytest tests/                              # 43 pass, offline/deterministic
+pytest tests/                              # 45 pass, offline/deterministic
 python scripts/run_spine.py                # offline mock run -> demo/cached_run.json
 python scripts/smoke_gemini.py             # live Gemini
 python scripts/smoke_parallel.py           # live Parallel
@@ -60,8 +66,31 @@ google-genai, google-adk, parallel-web, python-dotenv, pytest, ruff).
 - `studioclear/research/evidence_normalizer.py` — the **evidence-integrity invariant** + deterministic confidence.
 - `studioclear/security/` — `authorization.py` (AuthZ + DENY), `tool_registry.py`, `audit.py` (hash-chained), `secrets.py`.
 - `studioclear/store.py` — JSON run store + Human Decision Desk (override → appends to audit chain).
-- `app/api/main.py` — FastAPI (/upload, /run, /report, /decision, /audit, /healthz). `app/frontend/index.html` — single-page UI.
+- `app/api/main.py` — FastAPI: `/upload`, `/run/{id}` (injects read-only `agents[]` + `iam_checks[]` at serve time), `/report`, `/decision`, `/audit`, `/policy` (studio-policy rules for the UI), `/health` (+`/status`, `/healthz`). `/` serves the UI with `Cache-Control: no-store`.
+- `app/frontend/index.html` — single-page UI (vanilla JS, no build), the **three-view Decision desk** per `claude_ui.md`.
 - `demo/` — seeded script, `expected_items.json` (golden), `cached_run.json` (deterministic demo artifact), `adk_run.json` (agentic sample).
+
+## UI (spec of record: `claude_ui.md`)
+
+`app/frontend/index.html` is built to **`claude_ui.md`** (repo root) — the
+authoritative UI spec; it supersedes the earlier `sol_ui.md` / dark "Clearance
+Desk" drafts (now stale). Three views: **Decision desk** (default; queue by
+what-needs-the-producer, evidence pane is the hero), **Run** (execution list +
+StudioClear-AuthZ vs Cloud-IAM columns + audit table; the one DENY renders in
+three places), **Report** (printable, totals computed client-side). Identity:
+archival-binder light palette, **IBM Plex Sans + Courier Prime via Google Fonts**
+(with system fallbacks), verdict as a rotated inked stamp.
+- **Deliberate deviations from the spec (stay honest):** no fabricated
+  timestamps (audit events carry none → uses sequence + verifiable hash +
+  `generated_at`); "Run live" is one blocking `/upload` call, not 2s polling
+  (the run isn't queryable mid-flight and the spec barred pipeline/endpoint
+  changes); no invented `plan.replanned` event.
+- **Design skill:** the official Anthropic **`frontend-design`** skill is
+  installed at `~/.claude/skills/` — invoke it for visual work. `brand-guidelines`
+  is also installed but do NOT apply it (that's Anthropic's brand, not StudioClear).
+- **Verify UI without a browser:** jsdom headless render — `cd scratchpad &&
+  npm i jsdom && node rendertest.js` against a local `uvicorn` on the given port
+  (checks every view renders with no JS errors). Snapshots via `snapshot.js`.
 
 ## Conventions / invariants (do not break)
 
@@ -101,7 +130,7 @@ Redeploy after a code change:
 gcloud run deploy studioclear --source . --region us-central1 \
   --allow-unauthenticated \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest,PARALLEL_API_KEY=PARALLEL_API_KEY:latest \
-  --memory 1Gi --cpu 1 --timeout 600 --quiet
+  --memory 1Gi --cpu 1 --timeout 600 --max-instances 3 --quiet
 ```
 - **Health check is `/health` (or `/status`), NOT `/healthz`** — Google's front
   end swallows `/healthz` on `*.run.app` before it reaches the container.
@@ -109,5 +138,9 @@ gcloud run deploy studioclear --source . --region us-central1 \
 
 ## Next steps
 
-1. **Record the 3-min video** against `demo/cached_run.json` (sol.md E6) — deterministic take.
-2. Optional: demo polish, README screenshots, Devpost submission text (include the live URL).
+1. **Eyeball the new UI live** (https://studioclear-602811764567.us-central1.run.app,
+   hard-refresh once) — the only unverified thing is how it *looks*; it's
+   data-verified. Fix any panel that doesn't match `claude_ui.md`.
+2. **Record the 3-min video** against `demo/cached_run.json` (sol.md E6) — the
+   `claude_ui.md` §9 beat sheet maps the take to this UI. Deterministic take.
+3. Optional: demo polish, README screenshots, Devpost submission text (include the live URL).
