@@ -118,7 +118,11 @@ Allow selecting exact transcript/text spans to protect after extraction. Do not 
 
 ### Privacy and action
 
-Before upload, show the configured retention and processing disclosure in plain language. The target policy is session-private material retained for 24 hours, with a delete action; only show that promise once its enforcement and any backup/soft-delete limits match sol.md.
+Before upload, show the configured retention and processing disclosure in plain language. Once the lifecycle in sol.md is implemented and verified, use:
+
+> **Available for 24 hours after creation. Access expires automatically; stored copies are then removed through automated cleanup. Editing does not extend this time. Downloaded copies remain with you.**
+
+After creation, show the exact UTC expiry and a local-time rendering in the project header and Handoff. Add **Delete now** and remind the user to download the handoff before expiry. Do not promise physical deletion at exactly 24 hours because storage lifecycle cleanup is asynchronous.
 
 The user should understand that uploaded material is processed with Gemini and research questions are sent to Parallel. Keep credential names and setup instructions out of this flow.
 
@@ -130,10 +134,10 @@ On success, continue to Confirm extraction. Reading material does not silently i
 
 ## 5. Confirm extraction
 
-Show source and extracted content side by side:
+Show the source and extracted content side by side. Keep the uploaded page or complete pasted scene available throughout Confirm extraction, Scene desk, revision comparison, and recheck:
 
 - Page thumbnail/preview and page number.
-- Candidate panel labels and editable dialogue/captions.
+- Candidate panel labels and editable dialogue/captions produced from the actual image extraction; do not initialize image transcripts as blank placeholders when readable text was extracted.
 - A separate description of visible action; distinguish transcription from model interpretation.
 - Candidate references and factual claims tied to their text/page.
 - An option to correct misreads.
@@ -189,7 +193,7 @@ Use the source URLs supplied by the backend. Escape content; allow only validate
 - **Propose a small revision** when evidence supports a concrete correction.
 - **Refine the question** when context is ambiguous and remaining research budget permits.
 - **Mark for human review** when evidence or rights questions need a person.
-- **Keep as written** records a user decision with optional notes; it does not change the factual assessment.
+- **Keep as written** sends a server request that persists a user decision with optional notes; it does not change the factual assessment. Show “Recorded” only after that request succeeds.
 
 Show an explanation when revision is unavailable: “We need applicable evidence before proposing a factual correction.”
 
@@ -242,7 +246,7 @@ After acceptance, show **Scene v2 saved. Recheck needed.** Start the separate re
 
 Recheck is about the revised scene, not a higher source-count score.
 
-Show the accepted text while the backend re-extracts and evaluates the changed scene. A compact comparison reports:
+Show the accepted text while the backend re-extracts every claim in the changed scene and evaluates retained, modified, added, and removed claims. Re-searching only the old item list does not count as a recheck. A compact comparison reports:
 
 | Change category | Display |
 | --- | --- |
@@ -272,14 +276,19 @@ Lead with the deliverable:
 - Human review notes.
 - Source index with URLs and retrieved times.
 - Actual run mode and policy version in a compact footer.
+- Exact expiry time and a reminder that downloaded files are outside the application's lifecycle.
 
-Actions: **Download scene text**, **Print / Save PDF**, **Download research JSON**.
+Actions: **Download scene text**, **Print / Save PDF**, **Download research JSON**. These are the final product outputs. Do not add film/video generation controls for this submission; the required hackathon video is a recording of this workflow functioning.
+
+The JSON download uses a sanitized handoff schema, not the internal run object. It includes complete original and accepted scene text, versions, instruction, protected spans, decisions, pending art notes, unresolved work, recheck lineage, sources, and evidence references as `{origin_run_id, source_id}`. It excludes `owner`, cookies/session IDs, and internal authorization context. Keep raw audit hashes behind a technical expander or in a separately labeled internal diagnostic export.
 
 A report without an accepted revision is labeled **Research draft**. A report with a failed recheck is labeled **Accepted revision — recheck incomplete**.
 
 Print layout must preserve readable quotes, page numbers, version, source references, and unresolved work. Hide navigation and interactive controls. Expand required evidence in print even if it was collapsed on screen. Include text equivalents for all essential image annotations.
 
 Do not put authorization self-tests or large agent diagrams ahead of the revised scene. Raw audit history belongs in the structured export or Execution view.
+
+Make the accepted change the Handoff hero: show the version saved, the exact before/after edit, the evidence basis, protected-text validation, recheck result, and a plain count of remaining unresolved questions. Keep **Simulated example** visible throughout every example run and in all its exports.
 
 ## 11. Execution: verifiable supporting detail
 
@@ -415,6 +424,8 @@ Minimal frontend state: active scene/version/run, source mode, unsaved draft, se
 
 Do not implement verdicts, lock validation, policy evaluation, or version acceptance in client-only code. Derive summary counts from authoritative findings rather than maintaining a second optimistic status model.
 
+On `410 Gone`, replace the workspace with: **“This scene expired after 24 hours and is no longer available in StudioClear.”** Offer **Analyze a new scene**. Do not allow further edits, decisions, rechecks, or exports. A locally downloaded handoff remains the user's responsibility.
+
 ## 17. Build order
 
 1. Add Analyze a scene with working paste/image preview, instruction, and real extraction.
@@ -443,6 +454,10 @@ Use an original storyboard with a researched factual mismatch and an ambiguous s
 - [ ] Pending artwork changes remain visibly pending.
 - [ ] An unresolved item stays unresolved without a forced success state.
 - [ ] Export matches the accepted version and includes citations and remaining work.
+- [ ] JSON export contains the full handoff and excludes owner/session/access-control fields.
+- [ ] Evidence retained across recheck is identified by origin run and source ID.
+- [ ] “Keep as written” appears recorded only after server persistence.
+- [ ] The exact expiry is visible; access returns an expired state at 24 hours; edits do not extend it.
 - [ ] Execution shows actual calls, self-tests, and configuration distinctly.
 - [ ] Provider failure preserves user material and never loads fixture results.
 - [ ] Source assets cannot be opened from an unrelated session.

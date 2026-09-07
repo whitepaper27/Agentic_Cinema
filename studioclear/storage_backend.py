@@ -29,10 +29,15 @@ class LocalBackend:
         p = self.root / key
         return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
-    def write_json(self, key: str, obj: Any) -> None:
+    def write_json(self, key: str, obj: Any, custom_time: str | None = None) -> None:
         p = self.root / key
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(obj, indent=2), encoding="utf-8")
+
+    def delete(self, key: str) -> None:
+        p = self.root / key
+        if p.exists():
+            p.unlink()
 
 
 class GcsBackend:
@@ -55,14 +60,24 @@ class GcsBackend:
             return None
         return json.loads(blob.download_as_text())
 
-    def write_json(self, key: str, obj: Any) -> None:
+    def write_json(self, key: str, obj: Any, custom_time: str | None = None) -> None:
         blob = self._blob(key)
+        existed = blob.exists()
         # Precondition: match the current generation, or 0 to require absence.
-        precondition = blob.generation if blob.exists() else 0
+        precondition = blob.generation if existed else 0
+        # Custom-Time = creation time drives the daysSinceCustomTime lifecycle rule
+        # (sol.md §10). Set it only on create so edits/rechecks never extend expiry.
+        if not existed and custom_time:
+            blob.custom_time = custom_time
         blob.upload_from_string(
             json.dumps(obj, indent=2), content_type="application/json",
             if_generation_match=precondition,
         )
+
+    def delete(self, key: str) -> None:
+        blob = self._blob(key)
+        if blob.exists():
+            blob.delete()
 
 
 def get_backend():

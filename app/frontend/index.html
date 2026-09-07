@@ -120,7 +120,7 @@ const S = {                       // minimal frontend state (sol_ui.md §16)
   view:"analyze", mode:"paste",   // input mode: paste | images
   runMode:"live",                 // provider mode: live | example
   images:[],                      // {name, dataUrl}
-  scene:null, run:null, sel:null, proposal:null, busy:false, error:"",
+  scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false,
 };
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -133,9 +133,16 @@ const RANK={CONTRADICTED:0,MIXED:1,UNRESOLVED:2,STALE:3,NOT_RESEARCHED:4,SUPPORT
 
 async function api(path,opts){
   const r=await fetch(path,Object.assign({headers:{"Content-Type":"application/json"}},opts||{}));
+  if(r.status===410){ S.expired=true; renderExpired(); throw new Error("expired"); }
   const body=await r.json().catch(()=>({}));
   if(!r.ok) throw new Error(body.detail||("HTTP "+r.status));
   return body;
+}
+function renderExpired(){
+  el("view").innerHTML=`<div class="card"><h1>This scene expired</h1>
+    <p class="lede">This scene expired after 24 hours and is no longer available in
+    StudioClear. A handoff you already downloaded remains yours.</p>
+    <button onclick="location.reload()">Analyze a new scene</button></div>`;
 }
 function domainOf(u){try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return u||""}}
 function fmt(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?iso:d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"UTC"})+" UTC"}
@@ -154,6 +161,9 @@ function render(){
   else if(S.view==="exec") host.innerHTML=viewExec();
   wire();
 }
+function fmtExpiry(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return iso;
+  return d.toISOString().replace('.000','').replace('T',' ').replace('Z',' UTC')
+    + " (" + d.toLocaleString() + " local)"; }
 function projMeta(){
   const modeBadge = S.run
     ? (S.run.provider_mode==="live"?'<span class="badge live">Processed live</span>'
@@ -161,7 +171,9 @@ function projMeta(){
     : "";
   const v = S.scene? "Scene v"+S.scene.current_version : "";
   const rc = S.run && S.run.stale ? " · Recheck needed" : "";
-  return `${esc(S.scene.title||"Untitled")} · ${v}${rc} &nbsp; ${modeBadge}`;
+  const exp = S.scene && S.scene.expires_at
+    ? `<br><span style="color:#aeb8c2">Expires ${esc(fmtExpiry(S.scene.expires_at))} · editing does not extend this</span>` : "";
+  return `${esc(S.scene.title||"Untitled")} · ${v}${rc} &nbsp; ${modeBadge}${exp}`;
 }
 document.querySelectorAll("nav .tab").forEach(t=>t.onclick=()=>setView(t.dataset.view));
 
@@ -188,6 +200,9 @@ function viewAnalyze(){
     </div>
     <p class="hint">Your material is read by Google Gemini; research questions are sent to Parallel.
       Nothing here promises legal clearance, automatic redrawing, or guaranteed accuracy.</p>
+    <p class="hint"><b>Available for 24 hours after creation.</b> Access expires automatically;
+      stored copies are then removed through automated cleanup. Editing does not extend this time.
+      Downloaded copies remain with you.</p>
     <div class="row" style="margin-top:8px">
       <button id="readBtn">${S.busy?'<span class="spin"></span> Reading your scene…':'Read my scene'}</button>
       <button class="ghost" id="exampleBtn" ${S.busy?"disabled":""}>Try an example</button>
@@ -381,6 +396,7 @@ function paneFinding(){
         :`<button class="ghost" disabled>Propose a small revision</button>`}
       <button class="ghost" data-keep="1">Keep as written</button>
     </div>
+    ${f.human_decision?`<p class="hint ok">Recorded: ${esc(f.human_decision.action)} as written${f.human_decision.note?' — "'+esc(f.human_decision.note)+'"':''}. This does not change the factual assessment.</p>`:""}
     ${canRevise?"":'<p class="hint">We need applicable evidence before proposing a factual correction.</p>'}
     ${proposalBlock}`;
 }
@@ -416,7 +432,7 @@ function wireDesk(){
   const ab=el("acceptBtn"); if(ab) ab.onclick=accept;
   const rb=el("rejectBtn"); if(rb) rb.onclick=reject;
   const rc=el("recheckBtn"); if(rc) rc.onclick=doRecheck;
-  document.querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>{S.error="Kept as written (recorded).";render()});
+  document.querySelectorAll("[data-keep]").forEach(b=>b.onclick=()=>keepAsWritten());
 }
 async function propose(){
   S.error=""; S.busy=true; render();
@@ -447,6 +463,15 @@ async function doRecheck(){
     S.sel=firstFinding(); S.busy=false; render();
   }catch(e){ S.busy=false; S.error=String(e.message||e); render(); }
 }
+async function keepAsWritten(){
+  const it=findingById(S.sel); if(!it) return;
+  try{
+    const res=await api(`/runs/${S.run.run_id}/findings/${S.sel}/decision`,
+      {method:"POST",body:JSON.stringify({action:"keep",note:""})});
+    it.human_decision=res.human_decision;   // show "Recorded" only after the server saves it
+    render();
+  }catch(e){ S.error=String(e.message||e); render(); }
+}
 
 /* ---------------- Handoff (sol_ui.md §10) ---------------- */
 function viewHandoff(){
@@ -467,7 +492,9 @@ function viewHandoff(){
       <button id="dlText">Download scene text</button>
       <button class="ghost" onclick="window.print()">Print / Save PDF</button>
       <button class="ghost" id="dlJson">Download research JSON</button>
+      <button class="ghost" id="delNow" style="border-color:var(--contradicted);color:var(--contradicted)">Delete now</button>
     </div>
+    <p class="hint noprint">Expires ${esc(fmtExpiry(S.scene.expires_at))}. <b>Download your handoff before it expires</b> — downloaded files stay with you, outside StudioClear's automated cleanup.${S.run.provider_mode==="example"?' This is a <b>Simulated example</b>.':''}</p>
     <h2>Accepted scene text</h2>
     <div class="scenebox" style="max-height:none">${esc(text)}</div>
     <h2 style="margin-top:16px">Accepted changes</h2>
@@ -485,7 +512,16 @@ function wireHandoff(){
   const dl=(name,content,type)=>{const b=new Blob([content],{type});const u=URL.createObjectURL(b);
     const a=document.createElement("a");a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)};
   el("dlText").onclick=()=>dl("scene_v"+S.scene.current_version+".txt",v.scenes.map(s=>s.text).join("\n\n"),"text/plain");
-  el("dlJson").onclick=()=>dl("research_"+S.run.run_id+".json",JSON.stringify(S.run,null,2),"application/json");
+  // The JSON download is the SANITIZED handoff (no owner/session), fetched from the server.
+  el("dlJson").onclick=async()=>{
+    try{ const h=await api("/report/"+S.run.run_id);
+      dl("handoff_"+S.run.run_id+".json",JSON.stringify(h,null,2),"application/json");
+    }catch(e){ S.error=String(e.message||e); render(); }
+  };
+  el("delNow").onclick=async()=>{
+    try{ await api("/scenes/"+S.scene.scene_id,{method:"DELETE"}); S.expired=true; renderExpired(); }
+    catch(e){ S.error=String(e.message||e); render(); }
+  };
 }
 
 /* ---------------- Execution (sol_ui.md §11) ---------------- */

@@ -11,12 +11,32 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from studioclear.storage_backend import GcsBackend, LocalBackend
 from studioclear.store import DATA_DIR
 
+# Session-private material lives for 24h from scene creation; edits never extend it
+# (sol.md §10). Application access ends at expires_at; bucket lifecycle cleanup is
+# asynchronous and may lag.
+RETENTION = timedelta(hours=24)
+
 _gcs_backend = None
+
+
+class ExpiredError(Exception):
+    """Raised when accessing material past its 24h expiry (API → 410 Gone)."""
+
+
+def _parse(ts: str) -> datetime:
+    return datetime.fromisoformat(ts)
+
+
+def is_expired(obj: dict, now: datetime | None = None) -> bool:
+    exp = obj.get("expires_at")
+    if not exp:
+        return False
+    return (now or datetime.now(timezone.utc)) >= _parse(exp)
 
 
 def _backend():
@@ -63,6 +83,7 @@ def create_scene(
 ) -> dict:
     """Persist a new scene at version 1 with its editable extraction draft."""
     scene_id = new_id("scene")
+    created = datetime.now(timezone.utc)
     scene = {
         "scene_id": scene_id,
         "owner": owner,
@@ -72,18 +93,20 @@ def create_scene(
         "instruction": instruction,
         "locks": locks or [],
         "current_version": 1,
-        "created_at": _now(),
+        "created_at": created.isoformat(),
+        "expires_at": (created + RETENTION).isoformat(),   # never extended (sol.md §10)
+        "run_ids": [],
         "versions": [{
             "version": 1,
             "parent_version": None,
-            "created_at": _now(),
+            "created_at": created.isoformat(),
             "scenes": draft_scenes,           # [{scene, text, ...}] editable transcript
             "items": items,                   # extracted candidate claims (editable)
             "instruction": instruction,
             "locks": locks or [],
         }],
     }
-    _backend().write_json(_scene_key(scene_id), scene)
+    _backend().write_json(_scene_key(scene_id), scene, custom_time=scene["created_at"])
     return scene
 
 
@@ -93,11 +116,34 @@ def get_scene(scene_id: str, owner: str | None = None) -> dict | None:
         return None
     if owner is not None and scene.get("owner") != owner:
         raise OwnershipError(scene_id)
+    if is_expired(scene):
+        raise ExpiredError(scene_id)
     return scene
 
 
 def save_scene(scene: dict) -> None:
-    _backend().write_json(_scene_key(scene["scene_id"]), scene)
+    _backend().write_json(_scene_key(scene["scene_id"]), scene,
+                          custom_time=scene.get("created_at"))
+
+
+def register_run(scene: dict, run_id: str) -> None:
+    """Track a run under its scene so a delete removes every related object."""
+    scene.setdefault("run_ids", [])
+    if run_id not in scene["run_ids"]:
+        scene["run_ids"].append(run_id)
+        save_scene(scene)
+
+
+def delete_scene(scene_id: str, owner: str) -> None:
+    """User-triggered delete: revoke access and remove related objects (sol.md §10)."""
+    raw = _backend().read_json(_scene_key(scene_id))
+    if raw is None:
+        return
+    if raw.get("owner") != owner:
+        raise OwnershipError(scene_id)
+    for rid in raw.get("run_ids", []):
+        _backend().delete(_run_key(rid))
+    _backend().delete(_scene_key(scene_id))
 
 
 def latest_version(scene: dict) -> dict:
@@ -142,9 +188,14 @@ def update_scene_version(
     return version
 
 
-def save_run(report: dict, owner: str) -> str:
+def save_run(report: dict, owner: str, scene: dict | None = None) -> str:
     report["owner"] = owner
-    _backend().write_json(_run_key(report["run_id"]), report)
+    # Runs inherit the scene's fixed expiry and creation time (sol.md §10).
+    if scene is not None:
+        report["expires_at"] = scene.get("expires_at")
+        report["scene_created_at"] = scene.get("created_at")
+    _backend().write_json(_run_key(report["run_id"]), report,
+                          custom_time=report.get("scene_created_at"))
     return report["run_id"]
 
 
@@ -154,4 +205,6 @@ def get_run(run_id: str, owner: str | None = None) -> dict | None:
         return None
     if owner is not None and run.get("owner") != owner:
         raise OwnershipError(run_id)
+    if is_expired(run):
+        raise ExpiredError(run_id)
     return run

@@ -130,3 +130,53 @@ def test_revision_on_unresolved_finding_is_blocked():
     r = client.post(f"/runs/{run['run_id']}/revisions",
                     json={"finding_id": nikon["finding_id"]})
     assert r.status_code == 422
+
+
+def test_report_is_sanitized_handoff_without_owner():
+    _scene, run = _example_scene_run()
+    body = client.get(f"/report/{run['run_id']}").json()
+    assert body["schema"] == "studioclear.handoff.v1"
+    assert "owner" not in body                      # no access-control material
+    assert "audit_chain" not in body
+    assert body["scene"]["original_text"]           # deliverable present
+    assert body["simulated"] is True                # example run stays labelled
+
+
+def test_proposal_evidence_uses_origin_run_and_source_id():
+    _scene, run = _example_scene_run()
+    apollo = next(f for f in run["findings"] if f["item_id"] == "CLR-001")
+    rev = client.post(f"/runs/{run['run_id']}/revisions",
+                      json={"finding_id": apollo["finding_id"]}).json()
+    for ref in rev["evidence_refs"]:
+        assert ref["origin_run_id"] == run["run_id"]
+        assert "source_id" in ref
+
+
+def test_keep_as_written_persists_decision():
+    _scene, run = _example_scene_run()
+    fid = run["findings"][0]["finding_id"]
+    r = client.post(f"/runs/{run['run_id']}/findings/{fid}/decision",
+                    json={"action": "keep", "note": "artistic choice"})
+    assert r.status_code == 200
+    again = client.get(f"/run/{run['run_id']}").json()
+    kept = next(f for f in again["findings"] if f["finding_id"] == fid)
+    assert kept["human_decision"]["action"] == "keep"
+    assert kept["human_decision"]["note"] == "artistic choice"
+
+
+def test_delete_scene_revokes_access():
+    scene, _run = _example_scene_run()
+    assert client.delete(f"/scenes/{scene['scene_id']}").status_code == 200
+    assert client.get(f"/scenes/{scene['scene_id']}").status_code == 404
+
+
+def test_expired_scene_returns_410():
+    from studioclear import scene_store
+    scene = client.post("/scenes", json={
+        "mode": "example", "source_type": "paste",
+        "script_text": "The Golden Gate Bridge opened in 1937.", "title": "E"}).json()
+    key = scene_store._scene_key(scene["scene_id"])
+    raw = scene_store._backend().read_json(key)
+    raw["expires_at"] = "2000-01-01T00:00:00+00:00"
+    scene_store._backend().write_json(key, raw)
+    assert client.get(f"/scenes/{scene['scene_id']}").status_code == 410

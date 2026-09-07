@@ -58,6 +58,10 @@ def propose(run: dict, scene: dict, finding_id: str, providers: Providers) -> di
 
     known_ids = {s["source_id"] for s in run.get("sources", [])}
     evidence_ids = [sid for sid in raw.get("evidence_source_ids", []) if sid in known_ids]
+    # Evidence is referenced by (origin_run_id, source_id) so a later recheck can
+    # never reinterpret a source id from a different run (sol.md §8).
+    evidence_refs = [{"origin_run_id": run["run_id"], "source_id": sid}
+                     for sid in evidence_ids]
 
     # Exact-lock enforcement (code, not the model): a locked span present in the
     # scene must still be present after the edit.
@@ -75,6 +79,7 @@ def propose(run: dict, scene: dict, finding_id: str, providers: Providers) -> di
         "proposed_text": proposed,
         "rationale": raw.get("rationale", ""),
         "evidence_source_ids": evidence_ids,
+        "evidence_refs": evidence_refs,
         "art_change": raw.get("art_change", ""),
         "status": "conflict" if conflict else "proposed",
         "conflict_span": conflict,

@@ -165,8 +165,9 @@ ruff check studioclear tests app                # lint
   To enable multi-instance durability, provision a private bucket, grant the Cloud
   Run runtime service account `roles/storage.objectAdmin` on it, and redeploy with
   `--set-env-vars STUDIOCLEAR_GCS_BUCKET=<bucket>` (drop `--max-instances 1`).
-  24h retention (sol.md §10) and full read-modify-write CAS are follow-ups.
-  PDF/DOCX import is deferred.
+  The hosted bucket has a **24h delete lifecycle** with soft-delete disabled, so
+  uploads are physically removed within a day (sol.md §10). Full read-modify-write
+  CAS is a follow-up. PDF/DOCX import is deferred.
 - **Not legal advice** — StudioClear researches and recommends; humans retain
   final authority and no "cleared by AI" state exists.
 

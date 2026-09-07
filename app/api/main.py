@@ -12,12 +12,13 @@ from __future__ import annotations
 import base64
 import binascii
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 # --- Required partner runtimes, initialized at import for discoverability (§27) ---
 import google.adk as adk  # noqa: E402,F401  (agent orchestration layer)
 from fastapi import FastAPI, HTTPException, Request, Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from parallel import Parallel  # noqa: E402,F401  (runtime research/evidence engine)
 from pydantic import BaseModel
 
@@ -28,6 +29,7 @@ from studioclear.agents.reviewer import build_reviewer  # noqa: E402
 from studioclear.analyzer.script_parser import parse_screenplay_text
 from studioclear.config import Config
 from studioclear.contract.clearance_contract import load_policy
+from studioclear.handoff import build_handoff
 from studioclear.models import ClearanceItem
 from studioclear.pipeline import run_pipeline
 from studioclear.providers import (
@@ -37,7 +39,7 @@ from studioclear.providers import (
     describe_providers,
 )
 from studioclear.research_pipeline import run_research
-from studioclear.scene_store import OwnershipError
+from studioclear.scene_store import ExpiredError, OwnershipError
 
 # The three ADK agents required by the track (§25/§27). Built lazily so the app
 # starts without credentials, but their builders are real google.adk Agents.
@@ -47,6 +49,20 @@ app = FastAPI(title="StudioClear", version="0.1.0")
 
 UPLOADS = store.DATA_DIR / "uploads"
 FRONTEND = Path("app/frontend/index.html")
+
+# Fixed simulated-run timestamp; live runs stamp the actual server UTC time.
+FIXTURE_NOW = "2026-09-05T12:00:00Z"
+
+
+def _server_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+@app.exception_handler(ExpiredError)
+async def _expired_handler(request: Request, exc: ExpiredError) -> JSONResponse:
+    # Material past its 24h lifecycle is gone from the application (sol.md §10).
+    return JSONResponse(status_code=410,
+                        content={"detail": "expired", "code": "gone"})
 
 
 class UploadRequest(BaseModel):
@@ -111,6 +127,11 @@ class RevisionDecisionRequest(BaseModel):
 class RecheckRequest(BaseModel):
     run_id: str                          # the prior (accepted) run
     mode: str | None = None              # defaults to the prior run's mode
+
+
+class FindingDecisionRequest(BaseModel):
+    action: str                          # "keep" | "review" | "escalate"
+    note: str = ""
 
 
 def _session(request: Request, response: Response) -> str:
@@ -259,7 +280,23 @@ def get_run(run_id: str, request: Request, response: Response) -> dict:
 
 @app.get("/report/{run_id}")
 def get_report(run_id: str, request: Request, response: Response) -> dict:
-    return get_run(run_id, request, response)
+    """Sanitized production handoff — allowlisted schema, no owner/session/audit
+    hashes (sol.md §9, sol_ui.md §10). Falls back to the legacy run for the
+    labeled legacy demo."""
+    owner = _session(request, response)
+    try:
+        run = scene_store.get_run(run_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your run") from e
+    if run is not None:
+        scene = scene_store.get_scene(run["scene_id"], owner=owner)
+        if scene is None:
+            raise HTTPException(404, "scene not found")
+        return build_handoff(run, scene)
+    legacy = _legacy_run(run_id)
+    if legacy is None:
+        raise HTTPException(404, "run not found")
+    return legacy
 
 
 @app.get("/audit/{run_id}")
@@ -303,9 +340,13 @@ def _extract_scene(req: SceneRequest):
         if not images:
             raise HTTPException(422, "no pages provided")
         items = providers.llm.extract_items_from_images(images)
-        # Page-linked transcript placeholder; corrected by the user before research.
-        draft = [{"scene": p, "text": "", "source": "image"}
-                 for p in range(1, len(images) + 1)]
+        # Seed each page transcript from the text actually extracted for it, so the
+        # confirm step is never a blank placeholder when readable text was found
+        # (sol_ui.md §5). The user still corrects it before research.
+        draft = []
+        for p in range(1, len(images) + 1):
+            page_text = " ".join(it.text_span for it in items if it.scene == p)
+            draft.append({"scene": p, "text": page_text, "source": "image"})
     else:
         text = (req.script_text or "").strip()
         if not text:
@@ -389,13 +430,16 @@ def create_run(req: RunRequest, request: Request, response: Response) -> dict:
     version = scene_store.latest_version(scene)
     items = [ClearanceItem(**it) for it in version["items"]]
     run_id = f"run_{uuid.uuid4().hex[:8]}"
+    # Live runs stamp actual server UTC; a simulated run keeps its fixture time.
+    now = _server_now() if req.mode == "live" else FIXTURE_NOW
     report = run_research(
         items, providers, run_id=run_id, scene_id=req.scene_id,
-        scene_version=scene["current_version"], provider_mode=req.mode,
+        scene_version=scene["current_version"], provider_mode=req.mode, now=now,
     )
     report["title"] = scene["title"]
     report["instruction"] = version.get("instruction", "")
-    scene_store.save_run(report, owner)
+    scene_store.save_run(report, owner, scene=scene)
+    scene_store.register_run(scene, run_id)
     return report
 
 
@@ -435,7 +479,7 @@ def propose_revision(run_id: str, req: ReviseRequest, request: Request,
     except ValueError as e:
         # e.g. no_applicable_evidence, original_not_in_scene
         raise HTTPException(422, str(e)) from e
-    scene_store.save_run(run, owner)
+    scene_store.save_run(run, owner, scene=scene)
     return rev
 
 
@@ -454,9 +498,28 @@ def decide_revision(revision_id: str, req: RevisionDecisionRequest,
     except ValueError as e:
         code = 409 if str(e) in ("stale_version", "lock_conflict") else 422
         raise HTTPException(code, str(e)) from e
-    scene_store.save_run(run, owner)
+    scene_store.save_run(run, owner, scene=scene)
     scene_store.save_scene(scene)
     return out
+
+
+@app.post("/runs/{run_id}/findings/{finding_id}/decision")
+def finding_decision(run_id: str, finding_id: str, req: FindingDecisionRequest,
+                     request: Request, response: Response) -> dict:
+    """Persist a human decision on a finding — 'keep' / 'review' / 'escalate' with
+    an optional note. Recorded server-side so the UI can show 'Recorded' only after
+    it succeeds (sol.md §8, sol_ui.md §6). Does not change the factual assessment."""
+    owner = _session(request, response)
+    run, _scene = _load_run_and_scene(run_id, owner)
+    finding = next((f for f in run.get("findings", []) if f["finding_id"] == finding_id), None)
+    if finding is None:
+        raise HTTPException(404, "finding not found")
+    if req.action not in ("keep", "review", "escalate"):
+        raise HTTPException(422, "unknown action")
+    finding["human_decision"] = {"action": req.action, "note": req.note,
+                                 "at": _server_now()}
+    scene_store.save_run(run, owner)
+    return {"finding_id": finding_id, "human_decision": finding["human_decision"]}
 
 
 @app.post("/scenes/{scene_id}/recheck")
@@ -472,5 +535,17 @@ def recheck_scene(scene_id: str, req: RecheckRequest, request: Request,
     new_run_id = f"run_{uuid.uuid4().hex[:8]}"
     new_run = revision.recheck(scene, providers, prior, new_run_id, provider_mode=mode)
     new_run["title"] = scene["title"]
-    scene_store.save_run(new_run, owner)
+    scene_store.save_run(new_run, owner, scene=scene)
+    scene_store.register_run(scene, new_run_id)
     return new_run
+
+
+@app.delete("/scenes/{scene_id}")
+def delete_scene(scene_id: str, request: Request, response: Response) -> dict:
+    """User-triggered delete: revoke access and remove related objects (sol.md §10)."""
+    owner = _session(request, response)
+    try:
+        scene_store.delete_scene(scene_id, owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    return {"deleted": scene_id}

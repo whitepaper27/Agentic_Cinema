@@ -198,7 +198,7 @@ Deprecate confidence in the new schema. No percentage-quality badge until there 
 
 ## 8. Revision and recheck contract
 
-A proposal includes revision_id, base_scene_version, target span IDs, original text, proposed edits, rationale, grounded evidence IDs, exact-lock validation, semantic-constraint notes, and any art-change instructions.
+A proposal includes revision_id, base_scene_version, target span IDs, original text, proposed edits, rationale, grounded evidence references, exact-lock validation, semantic-constraint notes, and any art-change instructions. Each evidence reference is the pair `{origin_run_id, source_id}` so a recheck cannot accidentally reinterpret `S001` from a different run.
 
 **Rules:**
 
@@ -210,6 +210,7 @@ A proposal includes revision_id, base_scene_version, target span IDs, original t
 - Rejection preserves the scene and records the user's choice.
 - Repeated acceptance with the same operation key creates no duplicate versions.
 - Acceptance creates a new immutable scene version and marks previous findings stale.
+- “Keep as written” is a persisted human decision with an optional note. The UI may call it recorded only after the server saves it.
 - Recheck re-extracts all claims in the changed scene; match retained, modified, added, and removed claims using stable IDs and explicit lineage.
 - Reuse unchanged-claim evidence only when claim, context, freshness policy, and provenance remain applicable. Record reuse. Research changed and newly introduced claims through Parallel.
 - A removed claim is “Removed in revision,” not “Verified.” A newly introduced unsupported detail prevents a “fully rechecked” completion message.
@@ -231,7 +232,7 @@ These are target interfaces, not existing endpoints. Agree on them before fronte
 | Run | run_id, scene_id/version, schema_version, policy_version, status, provider execution metadata, operation IDs |
 | Finding | stable finding_id, scene/page/panel/span references, exact claim, research status, routing, evidence IDs, limitations |
 | Source | source_id, raw URL/title/passages, query, retrieval time, provenance and independence notes |
-| Revision | revision_id, base/result versions, structured edits, rationale, evidence IDs, constraints, decision |
+| Revision | revision_id, base/result versions, structured edits, rationale, `{origin_run_id, source_id}` evidence references, constraints, decision |
 | Recheck | operation_id, before/after run IDs, claim lineage, unresolved/new/removed claims, status/error |
 | Event | sequence, UTC time, run/version, actor category, actual action/result, operation ID, hash-chain fields |
 
@@ -255,6 +256,10 @@ Panel bounds are optional normalized coordinates tied to a specific asset. If bo
 
 Keep existing /policy, /health, and legacy /upload behavior available for the explicit legacy demo. Prevent arbitrary user content from silently selecting mock providers.
 
+The shareable handoff is an allowlisted export schema rather than a dump of the internal run object. It contains the complete original and accepted scene text, scene/version lineage, instruction, protected spans, accepted/rejected/keep decisions, evidence references and source records, recheck lineage, unresolved work, and pending art notes. It excludes `owner`, session identifiers, cookies, internal authorization context, and other access-control material. Text, PDF, and JSON are the product outputs; generated film/video remains deferred.
+
+Separate fixture provenance from operation time. A simulated example keeps its fixture timestamp in a clearly named provenance field; revisions, decisions, rechecks, and exports use their actual server UTC timestamps. Never present a fixture timestamp as the creation time of later user actions.
+
 Return structured errors with code, message, retryable, operation_id, and affected page/finding. Use 409 for stale-version conflicts, 413 for size limits, 422 for invalid/unreadable input, and an appropriate 5xx for unavailable live providers. Preserve unaffected pages and user-entered text when possible.
 
 ## 10. Hosted reliability, privacy, and storage
@@ -267,7 +272,15 @@ For the hosted path, use a dedicated private Cloud Storage bucket for source ima
 
 Cloud Run instances must read the same durable state. Validate that a run survives an instance restart and can be read through a different instance. Keep secrets server-side in Secret Manager with narrowly scoped resource access.
 
-Starting retention policy: retain uploads/runs for 24 hours unless the user deletes them earlier; disclose this before upload. Enforce expiry on access and through a cleanup mechanism. Configure and disclose any soft-delete/backup retention before promising physical deletion. Keep source text/images out of ordinary logs.
+### Twenty-four-hour lifecycle rule
+
+- Set `expires_at = scene.created_at + 24 hours` when the scene is created. Every related asset, run, revision, recheck, and operation inherits this fixed deadline; edits and rechecks never extend it.
+- After validating session ownership, enforce expiry on every read, asset request, mutation, decision, recheck, and export. Return `410 Gone` for expired material. Revalidate before saving a long-running result so processing cannot resurrect an expired scene.
+- Store private user data under the dedicated `studioclear/` prefix in a private Cloud Storage bucket. Write the original scene creation time to each related object's Custom-Time metadata.
+- Configure lifecycle deletion for that prefix using `daysSinceCustomTime: 1`, plus `age: 1` as a fallback for legacy objects without Custom-Time. Merge these rules with unrelated bucket rules and keep permanent public examples outside the disposable prefix.
+- Use a dedicated disposable-data bucket with object versioning and soft delete disabled. Do not disable either on a shared bucket. Do not apply a retention lock that would prevent user-requested early deletion.
+- Application access ends exactly at `expires_at`; Cloud Storage lifecycle deletion is asynchronous and can occur later. Describe this accurately rather than promising physical deletion at exactly 24 hours. A user-triggered delete immediately revokes application access and requests deletion of related objects.
+- Backfill existing private scenes and runs from the original scene creation timestamp; use object creation time only when the original cannot be recovered. Keep source text/images out of ordinary logs.
 
 Add bounded request sizes, concurrency, provider attempts, and per-session run limits. Show a useful error when a limit is reached. Never expose provider keys in a browser configuration.
 
@@ -424,6 +437,8 @@ The build is complete when a judge can:
 - Recheck the changed scene, including newly introduced claims.
 - Distinguish applied text changes from pending art instructions.
 - Export the accepted text, sources, remaining questions, and decision history.
+- Download the complete production handoff as scene text, printable PDF, and sanitized JSON with no session/access identifiers.
+- See the exact 24-hour expiry and lose application access at that deadline without an edit extending it.
 - Inspect actual Gemini/Parallel execution without confusing configured agents, self-tests, or replay data with live work.
 
 All boxes require working behavior and verification. This specification itself closes none of them.
