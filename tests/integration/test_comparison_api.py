@@ -76,8 +76,14 @@ def test_planning_brief_handoff_is_sanitized():
     assert len(h["options"]) == 3
 
 
-def test_live_production_research_is_blocked_not_faked():
+def test_live_without_parallel_key_is_blocked_not_faked(monkeypatch):
+    import app.api.main as m
+
+    class _NoParallel:
+        gemini_api_key = ""
+        parallel_api_key = ""
+    monkeypatch.setattr(m.Config, "from_env", lambda: _NoParallel())
     scene = _scene()
     r = client.post(f"/scenes/{scene['scene_id']}/shoot-comparisons",
                     json={"mode": "live", "brief": BRIEF})
-    assert r.status_code == 503     # never fabricate prices when live isn't wired
+    assert r.status_code == 503     # never fabricate prices without a live source

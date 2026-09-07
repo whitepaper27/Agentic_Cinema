@@ -653,10 +653,15 @@ def create_shoot_comparison(scene_id: str, req: ShootComparisonRequest,
 
     if req.mode == "example":
         provider = ExampleProductionProvider()
+    elif req.mode == "live":
+        cfg = Config.from_env()
+        if not cfg.parallel_api_key:
+            raise HTTPException(503, "live production research needs a Parallel key")
+        from studioclear.providers.parallel import ParallelSearchProvider
+        from studioclear.providers.production import LiveProductionProvider
+        provider = LiveProductionProvider(ParallelSearchProvider())
     else:
-        # Live location/rate research is not wired yet; never fabricate prices.
-        raise HTTPException(503, "live production research is not yet available; "
-                                 "use mode=example for the simulated comparison")
+        raise HTTPException(422, f"unknown mode: {req.mode}")
 
     calc_version = 1
     if req.parent_comparison_id:
