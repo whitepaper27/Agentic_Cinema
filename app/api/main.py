@@ -53,10 +53,11 @@ class DecisionRequest(BaseModel):
 
 
 @app.get("/", response_class=HTMLResponse)
-def index() -> str:
-    if FRONTEND.exists():
-        return FRONTEND.read_text(encoding="utf-8")
-    return "<h1>StudioClear</h1><p>API up. See /docs.</p>"
+def index() -> HTMLResponse:
+    body = (FRONTEND.read_text(encoding="utf-8") if FRONTEND.exists()
+            else "<h1>StudioClear</h1><p>API up. See /docs.</p>")
+    # Never let a browser serve a stale UI during the demo.
+    return HTMLResponse(body, headers={"Cache-Control": "no-store"})
 
 
 # NOTE: `/healthz` is intercepted by the Google Front End on *.run.app (the
