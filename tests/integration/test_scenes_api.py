@@ -91,10 +91,11 @@ def test_live_mode_without_keys_never_falls_back_to_mock(monkeypatch):
 
 
 def _example_scene_run():
-    # The labeled example fixture contains a deliberate Apollo-year mismatch.
+    # Deliberate Apollo-year mismatch + an unresolved prop (Nikon has no year source).
     scene = client.post("/scenes", json={
         "mode": "example", "source_type": "paste",
-        "script_text": "It was the Apollo 11 Moon landing in 1968 that changed everything.",
+        "script_text": ("It was the Apollo 11 Moon landing in 1968 that changed everything. "
+                        "She lifts a Nikon camera to the window."),
         "title": "Example"}).json()
     run = client.post("/runs", json={"scene_id": scene["scene_id"],
                                      "mode": "example"}).json()
@@ -130,6 +131,38 @@ def test_revision_on_unresolved_finding_is_blocked():
     r = client.post(f"/runs/{run['run_id']}/revisions",
                     json={"finding_id": nikon["finding_id"]})
     assert r.status_code == 422
+
+
+def test_accepted_revision_is_incomplete_until_recheck():
+    scene, run = _example_scene_run()
+    apollo = next(f for f in run["findings"] if f["research_status"] == "CONTRADICTED")
+    rev = client.post(f"/runs/{run['run_id']}/revisions",
+                      json={"finding_id": apollo["finding_id"]}).json()
+    client.post(f"/revisions/{rev['revision_id']}/decision",
+                json={"run_id": run["run_id"], "action": "accept", "expected_version": 1})
+    # Before any recheck, the handoff must NOT claim a completed Production handoff.
+    label_before = client.get(f"/report/{run['run_id']}").json()["label"]
+    assert label_before == "Accepted revision - recheck incomplete"
+    # After a version-matching recheck completes, it may become a Production handoff.
+    rc = client.post(f"/scenes/{scene['scene_id']}/recheck",
+                     json={"run_id": run["run_id"]}).json()
+    assert client.get(f"/report/{rc['run_id']}").json()["label"] == "Production handoff"
+
+
+def test_export_resolves_earlier_run_citations_after_recheck():
+    scene, run = _example_scene_run()
+    apollo = next(f for f in run["findings"] if f["research_status"] == "CONTRADICTED")
+    rev = client.post(f"/runs/{run['run_id']}/revisions",
+                      json={"finding_id": apollo["finding_id"]}).json()
+    client.post(f"/revisions/{rev['revision_id']}/decision",
+                json={"run_id": run["run_id"], "action": "accept", "expected_version": 1})
+    rc = client.post(f"/scenes/{scene['scene_id']}/recheck",
+                     json={"run_id": run["run_id"]}).json()
+    h = client.get(f"/report/{rc['run_id']}").json()
+    # Every accepted-change evidence tuple resolves, including the earlier run's source.
+    assert h["references_resolved"] is True
+    assert h["unresolved_references"] == []
+    assert run["run_id"] in {s["origin_run_id"] for s in h["sources"]}
 
 
 def test_report_is_sanitized_handoff_without_owner():

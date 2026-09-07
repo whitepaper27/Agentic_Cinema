@@ -292,7 +292,20 @@ def get_report(run_id: str, request: Request, response: Response) -> dict:
         scene = scene_store.get_scene(run["scene_id"], owner=owner)
         if scene is None:
             raise HTTPException(404, "scene not found")
-        return build_handoff(run, scene)
+        # Load earlier runs cited by accepted revisions so their sources resolve.
+        origin_ids = {ref.get("origin_run_id")
+                      for rev in run.get("revisions", []) if rev.get("status") == "accepted"
+                      for ref in rev.get("evidence_refs", [])}
+        historical = {}
+        for oid in origin_ids:
+            if oid and oid != run["run_id"]:
+                try:
+                    orun = scene_store.get_run(oid, owner=owner)
+                except (OwnershipError, ExpiredError):
+                    orun = None
+                if orun:
+                    historical[oid] = orun
+        return build_handoff(run, scene, historical)
     legacy = _legacy_run(run_id)
     if legacy is None:
         raise HTTPException(404, "run not found")

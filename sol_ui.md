@@ -2,7 +2,7 @@
 
 **Revised:** September 7, 2026
 
-**Status:** Implementation target; the new workflow is not yet shipped.
+**Status:** Repair contract. Existing screens do not establish workflow correctness; the fresh-scene recheck gate currently fails. Verify behavior before marking any requirement shipped.
 
 **Product/API authority:** [sol.md](sol.md).
 
@@ -138,6 +138,7 @@ Show the source and extracted content side by side. Keep the uploaded page or co
 
 - Page thumbnail/preview and page number.
 - Candidate panel labels and editable dialogue/captions produced from the actual image extraction; do not initialize image transcripts as blank placeholders when readable text was extracted.
+- Preserve every readable dialogue/caption, including text with no researchable claim. Joining extracted claim snippets is not transcription. Keep original artwork, transcription, and interpreted action distinct.
 - A separate description of visible action; distinguish transcription from model interpretation.
 - Candidate references and factual claims tied to their text/page.
 - An option to correct misreads.
@@ -154,6 +155,8 @@ If a page is unreadable, identify it and offer replace/remove. To continue with 
 If no candidate claims are found, show “No researchable claims found in this extraction.” Let the user edit the transcript, clarify the task, or provide another scene. Do not show a clean bill of health or substitute demo findings.
 
 Editing confirmed text creates a new version and invalidates dependent findings/proposals. Make that consequence visible near the save action.
+
+The user corrects the canonical scene, not two competing versions of the same text in independent scene and claim editors. Regenerate derived claims from that confirmed version. Lock controls refer to the current text occurrence, not a stale checkbox value captured before correction.
 
 ## 6. Scene desk: findings and evidence
 
@@ -196,6 +199,8 @@ Use the source URLs supplied by the backend. Escape content; allow only validate
 - **Keep as written** sends a server request that persists a user decision with optional notes; it does not change the factual assessment. Show “Recorded” only after that request succeeds.
 
 Show an explanation when revision is unavailable: “We need applicable evidence before proposing a factual correction.”
+
+An unresolved card must answer "Evidence for what?" Show the specific question, missing context/evidence, and next action. For an unidentified prop/crest, ask for identifying context or record human review; do not treat an entity-existence source as proof of period suitability or permission. A kept item reads **Kept by reviewer — research unresolved** when appropriate, with the saved note and time. Keeping it never turns its research badge green.
 
 ## 7. Status language shared with the backend
 
@@ -283,6 +288,16 @@ Actions: **Download scene text**, **Print / Save PDF**, **Download research JSON
 The JSON download uses a sanitized handoff schema, not the internal run object. It includes complete original and accepted scene text, versions, instruction, protected spans, decisions, pending art notes, unresolved work, recheck lineage, sources, and evidence references as `{origin_run_id, source_id}`. It excludes `owner`, cookies/session IDs, and internal authorization context. Keep raw audit hashes behind a technical expander or in a separately labeled internal diagnostic export.
 
 A report without an accepted revision is labeled **Research draft**. A report with a failed recheck is labeled **Accepted revision — recheck incomplete**.
+
+The incomplete label also applies when recheck is absent, pending, stale, or for a different scene version. Use the backend's validated label and coverage, not a client test for whether a revisions array is nonempty. A completed operation with unresolved questions is distinct from all claims being supported; disclose skipped or failed research explicitly.
+
+### One preview, three matching downloads
+
+Fetch the version-bound handoff snapshot defined in sol.md section 9 before displaying this screen. Render its accepted text, changes, sources, decisions, and status. TXT and print/PDF derive from that same snapshot; JSON downloads it unchanged. Do not use `S.scene` latest text plus `S.run` findings as an independent report builder.
+
+Each accepted change shows its supporting passage and full citation, not just an S-number or a generic rationale. Include source title, full URL, origin run, retrieval time, decision time, and relevant limitations in print. Project title, version, instruction, run mode, and unresolved work must not disappear through `noprint` styling. Long passages and URLs must wrap without clipping.
+
+If snapshot validation fails, show the specific blocker and retry action. Allow an explicitly labeled scene-text draft if available, but do not offer a misleading validated Production handoff. An older snapshot stays marked as history after further edits. Reloading or exporting must enforce session ownership and the fixed expiry.
 
 Print layout must preserve readable quotes, page numbers, version, source references, and unresolved work. Hide navigation and interactive controls. Expand required evidence in print even if it was collapsed on screen. Include text equivalents for all essential image annotations.
 
@@ -428,13 +443,13 @@ On `410 Gone`, replace the workspace with: **“This scene expired after 24 hour
 
 ## 17. Build order
 
-1. Add Analyze a scene with working paste/image preview, instruction, and real extraction.
-2. Add confirm/correct extraction and exact locks.
-3. Connect evidence-aware research to the source-centered Scene desk.
-4. Add proposal comparison and server-validated acceptance/rejection.
-5. Add changed-scene recheck and before/after claim states.
-6. Complete Handoff exports and honest Execution details.
-7. Verify loading, failures, private assets, mobile/keyboard behavior, and print.
+1. Reproduce the Signal Room failure from sol.md section 12; capture current behavior before UI changes.
+2. Connect complete canonical source text, current instruction, and occurrence-based locks to backend versioning; retain drafts through rerenders/errors.
+3. Verify backend re-extraction and claim lineage before presenting recheck as complete.
+4. Bind Handoff and all downloads to one validated server snapshot; show incomplete/stale/error states accurately.
+5. Keep source, selected issue, passage, and proposed edit together; make unresolved questions actionable.
+6. Add real operation outcomes in secondary Run details; leave authorization self-tests and hash rows in expanders.
+7. Test a different live scene and actual storyboard, refresh/retry, private assets, expiry, narrow/keyboard layouts, and print before recording.
 
 Integrate the backend evidence fixes first. Do not put new trust labels on old source-count conclusions.
 
@@ -456,6 +471,11 @@ Use an original storyboard with a researched factual mismatch and an ambiguous s
 - [ ] Export matches the accepted version and includes citations and remaining work.
 - [ ] JSON export contains the full handoff and excludes owner/session/access-control fields.
 - [ ] Evidence retained across recheck is identified by origin run and source ID.
+- [ ] Every evidence tuple resolves to an included source record, including earlier-run accepted-change evidence.
+- [ ] A claim added only to canonical scene text appears in recheck coverage; zero extraction calls cannot pass this gate.
+- [ ] Missing or version-mismatched recheck cannot display a completed current handoff.
+- [ ] Preview, TXT, PDF, and JSON share one handoff ID and scene version; a later edit cannot mix new text with old findings.
+- [ ] Complete non-claim dialogue survives comic extraction; original artwork remains accessible and labeled unchanged.
 - [ ] “Keep as written” appears recorded only after server persistence.
 - [ ] The exact expiry is visible; access returns an expired state at 24 hours; edits do not extend it.
 - [ ] Execution shows actual calls, self-tests, and configuration distinctly.

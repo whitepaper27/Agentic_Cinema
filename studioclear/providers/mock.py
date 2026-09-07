@@ -14,7 +14,7 @@ import json
 import re
 from pathlib import Path
 
-from studioclear.models import ClearanceItem, Source
+from studioclear.models import ClearanceItem, ItemType, Source
 from studioclear.providers.base import Providers
 from studioclear.research.evidence_normalizer import publisher_of
 
@@ -112,11 +112,73 @@ def build_mock_providers() -> Providers:
     return Providers(llm=MockLLMProvider(), search=MockSearchProvider())
 
 
+# Deterministic content sources for the example, keyed by a phrase in the claim.
+_EXAMPLE_SOURCES: dict[str, dict] = {
+    "apollo": {"source_url": "https://www.nasa.gov/mission/apollo-11",
+               "title": "Apollo 11 - NASA",
+               "excerpt": "Apollo 11 first landed humans on the Moon on July 20, 1969."},
+    "berlin wall": {"source_url": "https://history.state.gov/milestones/1989/berlin-wall",
+                    "title": "Fall of the Berlin Wall, 1989 - Office of the Historian",
+                    "excerpt": "The Berlin Wall fell on November 9, 1989."},
+    "golden gate": {"source_url": "https://en.wikipedia.org/wiki/Golden_Gate_Bridge",
+                    "title": "Golden Gate Bridge",
+                    "excerpt": "The Golden Gate Bridge opened to traffic in 1937."},
+    "transatlantic cable": {"source_url": "https://en.wikipedia.org/wiki/Transatlantic_telegraph_cable",
+                            "title": "Transatlantic telegraph cable",
+                            "excerpt": "The first transatlantic telegraph cable was "
+                                       "completed in 1858."},
+    "nikon": {"source_url": "https://en.wikipedia.org/wiki/Nikon", "title": "Nikon",
+              "excerpt": "Nikon Corporation is a Japanese optics and imaging company."},
+}
+_EXAMPLE_BRANDS = ("nikon", "tesla", "coca-cola", "coca cola", "levi", "camera")
+
+
+class ExampleLLMProvider(MockLLMProvider):
+    """Text-aware simulated extractor: derives claims from the actual scene text so
+    a correction and a recheck re-extraction behave like a real run (deterministic,
+    labeled Simulated example). Inherits the year-aware assess/propose logic."""
+
+    def __init__(self):
+        pass  # no fixture file; extraction reads the text
+
+    def extract_items(self, scenes: list[dict]) -> list[ClearanceItem]:
+        items: list[ClearanceItem] = []
+        i = 0
+        for sc in scenes:
+            for sent in re.split(r"(?<=[.!?])\s+|\n+", sc.get("text", "")):
+                s = sent.strip()
+                if len(s) < 6:
+                    continue
+                low = s.lower()
+                has_year = bool(_YEAR.search(s))
+                has_brand = any(k in low for k in _EXAMPLE_BRANDS)
+                if not (has_year or has_brand):
+                    continue
+                i += 1
+                items.append(ClearanceItem(
+                    item_id=f"CLR-{i:03d}", scene=sc.get("scene", 1),
+                    type=ItemType.HISTORICAL_CLAIM if has_year else ItemType.BRAND,
+                    text_span=s, context="example scene"))
+        return items
+
+    def extract_items_from_images(self, images: list[dict]) -> list[ClearanceItem]:
+        return []
+
+
+class ExampleSearchProvider:
+    """Content-keyed simulated search: returns a source when the claim mentions a
+    known entity, else nothing (an honest UNRESOLVED)."""
+
+    def search(self, query: str, item) -> list[dict]:
+        low = item.text_span.lower()
+        for kw, src in _EXAMPLE_SOURCES.items():
+            if kw in low:
+                return [dict(src)]
+        return []
+
+
 def build_example_providers() -> Providers:
-    """Simulated providers for the labeled 'Try an example' showcase — a fixture
-    with one factual mismatch that a revision can correct and a recheck can flip
+    """Simulated providers for the labeled 'Try an example' showcase. Text-aware so
+    a corrected claim genuinely re-extracts and a recheck can flip its status
     (sol.md §14). Clearly a Simulated example; never presented as a live run."""
-    return Providers(
-        llm=MockLLMProvider(DEMO / "example_extraction.json"),
-        search=MockSearchProvider(DEMO / "example_evidence.json"),
-    )
+    return Providers(llm=ExampleLLMProvider(), search=ExampleSearchProvider())

@@ -120,7 +120,7 @@ const S = {                       // minimal frontend state (sol_ui.md §16)
   view:"analyze", mode:"paste",   // input mode: paste | images
   runMode:"live",                 // provider mode: live | example
   images:[],                      // {name, dataUrl}
-  scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false,
+  scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false, handoff:null,
 };
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -147,7 +147,10 @@ function renderExpired(){
 function domainOf(u){try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return u||""}}
 function fmt(iso){if(!iso)return"";const d=new Date(iso);return isNaN(d)?iso:d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"UTC"})+" UTC"}
 
-function setView(v){ if(v!=="analyze"&&!S.run)return; S.view=v; render(); }
+async function setView(v){ if(v!=="analyze"&&!S.run)return; S.view=v;
+  if(v==="handoff"){ S.handoff=null; render();   // show loading, then fetch the one snapshot
+    try{ S.handoff=await api("/report/"+S.run.run_id); }catch(e){ S.error=String(e.message||e); } }
+  render(); }
 function render(){
   document.querySelectorAll("nav .tab").forEach(t=>{
     t.classList.toggle("active",t.dataset.view===S.view);
@@ -473,51 +476,49 @@ async function keepAsWritten(){
   }catch(e){ S.error=String(e.message||e); render(); }
 }
 
-/* ---------------- Handoff (sol_ui.md §10) ---------------- */
+/* ---------------- Handoff (sol_ui.md §10) — renders ONE server snapshot ---------------- */
 function viewHandoff(){
-  const v=S.scene.versions[S.scene.versions.length-1];
-  const text=v.scenes.map(s=>s.text).join("\n\n");
-  const revs=(S.run.revisions||[]).filter(r=>r.status==="accepted");
-  const changes=revs.map(r=>`<tr><td class="mono">${esc(r.item_id)}</td>
-    <td><del>${esc(r.original_text)}</del><br><ins>${esc(r.proposed_text)}</ins></td>
-    <td>${esc(r.rationale)}</td></tr>`).join("")||'<tr><td colspan="3" class="hint">No accepted revisions — research draft.</td></tr>';
-  const open=(S.run.findings||[]).filter(f=>["CONTRADICTED","MIXED","UNRESOLVED","STALE","NOT_RESEARCHED"].includes(f.research_status));
-  const openRows=open.map(f=>`<tr><td>${esc(f.text_span)}</td><td class="status s-${f.research_status}">${esc(STATUS_LABEL[f.research_status])}</td></tr>`).join("")||'<tr><td colspan="2" class="hint">None.</td></tr>';
-  const srcRows=(S.run.sources||[]).map(s=>`<tr><td class="mono">${esc(s.source_id)}</td><td>${esc(s.title||domainOf(s.url))}</td><td>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(domainOf(s.url))}</a>`:""}</td><td>${esc(fmt(s.retrieved_at))}</td></tr>`).join("");
-  const label = revs.length? (S.run.recheck&&S.run.recheck.status!=="complete"?"Accepted revision — recheck incomplete":"Production handoff"):"Research draft";
+  const h=S.handoff;
+  if(!h) return `<div class="card"><p class="hint">Loading handoff…</p></div>`;
+  const srcKey=s=>esc(s.origin_run_id)+" · "+esc(s.source_id);
+  const changes=(h.accepted_changes||[]).map(c=>`<tr><td class="mono">${esc(c.item_id)}</td>
+    <td><del>${esc(c.original_text)}</del><br><ins>${esc(c.proposed_text)}</ins></td>
+    <td>${esc(c.rationale)}<br><span class="hint mono">${(c.evidence||[]).map(r=>esc(r.origin_run_id)+"/"+esc(r.source_id)).join(", ")}</span></td></tr>`).join("")
+    ||'<tr><td colspan="3" class="hint">No accepted revisions — research draft.</td></tr>';
+  const openRows=(h.unresolved||[]).map(u=>`<tr><td>${esc(u.claim)}</td><td class="status s-${u.research_status}">${esc(STATUS_LABEL[u.research_status]||u.research_status)}</td></tr>`).join("")||'<tr><td colspan="2" class="hint">None.</td></tr>';
+  const srcRows=(h.sources||[]).map(s=>`<tr><td class="mono">${srcKey(s)}</td><td>${esc(s.title||domainOf(s.url))}</td><td>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(domainOf(s.url))}</a>`:""}</td><td>${esc(fmt(s.retrieved_at))}</td></tr>`).join("");
+  const unresolvedRefs = h.references_resolved===false
+    ? `<div class="banner warn">Some cited evidence could not be resolved; this handoff is an incomplete draft.</div>` : "";
   return `<div class="card">
-    <h1>${esc(label)}</h1>
-    <div class="hint noprint">${esc(S.scene.title)} · scene v${esc(S.scene.current_version)} · instruction: ${esc(S.run.instruction||"")}</div>
+    <h1>${esc(h.label)}</h1>
+    <div class="hint noprint">${esc(h.title)} · scene v${esc(h.scene.current_version)} · instruction: ${esc(h.instruction||"")} · handoff ${esc(h.run_id||"")}</div>
+    ${unresolvedRefs}
     <div class="row noprint" style="margin:10px 0">
       <button id="dlText">Download scene text</button>
       <button class="ghost" onclick="window.print()">Print / Save PDF</button>
       <button class="ghost" id="dlJson">Download research JSON</button>
       <button class="ghost" id="delNow" style="border-color:var(--contradicted);color:var(--contradicted)">Delete now</button>
     </div>
-    <p class="hint noprint">Expires ${esc(fmtExpiry(S.scene.expires_at))}. <b>Download your handoff before it expires</b> — downloaded files stay with you, outside StudioClear's automated cleanup.${S.run.provider_mode==="example"?' This is a <b>Simulated example</b>.':''}</p>
+    <p class="hint noprint">Expires ${esc(fmtExpiry(h.expires_at))}. <b>Download your handoff before it expires</b> — downloaded files stay with you, outside StudioClear's automated cleanup.${h.simulated?' This is a <b>Simulated example</b>.':''}</p>
     <h2>Accepted scene text</h2>
-    <div class="scenebox" style="max-height:none">${esc(text)}</div>
+    <div class="scenebox" style="max-height:none">${esc(h.scene.accepted_text)}</div>
     <h2 style="margin-top:16px">Accepted changes</h2>
-    <table><thead><tr><th>Claim</th><th>Original → proposed</th><th>Why</th></tr></thead><tbody>${changes}</tbody></table>
+    <table><thead><tr><th>Claim</th><th>Original → proposed</th><th>Why · evidence (run/source)</th></tr></thead><tbody>${changes}</tbody></table>
     <h2 style="margin-top:16px">Unresolved &amp; remaining work</h2>
     <table><thead><tr><th>Claim</th><th>Status</th></tr></thead><tbody>${openRows}</tbody></table>
     <h2 style="margin-top:16px">Source index</h2>
-    <table><thead><tr><th>ID</th><th>Title</th><th>Link</th><th>Retrieved</th></tr></thead><tbody>${srcRows}</tbody></table>
-    <p class="hint" style="margin-top:16px">Run mode: ${esc(S.run.provider_mode)} · research policy ${esc(S.run.policy_version||"")}.
+    <table><thead><tr><th>Origin run / ID</th><th>Title</th><th>Link</th><th>Retrieved</th></tr></thead><tbody>${srcRows}</tbody></table>
+    <p class="hint" style="margin-top:16px">Run mode: ${esc(h.provider_mode)} · research policy ${esc(h.policy_version||"")}.
       Text changes only; any noted art changes are pending and not visually verified.</p>
   </div>`;
 }
 function wireHandoff(){
-  const v=S.scene.versions[S.scene.versions.length-1];
+  const h=S.handoff; if(!h) return;
   const dl=(name,content,type)=>{const b=new Blob([content],{type});const u=URL.createObjectURL(b);
     const a=document.createElement("a");a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)};
-  el("dlText").onclick=()=>dl("scene_v"+S.scene.current_version+".txt",v.scenes.map(s=>s.text).join("\n\n"),"text/plain");
-  // The JSON download is the SANITIZED handoff (no owner/session), fetched from the server.
-  el("dlJson").onclick=async()=>{
-    try{ const h=await api("/report/"+S.run.run_id);
-      dl("handoff_"+S.run.run_id+".json",JSON.stringify(h,null,2),"application/json");
-    }catch(e){ S.error=String(e.message||e); render(); }
-  };
+  // TXT and JSON both derive from the SAME server snapshot the screen rendered.
+  el("dlText").onclick=()=>dl("scene_v"+h.scene.current_version+".txt",h.scene.accepted_text,"text/plain");
+  el("dlJson").onclick=()=>dl("handoff_"+(h.run_id||"")+".json",JSON.stringify(h,null,2),"application/json");
   el("delNow").onclick=async()=>{
     try{ await api("/scenes/"+S.scene.scene_id,{method:"DELETE"}); S.expired=true; renderExpired(); }
     catch(e){ S.error=String(e.message||e); render(); }

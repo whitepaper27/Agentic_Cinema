@@ -102,12 +102,29 @@ def test_idempotent_accept_creates_no_duplicate_version():
     assert scene["current_version"] == 2      # not 3
 
 
-def test_recheck_reports_modified_claim_lineage():
-    providers, scene, run = _scene_and_run()
-    rev = revision.propose(run, scene, APOLLO, providers)
+def test_recheck_reextracts_and_flips_corrected_claim():
+    # Uses the text-aware example provider so recheck genuinely re-extracts the
+    # corrected canonical text (the fixture mock ignores text).
+    from studioclear.providers.mock import build_example_providers
+    providers = build_example_providers()
+    text = "It was the Apollo 11 Moon landing in 1968 that changed everything."
+    items = providers.llm.extract_items([{"scene": 1, "text": text}])
+    scene = {
+        "scene_id": "scene_ex", "current_version": 1, "run_ids": [],
+        "title": "Ex", "instruction": "",
+        "versions": [{"version": 1, "parent_version": None,
+                      "scenes": [{"scene": 1, "text": text}],
+                      "items": [it.model_dump(mode="json") for it in items],
+                      "instruction": "", "locks": []}],
+    }
+    run = run_research(items, providers, run_id="r1")
+    apollo = run["findings"][0]
+    assert apollo["research_status"] == "CONTRADICTED"
+    rev = revision.propose(run, scene, apollo["finding_id"], providers)
     revision.decide(run, scene, rev["revision_id"], "accept", expected_version=1)
-    new_run = revision.recheck(scene, providers, run, run_id="run_recheck")
-    rc = new_run["recheck"]
-    assert rc["status"] == "complete"
-    assert "CLR-011" in rc["modified"]         # the corrected claim was rechecked
-    assert "CLR-011" not in rc["retained"]
+    new_run = revision.recheck(scene, providers, run, run_id="r2")
+
+    flipped = next(f for f in new_run["findings"] if "apollo" in f["text_span"].lower())
+    assert flipped["research_status"] == "SUPPORTED"   # the observable flip
+    assert new_run["recheck"]["modified"]              # matched as modified, not added
+    assert new_run["recheck"]["rechecked_version"] == 2

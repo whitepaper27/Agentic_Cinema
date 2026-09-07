@@ -19,11 +19,18 @@ def _text(version: dict) -> str:
     return "\n\n".join(s.get("text", "") for s in version.get("scenes", []))
 
 
-def build_handoff(run: dict, scene: dict) -> dict:
-    """Return the sanitized, shareable handoff for a run + its scene."""
+def build_handoff(run: dict, scene: dict,
+                  historical_runs: dict[str, dict] | None = None) -> dict:
+    """Return the sanitized, shareable handoff for a run + its scene.
+
+    `historical_runs` maps run_id → run for earlier runs whose sources are cited by
+    accepted revisions, so those citations still resolve after a recheck swapped the
+    current run (sol.md §9). Every exported evidence reference is validated to
+    resolve to exactly one included source."""
     versions = scene.get("versions", [])
     first, current = versions[0], versions[-1]
     origin = run.get("run_id")
+    historical_runs = historical_runs or {}
 
     accepted = [r for r in run.get("revisions", []) if r.get("status") == "accepted"]
     accepted_changes = [{
@@ -52,20 +59,46 @@ def build_handoff(run: dict, scene: dict) -> dict:
     art_notes = [{"item_id": r["item_id"], "art_change": r["art_change"]}
                  for r in accepted if r.get("art_change")]
 
-    sources = [{
-        "source_id": s["source_id"], "origin_run_id": origin, "url": s.get("url", ""),
-        "title": s.get("title", ""), "passages": s.get("passages", []),
-        "query": s.get("query", ""), "retrieved_at": s.get("retrieved_at", ""),
-        "independence": s.get("independence", "unknown"),
-    } for s in run.get("sources", [])]
+    # Union of current-run sources and every historical run cited by an accepted
+    # revision, keyed by {origin_run_id, source_id} and de-duplicated.
+    sources: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    for oid, r in [(origin, run), *historical_runs.items()]:
+        for s in r.get("sources", []):
+            key = (oid, s["source_id"])
+            if key in seen:
+                continue
+            seen.add(key)
+            sources.append({
+                "source_id": s["source_id"], "origin_run_id": oid,
+                "url": s.get("url", ""), "title": s.get("title", ""),
+                "passages": s.get("passages", []), "query": s.get("query", ""),
+                "retrieved_at": s.get("retrieved_at", ""),
+                "independence": s.get("independence", "unknown"),
+            })
 
-    label = ("Research draft" if not accepted
-             else "Accepted revision - recheck incomplete"
-             if run.get("recheck") and run["recheck"].get("status") != "complete"
-             else "Production handoff")
+    # Validate every accepted-change evidence reference resolves to one source.
+    resolvable = {(s["origin_run_id"], s["source_id"]) for s in sources}
+    unresolved_refs = [ref for c in accepted_changes for ref in c["evidence"]
+                       if (ref.get("origin_run_id"), ref.get("source_id")) not in resolvable]
+
+    # Production handoff ONLY for a completed recheck of the CURRENT version. An
+    # absent / pending / failed / stale-version recheck stays incomplete (sol.md §9).
+    rc = run.get("recheck")
+    if not accepted:
+        label = "Research draft"
+    elif (rc and rc.get("status") == "complete"
+          and rc.get("rechecked_version") == scene.get("current_version")):
+        label = "Production handoff"
+    else:
+        label = "Accepted revision - recheck incomplete"
 
     return {
         "schema": "studioclear.handoff.v1",
+        "handoff_id": f"{origin}:{scene.get('current_version')}",
+        "run_id": origin,
+        "scene_id": scene.get("scene_id"),
+        "scene_version": scene.get("current_version"),
         "label": label,
         "title": scene.get("title", ""),
         "provider_mode": run.get("provider_mode"),
@@ -88,5 +121,7 @@ def build_handoff(run: dict, scene: dict) -> dict:
         "unresolved": unresolved,
         "pending_art_notes": art_notes,
         "sources": sources,
+        "references_resolved": not unresolved_refs,
+        "unresolved_references": unresolved_refs,
         "exported_at": datetime.now(timezone.utc).isoformat(),  # actual server UTC
     }

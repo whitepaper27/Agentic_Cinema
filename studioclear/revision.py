@@ -10,11 +10,17 @@ URL or silently unlock protected text.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 
-from studioclear.models import ClearanceItem
 from studioclear.providers.base import Providers
 from studioclear.research_pipeline import run_research
+
+
+def _lineage_key(text: str) -> str:
+    """Identity for claim lineage across an edit: the claim minus digits, so a
+    year correction reads as a MODIFIED claim, not an unrelated new/removed one."""
+    return re.sub(r"\s+", " ", re.sub(r"\d", " ", (text or "").lower())).strip()
 
 _NO_EVIDENCE_STATUSES = {"UNRESOLVED", "NOT_RESEARCHED", "STALE"}
 
@@ -161,21 +167,33 @@ def decide(
 
 def recheck(scene: dict, providers: Providers, prior_run: dict, run_id: str,
             provider_mode: str = "mock") -> dict:
-    """Re-research the changed scene version and report claim lineage (sol.md §8)."""
+    """Re-EXTRACT the changed scene and re-research it, reporting claim lineage.
+
+    Reusing the saved item list is not a recheck (sol.md §8): a claim added only to
+    the canonical text must be discovered. Claims are matched to the prior run by a
+    digit-stripped lineage key so a year correction reads as modified, and status is
+    truthful — a skipped/failed claim keeps the recheck incomplete, never silently
+    'complete'.
+    """
     version = scene["versions"][-1]
-    items = [ClearanceItem(**it) for it in version["items"]]
+    fresh_items = providers.llm.extract_items(version["scenes"])
     new_run = run_research(
-        items, providers, run_id=run_id, scene_id=scene["scene_id"],
+        fresh_items, providers, run_id=run_id, scene_id=scene["scene_id"],
         scene_version=scene["current_version"], provider_mode=provider_mode,
     )
 
-    prior = {f["item_id"]: f for f in prior_run.get("findings", [])}
-    retained, modified, added, changes = [], [], [], []
+    prior_by_key: dict[str, dict] = {}
+    for f in prior_run.get("findings", []):
+        prior_by_key.setdefault(_lineage_key(f["text_span"]), f)
+
+    matched, retained, modified, added, changes = set(), [], [], [], []
     for nf in new_run["findings"]:
-        pf = prior.get(nf["item_id"])
+        key = _lineage_key(nf["text_span"])
+        pf = prior_by_key.get(key)
         if pf is None:
             added.append(nf["item_id"])
             continue
+        matched.add(key)
         before = pf.get("prior_status", pf["research_status"])
         if nf["text_span"] != pf["text_span"] or nf["research_status"] != before:
             modified.append(nf["item_id"])
@@ -186,7 +204,9 @@ def recheck(scene: dict, providers: Providers, prior_run: dict, run_id: str,
             })
         else:
             retained.append(nf["item_id"])
-    removed = [iid for iid in prior if iid not in {f["item_id"] for f in new_run["findings"]}]
+    removed = [pf["item_id"] for k, pf in prior_by_key.items() if k not in matched]
+    skipped = [f["item_id"] for f in new_run["findings"]
+               if f["research_status"] == "NOT_RESEARCHED"]
 
     # Carry the accepted-revision history forward so the handoff reflects the
     # decisions that produced this version (sol.md §10).
@@ -194,9 +214,10 @@ def recheck(scene: dict, providers: Providers, prior_run: dict, run_id: str,
     new_run["instruction"] = prior_run.get("instruction", "")
     new_run["recheck"] = {
         "before_run": prior_run["run_id"],
-        "retained": retained, "modified": modified,
-        "added": added, "removed": removed,
-        "changes": changes,
-        "status": "complete",
+        "rechecked_version": scene["current_version"],
+        "retained": retained, "modified": modified, "added": added,
+        "removed": removed, "skipped": skipped, "changes": changes,
+        # 'complete' means the operation finished; it never implies all supported.
+        "status": "complete" if not skipped else "incomplete",
     }
     return new_run

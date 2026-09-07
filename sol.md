@@ -4,7 +4,7 @@
 
 **Track:** Agentic Cinema / Parallel
 
-**Status:** Final implementation target; enhancements below are not yet shipped.
+**Status:** Repair contract, not a completion claim. Parts are implemented; the fresh-scene recheck gate currently fails. Verify each gate before marking it shipped.
 
 **Official deadline:** September 9, 2026, 2:00 p.m. PDT / 4:00 p.m. CDT.
 
@@ -39,22 +39,22 @@ Winning is an aspiration, not a claim or guaranteed outcome. Judge value comes f
 
 ## 2. Verified starting point and implementation gaps
 
-Assessment date: September 7, 2026. The public root returned HTTP 200 and /health reported ADK 2.8.0 with three initialized agent names. This verifies availability and initialization, not end-to-end live provider execution or visual quality. Findings below come from the local implementation.
+Assessment date: September 7, 2026. The following baseline comes from current local code and offline diagnostics, not a fresh live-provider test of the hosted deployment. It replaces the obsolete pre-reimplementation gap list. Availability and initialized components do not establish end-to-end behavior.
 
 | Area | Existing implementation | Required change |
 | --- | --- | --- |
-| Front door | Load demo run / Run live; request contains no script_text | Paste or upload real material and supply a meaningful instruction |
-| Parsing | Only Markdown headings matching **SCENE N; PDF raises NotImplementedError | Support ordinary text and INT./EXT. slugs; add image extraction |
-| Vision | No image ingestion/extraction path | Read actual uploaded pixels and confirm page-linked extraction |
-| Evidence | Returned sources are assigned supports: true; normalization is a stub | Assess support, contradiction, relevance, and insufficiency against the exact claim |
-| Policy | Some factual claims become CLEAR from source counts | Use assessed evidence and separate research findings from human decisions |
-| Confidence | Formula yields 0.4 with no sources and 1.0 with three | Remove quality percentages; display evidence coverage and limitations |
-| Agents | ADK researcher executes on the optional ADK path; planning and policy use ordinary code | Report actual execution; implement bounded research follow-up where evidence requires it |
-| Governance display | IAM rows are static; an unapproved-tool denial is deliberately inserted each run | Label configuration and self-tests accurately; show actual events separately |
-| Revision | Human decisions exist, but no scene revision/recheck loop | Add versioned proposals, acceptance, scene re-extraction, and recheck |
-| Storage | Run JSON on container/local filesystem | Durable run and asset storage with per-run access control for hosted uploads |
-| Evaluation | Fixture-based tests; cached golden command ends in || true | Enforce useful CI failures and evaluate unseen material separately |
-| Timestamps | Pipeline defaults to the fixed demo timestamp even for live callers | Capture actual server UTC times on the live path |
+| Input | Paste/image routes exist; image transcript joins extracted claim snippets | Preserve complete dialogue/captions separately from visual descriptions and claims; retain original assets |
+| Research | Structured evidence assessment exists, but research receives items without full scene/instruction | Pass version-bound context and intent into question planning and applicability assessment |
+| Confirmation | Scene text and item list can be saved independently | Derive claims from confirmed canonical text; invalidate outdated findings/proposals |
+| Revision | Proposals, acceptance, versioning, and keep decisions exist | Validate exact target occurrence, current research version, nonempty applicable evidence, and positional locks |
+| Recheck | Reuses saved items without extracting revised text | Re-extract the changed scene, discover added claims, and preserve decision/source lineage |
+| Handoff | Sanitized JSON exists; earlier-run citations may be absent; latest text can mix with older findings | Bind one export snapshot to an explicit scene version and include all referenced source records |
+| Completion | Accepted revision can be labeled Production handoff before any recheck | Require explicit version-matching coverage; missing, failed, or stale recheck stays incomplete |
+| UI outputs | Print/TXT use browser state; JSON uses a separate server builder | Render every deliverable from the same validated handoff snapshot |
+| Execution | Example mode/self-test labels exist; research audit is not full provider trace | Record actual stage calls/outcomes; keep audit and self-tests secondary |
+| Timestamps | Initial live run supplies current time; recheck omits it and inherits fixture default | Use actual live operation/retrieval timestamps on every path |
+
+Offline diagnostic results: an accepted revision was labeled Production handoff before recheck; earlier-run evidence references were missing from exported sources. A fresh Signal Room scene with an added cable claim triggered zero extraction calls, passed only the saved camera item to research, and returned recheck status complete. These are control-flow failures, not model-accuracy measurements.
 
 A real citation URL establishes provenance. It does not establish that its passage supports a claim, that publishers are independent, or that a depiction is cleared for use.
 
@@ -198,6 +198,14 @@ Deprecate confidence in the new schema. No percentage-quality badge until there 
 
 ## 8. Revision and recheck contract
 
+### One authoritative scene version
+
+Canonical scene content is the source of truth. Claims are derived from an identified version, never a separately editable competing transcript. Store complete transcribed speech/captions, interpreted visual action, and original assets distinctly. A list of detected references is not a scene transcript.
+
+Bind research, proposals, decisions, and rechecks to scene ID/version. A confirmed text/context/instruction change invalidates dependent current results. Pass full relevant context and instruction to question planning and evidence applicability assessment. Ask a specific question (for example, availability of a prop in the scene's year), not merely whether an entity exists.
+
+Validate edit targets using version-bound span locations and original text. Refuse missing/ambiguous targets and no-op edits. Each protected occurrence must remain unchanged; finding the same string elsewhere is not lock validation. Require nonempty, applicable evidence for the proposed correction rather than merely filtering IDs against all sources in the run.
+
 A proposal includes revision_id, base_scene_version, target span IDs, original text, proposed edits, rationale, grounded evidence references, exact-lock validation, semantic-constraint notes, and any art-change instructions. Each evidence reference is the pair `{origin_run_id, source_id}` so a recheck cannot accidentally reinterpret `S001` from a different run.
 
 **Rules:**
@@ -216,6 +224,8 @@ A proposal includes revision_id, base_scene_version, target span IDs, original t
 - A removed claim is “Removed in revision,” not “Verified.” A newly introduced unsupported detail prevents a “fully rechecked” completion message.
 - Retain both before and after results. Recheck may remain MIXED or UNRESOLVED.
 - A failed recheck leaves the accepted version intact with a retryable failure; do not fall back to old green statuses.
+
+Separate operation completion from research coverage and factual outcomes. Record the exact rechecked version, extraction outcome, assessed/skipped claim IDs, and failures. A completed recheck may have UNRESOLVED findings, but skipped or failed research must remain explicit; never imply all claims were checked. Preserve keep/review decisions for retained claims with original version/time provenance; changed claims require renewed review, not silently inherited approval.
 
 Text-only changes cannot establish that a depicted visual error was corrected. If art must change, export the art note and keep visual verification pending until updated artwork is supplied.
 
@@ -257,6 +267,15 @@ Panel bounds are optional normalized coordinates tied to a specific asset. If bo
 Keep existing /policy, /health, and legacy /upload behavior available for the explicit legacy demo. Prevent arbitrary user content from silently selecting mock providers.
 
 The shareable handoff is an allowlisted export schema rather than a dump of the internal run object. It contains the complete original and accepted scene text, scene/version lineage, instruction, protected spans, accepted/rejected/keep decisions, evidence references and source records, recheck lineage, unresolved work, and pending art notes. It excludes `owner`, session identifiers, cookies, internal authorization context, and other access-control material. Text, PDF, and JSON are the product outputs; generated film/video remains deferred.
+
+### Single handoff snapshot and export validation
+
+- Build and identify one handoff snapshot using `handoff_id`, `scene_id`, `scene_version`, `run_id`, and `exported_at`. Screen preview, TXT, printable PDF, and JSON consume that same snapshot. Do not join an old run to `versions[-1]` or construct a second client-side report.
+- Snapshot evidence cited by a proposal before later research can replace the current source list. Export the union of current finding sources and historical revision sources, keyed by `{origin_run_id, source_id}`. Preserve their original query, passage, and retrieval time; never relabel old records as new sources.
+- Validate that every exported evidence reference resolves to exactly one included source and every quoted passage matches its stored record. An unresolved reference blocks the validated handoff with a structured error; standalone scene text can remain available as an explicitly incomplete draft.
+- Export accepted/rejected/keep decisions with their version and actual decision time. Unresolved work includes the question, limitation, human decision, and next action, not just a claim/status pair.
+- No accepted change: Research draft. Accepted change with absent, pending, failed, or version-mismatched recheck: Accepted revision — recheck incomplete. A version-matching completed check can produce a Production handoff, with any skipped research, unresolved questions, and pending artwork prominently disclosed. This label never means clearance or that every finding is supported.
+- A new scene edit leaves an old snapshot as labeled history; it cannot become the current handoff. Revalidate ownership and fixed expiry whenever serving or generating a snapshot.
 
 Separate fixture provenance from operation time. A simulated example keeps its fixture timestamp in a clearly named provenance field; revisions, decisions, rechecks, and exports use their actual server UTC timestamps. Never present a fixture timestamp as the creation time of later user actions.
 
@@ -324,6 +343,33 @@ Retain useful existing tests and add meaningful coverage for the changed behavio
 
 Keep deterministic fixture tests for regression, but do not call their outputs live model quality measurements.
 
+### First repair gate: Signal Room
+
+Use this original text as the first regression case, not another Apollo fixture:
+
+~~~text
+INT. SIGNAL ROOM - NIGHT
+SUPER: 1935
+
+ELSIE
+Keep the light on. I promised I would return.
+
+She photographs the logbook with a digital camera.
+An unidentified crest is stamped on the door.
+~~~
+
+Instruction: "Check whether the props fit the stated year. Preserve Elsie's dialogue exactly. Do not invent an identity for the crest." Lock the complete dialogue occurrence above.
+
+1. Confirm that the complete scene survives extraction and that the research question includes the 1935 setting. Do not preassign a factual verdict or a replacement prop; retrieve applicable evidence live.
+2. Inspect a source-backed proposal, accept only a justified edit, and verify that dialogue, unrelated action, and scene context remain intact. The unidentified crest must not acquire an invented identity or permission claim.
+3. In a separate controlled edit, append: "A caption says: The first transatlantic cable opened in 1858." Save a new version and recheck. The added claim must be extracted and researched or explicitly marked skipped/failed; its truth is not assumed by this test.
+4. Verify that older accepted-change citations still resolve, keep decisions remain in history, and all exports refer to the identical checked version.
+5. Repeat with an original readable storyboard page, including dialogue that is not itself a researchable claim. Verify actual image reading and full transcription, not concatenated extracted references.
+
+The September 7 offline probe exercised step 3's control flow with a stubbed research function: only the saved camera claim was passed through, extraction calls were zero, and recheck reported complete. No live provider, browser, historical validation, or image test was performed in that probe. Convert this observed failure into an automated regression before changing pipeline behavior.
+
+Once used for development, Signal Room is a regression case, not a held-out evaluation example. Reserve different material for final live evaluation.
+
 ### Unseen-scene evaluation
 
 Before freeze, aim for at least six short scenes not used to tune the demo: plain text, a storyboard, a valid fact, a false factual detail, an ambiguous/insufficient case, and an injection-containing scene. These categories may overlap.
@@ -368,12 +414,12 @@ Each phase has a gate. Do not polish an unsupported conclusion or record planned
 
 | Phase | Work and principal files | Exit condition |
 | --- | --- | --- |
-| 1. Evidence foundation | models.py; research/evidence_normalizer.py; providers; contract/policy_evaluator.py; pipeline.py | Irrelevant/contradicting sources cannot clear a factual claim; legacy results labeled |
-| 2. Real input | analyzer/script_parser.py; providers/gemini.py; app/api/main.py; frontend | A new pasted scene and actual uploaded page produce editable extraction; no mock fallback |
-| 3. Research desk | source/claim store; focused questions; ADK tools; evidence UI | Confirmed scene yields source-linked support/contradiction/uncertainty with actual execution |
-| 4. Revision loop | new revision module; store/versioning; API and frontend | Propose → accept/reject → changed-scene recheck, with exact locks and failure recovery |
-| 5. Handoff and hosting | report UI; durable storage/session scope; retention; deployment config | Export matches accepted version; hosted run survives restart and remains session-scoped |
-| 6. Proof and submission | tests/evals; README; demo assets; video and Devpost | Unseen-scene results recorded; honest three-minute walkthrough and submission complete |
+| 1. Reproduce before repair | Signal Room; regression tests for revision, recheck, and handoff | Failing cases capture missing new claims, unresolved citation references, premature completion, and mixed versions |
+| 2. Canonical source and research | providers/gemini.py; scene store; app/api/main.py; research_pipeline.py | Complete text/image extraction; confirmed version and intent determine researched questions |
+| 3. Repair revision and recheck | revision.py; providers; version/decision store | Exact-target edits, protected occurrences, fresh extraction, complete claim lineage, preserved decisions, truthful failure states |
+| 4. Repair handoff integrity | handoff.py; source snapshots; API | All citations resolve; matching version/coverage governs completion; one validated snapshot supplies outputs |
+| 5. Connect the UI | app/frontend/index.html; actual operation records | Source/evidence/edit remain connected; preview/TXT/PDF/JSON agree; input survives retry and refresh |
+| 6. Live proof and submission | hosted storage/privacy checks; held-out scenes; observed user; video | Actual Gemini/Parallel workflow, reliable export and 24-hour expiry, honest results and submitted demo |
 
 Integrate upload privacy/storage when introducing real uploads; phase 5 is the release verification of that work, not permission to expose private drafts earlier.
 
