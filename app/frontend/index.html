@@ -5,108 +5,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>StudioClear — Script Clearance Research Desk</title>
 <style>
+  /* "Clearance Desk" — a film-studio script-clearance report with a screenplay
+     (Courier) voice. The verdicts are inked stamps; the chrome stays quiet warm
+     ink so the state colors are the only saturation on the page. */
   :root {
-    --bg:#0e1116; --panel:#161b22; --panel2:#1c2230; --line:#2a3140;
-    --ink:#e6edf3; --dim:#8b98a9; --accent:#5aa6ff;
-    --clear:#3fb950; --review:#d29922; --escalate:#f85149; --insuf:#a371f7;
+    --paper:#141210; --panel:#1d1a15; --panel2:#25201a; --line:#39322a;
+    --ink:#ece5d7; --dim:#a89d89; --brass:#cbb277;
+    --clear:#79bd6a; --review:#e0a53f; --escalate:#e26141; --insuf:#ac8ee2;
+    --mono:"Courier New","Courier",ui-monospace,monospace;
+    --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
   }
   * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-         background:var(--bg); color:var(--ink); }
-  header { padding:18px 24px; border-bottom:1px solid var(--line); background:var(--panel);
-           display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-  h1 { margin:0; font-size:18px; letter-spacing:.2px; }
-  .tag { color:var(--dim); font-size:12px; margin-top:2px; }
-  main { max-width:1100px; margin:0 auto; padding:20px 24px 60px; }
-  .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:18px; }
-  button { background:var(--accent); color:#07101f; border:0; padding:9px 16px;
-           border-radius:7px; font-weight:600; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); }
+  body { margin:0; font:15px/1.55 var(--sans); background:var(--paper); color:var(--ink);
+         -webkit-font-smoothing:antialiased; }
+  a { color:var(--brass); }
+
+  /* masthead — reads like the header of a clearance document */
+  header { padding:20px 26px 16px; border-bottom:1px solid var(--line); background:var(--panel);
+           display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; }
+  .doc { font:700 20px/1 var(--mono); letter-spacing:3px; }
+  .doc .amp { color:var(--brass); }
+  .tagline { color:var(--dim); font-size:12.5px; margin-top:5px; font-family:var(--mono); }
+  .trust { margin-left:auto; font:600 12.5px/1 var(--mono); display:flex; align-items:center; gap:7px;
+           padding:6px 10px; border:1px solid var(--line); border-radius:4px; background:var(--paper); }
+  .trust .dot { font-size:12px; }
+  .trust-live { color:var(--clear); border-color:rgba(121,189,106,.4); }
+  .trust-mock { color:var(--dim); }
+  .trust-hybrid { color:var(--review); border-color:rgba(224,165,63,.4); }
+  .trust .sub { color:var(--dim); font-weight:400; }
+
+  main { max-width:1120px; margin:0 auto; padding:22px 26px 70px; }
+
+  .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:6px; }
+  button { font:700 13px var(--mono); letter-spacing:.4px; background:var(--ink); color:var(--paper);
+           border:0; border-bottom:2px solid #a49a86; padding:9px 16px; border-radius:5px; cursor:pointer; }
+  button:hover { filter:brightness(1.06); }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); border-bottom:1px solid var(--line); }
   button:disabled { opacity:.5; cursor:default; }
   label.chk { color:var(--dim); font-size:13px; display:flex; gap:6px; align-items:center; }
-  .badges { margin-left:auto; color:var(--dim); font-size:12px; }
-  /* trust bar */
-  .trust { margin-left:auto; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px; }
-  .trust .dot { font-size:11px; }
-  .trust-live { color:var(--clear); } .trust-mock { color:var(--dim); }
-  .trust-hybrid { color:var(--review); }
-  .trust .sub { color:var(--dim); font-weight:400; }
-  /* section headings */
-  .sec { margin:22px 0 10px; } .sec h2 { font-size:12px; text-transform:uppercase;
-         letter-spacing:.5px; color:var(--dim); margin:0 0 2px; font-weight:600; }
-  .sec .hint { color:var(--dim); font-size:12px; }
-  /* agent pipeline */
-  .agents { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  @media (max-width:760px){ .agents{ grid-template-columns:1fr; } }
-  .agent-card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; position:relative; }
-  .agent-card .role { font-size:11px; text-transform:uppercase; letter-spacing:.4px; color:var(--accent); font-weight:700; }
-  .agent-card .name { font-weight:700; margin-top:2px; }
-  .agent-card .model { color:var(--dim); font-size:11px; font-family:ui-monospace,Consolas,monospace; }
-  .agent-card .did { margin-top:9px; font-size:13px; }
-  .agent-card .big { font-size:22px; font-weight:700; }
-  .agent-card .cap { color:var(--dim); font-size:11px; margin-top:8px; line-height:1.4; }
-  .arrow { align-self:center; color:var(--dim); text-align:center; }
-  /* chips */
-  .chip { display:inline-block; padding:3px 10px; border-radius:20px; background:var(--panel2);
-          border:1px solid var(--line); font-size:12px; margin:3px 4px 0 0; }
-  .chip b { color:var(--ink); } .chip .c { color:var(--dim); }
-  /* governance / DENY */
-  .deny-hero { border:1px solid var(--escalate); background:rgba(248,81,73,.08);
-               border-radius:10px; padding:13px 15px; }
-  .deny-hero .h { color:var(--escalate); font-weight:700; }
-  .deny-hero code { font-family:ui-monospace,Consolas,monospace; color:var(--ink); }
-  details.audit { margin-top:12px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
-  details.audit summary { cursor:pointer; color:var(--ink); font-weight:600; font-size:13px; }
-  .timeline { margin-top:10px; border-top:1px solid var(--line); }
-  .tl { display:flex; gap:10px; padding:5px 0; border-bottom:1px solid var(--line); font-size:12px; align-items:baseline; }
-  .tl .act { min-width:150px; color:var(--ink); font-weight:600; }
+  .badges { margin-left:auto; color:var(--dim); font-size:11.5px; font-family:var(--mono); }
+  #status { color:var(--dim); font-size:12.5px; font-family:var(--mono); }
+
+  /* section headers as screenplay scene slugs (uppercase Courier is heritage, not an eyebrow) */
+  .sec { margin:26px 0 12px; }
+  .sec h2 { font:700 12px var(--mono); letter-spacing:2px; color:var(--ink); margin:0 0 3px;
+            padding-bottom:6px; border-bottom:1px solid var(--line); text-transform:uppercase; }
+  .sec h2 .marker { color:var(--brass); margin-right:8px; }
+  .sec .hint { color:var(--dim); font-size:12px; font-family:var(--sans); text-transform:none; letter-spacing:0; font-weight:400; }
+  code { font-family:var(--mono); color:var(--brass); }
+
+  /* agent pipeline — left-to-right order carries the sequence; no arrow decoration */
+  .agents { display:flex; flex-wrap:wrap; gap:14px; }
+  .agent-card { flex:1 1 250px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; }
+  .agent-card .role { font:700 11px var(--mono); letter-spacing:1.5px; color:var(--brass); text-transform:uppercase; }
+  .agent-card .name { font:700 15px var(--mono); margin-top:3px; }
+  .agent-card .model { color:var(--dim); font:11px var(--mono); }
+  .agent-card .did { margin-top:11px; font-size:14px; }
+  .agent-card .big { font:700 26px var(--mono); }
+  .agent-card .cap { color:var(--dim); font-size:11.5px; margin-top:10px; line-height:1.5; }
+
+  .chip { display:inline-block; padding:3px 10px; border-radius:4px; background:var(--panel2);
+          border:1px solid var(--line); font:12px var(--mono); margin:4px 4px 0 0; }
+  .chip b { color:var(--ink); } .chip .c { color:var(--brass); }
+
+  /* governance — the DENY is the hero moment */
+  .deny-hero { border:1px solid var(--escalate); background:rgba(226,97,65,.09); border-radius:8px; padding:14px 16px; }
+  .deny-hero .h { color:var(--escalate); font:700 13px var(--mono); letter-spacing:.5px; }
+  details.audit { margin-top:12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:11px 15px; }
+  details.audit summary { cursor:pointer; font:600 13px var(--mono); }
+  .timeline { margin-top:11px; border-top:1px solid var(--line); }
+  .tl { display:flex; gap:12px; padding:5px 0; border-bottom:1px solid var(--line); font-size:12px; align-items:baseline; }
+  .tl .act { min-width:158px; font:600 12px var(--mono); }
   .tl .det { color:var(--dim); flex:1; }
-  .tl .hash { color:var(--dim); font-family:ui-monospace,Consolas,monospace; font-size:11px; }
+  .tl .hash { color:var(--brass); font:11px var(--mono); }
   .tl.deny .act { color:var(--escalate); }
-  .verdict { margin-top:10px; font-size:13px; }
-  /* tiles */
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:6px; }
-  .tile { background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 14px; }
-  .tile .n { font-size:24px; font-weight:700; }
-  .tile .l { color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.4px; }
+  .verdict { margin-top:11px; font-size:13px; font-family:var(--mono); }
+
+  /* triage tiles */
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:13px 15px; }
+  .tile .n { font:700 26px var(--mono); }
+  .tile .l { color:var(--dim); font:11px var(--mono); letter-spacing:.6px; text-transform:uppercase; margin-top:2px; }
   .tile.clear .n{color:var(--clear)} .tile.review .n{color:var(--review)}
   .tile.escalate .n{color:var(--escalate)} .tile.insuf .n{color:var(--insuf)}
-  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:9px; overflow:hidden; }
-  th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13px; }
-  th { color:var(--dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.4px; }
+
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  th,td { text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); font-size:13.5px; }
+  th { color:var(--dim); font:600 11px var(--mono); text-transform:uppercase; letter-spacing:.6px; }
   tr.item { cursor:pointer; } tr.item:hover { background:var(--panel2); }
-  tr.item.hl { background:rgba(90,166,255,.10); }
-  .pill { padding:2px 9px; border-radius:20px; font-size:11px; font-weight:700; }
-  .CLEAR{background:rgba(63,185,80,.16);color:var(--clear)}
-  .REVIEW{background:rgba(210,153,34,.16);color:var(--review)}
-  .ESCALATE{background:rgba(248,81,73,.16);color:var(--escalate)}
-  .INSUFFICIENT_EVIDENCE{background:rgba(163,113,247,.16);color:var(--insuf)}
-  .hd { color:var(--dim); font-size:12px; }
-  /* drawer */
+  tr.item.hl { background:rgba(203,178,119,.12); }
+  td.mono { font-family:var(--mono); color:var(--dim); }
+
+  /* verdicts as inked stamps */
+  .pill { font:700 11px var(--mono); letter-spacing:.6px; text-transform:uppercase;
+          border:1.5px solid currentColor; border-radius:3px; padding:2px 8px; white-space:nowrap; }
+  .CLEAR{color:var(--clear)} .REVIEW{color:var(--review)}
+  .ESCALATE{color:var(--escalate)} .INSUFFICIENT_EVIDENCE{color:var(--insuf)}
+  .pill.action { color:var(--ink); }
+  .hd { color:var(--dim); font-size:12.5px; font-family:var(--mono); }
+
   .drawer { position:fixed; top:0; right:0; width:min(560px,94vw); height:100%; background:var(--panel);
-            border-left:1px solid var(--line); padding:20px; overflow:auto; transform:translateX(100%);
-            transition:transform .18s ease; z-index:10; }
+            border-left:1px solid var(--line); padding:22px; overflow:auto; transform:translateX(100%);
+            transition:transform .2s ease; z-index:10; box-shadow:-14px 0 40px rgba(0,0,0,.4); }
   .drawer.open { transform:none; }
-  .drawer h3 { margin:0 0 2px; } .drawer .close { float:right; }
-  .ev { background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:10px; margin:8px 0; }
-  .ev a { color:var(--accent); text-decoration:none; word-break:break-all; }
-  .ev .pub { color:var(--dim); font-size:11px; }
-  .kv { color:var(--dim); font-size:12px; margin:6px 0; }
-  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .drawer h3 { margin:0 0 3px; font-family:var(--mono); } .drawer .close { float:right; }
+  .drawer h4 { font:700 11px var(--mono); letter-spacing:1px; text-transform:uppercase; color:var(--brass); margin:16px 0 4px; }
+  .ev { background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:11px; margin:8px 0; }
+  .ev a { word-break:break-all; text-decoration:none; }
+  .ev .pub { color:var(--dim); font:11px var(--mono); margin-top:2px; }
+  .kv { color:var(--dim); font-size:12.5px; margin:6px 0; }
+  .kv b { color:var(--ink); font-family:var(--mono); font-weight:700; }
+  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
   .acts button { font-size:12px; padding:7px 12px; }
-  .muted { color:var(--dim); } a.src{color:var(--accent)}
+  .muted { color:var(--dim); }
   .ok { color:var(--clear); font-weight:700; } .bad { color:var(--escalate); font-weight:700; }
-  /* policy table */
   .ptable td, .ptable th { font-size:12.5px; }
-  .ptable .flags { color:var(--dim); font-size:11px; }
-  .pill.action { background:var(--panel2); color:var(--ink); }
+  .ptable .flags { color:var(--dim); font:11px var(--mono); }
+  @media (max-width:640px){ .doc{font-size:17px;letter-spacing:2px} }
 </style>
 </head>
 <body>
 <header>
   <div>
-    <h1>StudioClear <span class="muted">— Agent Operations Desk</span></h1>
-    <div class="tag">Agents research and recommend. The studio clears.</div>
+    <div class="doc">STUDIO<span class="amp">·</span>CLEAR</div>
+    <div class="tagline">Agents research and recommend. The studio clears.</div>
   </div>
   <div class="trust" id="trustbar"></div>
 </header>
@@ -116,49 +138,44 @@
     <label class="chk"><input type="checkbox" id="live" /> Use live Gemini + Parallel</label>
     <label class="chk"><input type="checkbox" id="adk" /> Agentic (ADK)</label>
     <button class="ghost" id="policyBtn">Studio policy</button>
-    <span class="muted" id="status">Ready.</span>
+    <span id="status">Ready.</span>
     <span class="badges" id="providers"></span>
   </div>
 
-  <!-- Agent pipeline -->
   <section class="sec" id="agentsSec" hidden>
-    <h2>Agent pipeline <span class="hint">— three Google ADK agents (real <code>google.adk</code> Agents)</span></h2>
+    <h2><span class="marker">INT.</span>AGENT PIPELINE <span class="hint">three Google ADK agents (real <code>google.adk</code> Agents)</span></h2>
     <div class="agents" id="agents"></div>
   </section>
 
-  <!-- Governance / DENY + audit -->
   <section class="sec" id="govSec" hidden>
-    <h2>Governance</h2>
+    <h2><span class="marker">INT.</span>GOVERNANCE</h2>
     <div id="gov"></div>
   </section>
 
-  <!-- Plan / batches -->
   <section class="sec" id="planSec" hidden>
-    <h2>Research plan <span class="hint">— how the Planner grouped the work</span></h2>
+    <h2><span class="marker">INT.</span>RESEARCH PLAN <span class="hint">how the Planner grouped the work</span></h2>
     <div id="plan"></div>
   </section>
 
-  <!-- Summary tiles -->
-  <section class="sec" id="tilesSec" hidden><h2>Triage summary</h2>
+  <section class="sec" id="tilesSec" hidden>
+    <h2><span class="marker">INT.</span>TRIAGE SUMMARY</h2>
     <div class="tiles" id="tiles"></div>
   </section>
 
   <table id="table" hidden>
     <thead><tr>
       <th>Item</th><th>Sc</th><th>Type</th><th>Reference</th>
-      <th>Recommendation</th><th>Sources</th><th>Conf.</th><th>Batch</th><th>Human</th>
+      <th>Recommendation</th><th>Src</th><th>Conf.</th><th>Batch</th><th>Human</th>
     </tr></thead>
     <tbody id="rows"></tbody>
   </table>
 </main>
 
-<!-- evidence drawer -->
 <div class="drawer" id="drawer">
   <button class="ghost close" onclick="closeDrawer()">Close</button>
   <div id="drawerBody"></div>
 </div>
 
-<!-- policy drawer -->
 <div class="drawer" id="policyDrawer">
   <button class="ghost close" onclick="closePolicy()">Close</button>
   <div id="policyBody"></div>
@@ -213,14 +230,14 @@ function renderTrustBar() {
   let cls, dot = '●', label, sub;
   if (llmLive && searchLive) {
     cls = 'trust-live'; label = 'LIVE';
-    sub = 'Gemini 2.5 Pro · Parallel Search · ' + (adkInPath ? ('ADK ' + ver + ' (in path)') : ('ADK ' + ver + ' ready'));
+    sub = 'Gemini 2.5 Pro / Parallel Search / ' + (adkInPath ? ('ADK ' + ver + ' in path') : ('ADK ' + ver + ' ready'));
   } else if (llmLive && !searchLive) {
     cls = 'trust-hybrid'; label = 'LIVE Gemini'; sub = 'mock search';
   } else {
     cls = 'trust-mock'; label = 'cached / mock'; sub = 'deterministic offline run';
   }
   $('#trustbar').className = 'trust ' + cls;
-  $('#trustbar').innerHTML = `<span class="dot">${dot}</span> ${label} <span class="sub">· ${esc(sub)}</span>`;
+  $('#trustbar').innerHTML = `<span class="dot">${dot}</span> ${label} <span class="sub">${esc(sub)}</span>`;
 }
 
 // --- Agent pipeline: derived entirely from the run report (no fabrication) ---
@@ -235,25 +252,21 @@ function renderAgents() {
     .filter(k => s[k]).map(k => `<span class="pill ${k}">${s[k]} ${k.replace('_EVIDENCE','').replace('_',' ')}</span>`).join(' ');
 
   const planner = card('Planner', 'research_planner', 'gemini-2.5-pro',
-    `<div><span class="big">${batches.length}</span> research batches</div><div style="margin-top:6px">${batchChips}</div>`,
+    `<div><span class="big">${batches.length}</span> research batches</div><div style="margin-top:7px">${batchChips}</div>`,
     'Groups extracted references into batches so related items are researched together.');
   const researcher = card('Researcher', 'researcher', 'gemini-2.5-flash',
-    `<div><span class="big">${RUN.items ? RUN.items.length : 0}</span> items researched · <b>${sources}</b> cited sources</div>
-     <div style="margin-top:4px" class="muted">${m.evidence_backed || 0}/${m.references_detected || 0} evidence-backed · multi-source ${m.multi_source_satisfied||0}/${m.multi_source_required||0}</div>`,
+    `<div><span class="big">${RUN.items ? RUN.items.length : 0}</span> items researched, <b>${sources}</b> cited sources</div>
+     <div style="margin-top:5px" class="muted">${m.evidence_backed || 0}/${m.references_detected || 0} evidence-backed, multi-source ${m.multi_source_satisfied||0}/${m.multi_source_required||0}</div>`,
     'Calls parallel_search as an ADK tool. URLs come only from the tool response — the model never emits a citation (evidence-integrity invariant).');
   const reviewer = card('Reviewer', 'reviewer', 'gemini-2.5-flash',
     `<div>${distPills || '<span class="muted">—</span>'}</div>`,
     'Triage state comes from the deterministic apply_policy tool, not the model. No "cleared by AI" state exists — humans decide.');
 
-  $('#agents').innerHTML = planner + `<div class="arrow">→</div>` + researcher + `<div class="arrow">→</div>` + reviewer;
-  // 3 cards + 2 arrows won't fit the 3-col grid; switch to a flex row instead
-  $('#agents').style.display = 'flex';
-  $('#agents').style.flexWrap = 'wrap';
-  $('#agents').style.alignItems = 'stretch';
+  $('#agents').innerHTML = planner + researcher + reviewer;
   $('#agentsSec').hidden = false;
 }
 function card(role, name, model, did, cap) {
-  return `<div class="agent-card" style="flex:1 1 240px">
+  return `<div class="agent-card">
     <div class="role">${esc(role)}</div>
     <div class="name">${esc(name)}</div>
     <div class="model">${esc(model)}</div>
@@ -271,10 +284,10 @@ function renderGovernance() {
   if (deny) {
     const b = deny.body;
     html += `<div class="deny-hero">
-      <div class="h">🛑 Tool call DENIED &amp; audited</div>
-      <div style="margin-top:5px"><code>${esc(b.agent_id||'agent')}</code> requested
+      <div class="h">TOOL CALL DENIED &amp; AUDITED</div>
+      <div style="margin-top:6px"><code>${esc(b.agent_id||'agent')}</code> requested
         <code>${esc(b.tool||'?')}</code> → <b>${esc(b.reason||'denied')}</b></div>
-      <div class="muted" style="margin-top:4px">Not in the approved-tool registry — a genuine block, not a mock (${g.unauthorized_blocked||0} blocked this run).</div>
+      <div class="muted" style="margin-top:5px">Not in the approved-tool registry — a genuine block, not a mock (${g.unauthorized_blocked||0} blocked this run).</div>
     </div>`;
   }
   const rows = chain.map(e => {
@@ -343,10 +356,10 @@ function renderTable() {
   (RUN.batches||[]).forEach(b => (b.items||[]).forEach(id => batchOf[id] = b.name));
   $('#rows').innerHTML = RUN.items.map((it,i) => `
     <tr class="item" data-id="${esc(it.item_id)}" onclick="openDrawer(${i})">
-      <td>${esc(it.item_id)}</td><td>${esc(String(it.scene))}</td><td class="muted">${esc(it.type)}</td>
+      <td class="mono">${esc(it.item_id)}</td><td class="mono">${esc(String(it.scene))}</td><td class="muted">${esc(it.type)}</td>
       <td>${esc(it.text_span)}</td>
       <td><span class="pill ${it.state}">${it.state.replace('_',' ')}</span></td>
-      <td>${it.source_count}</td><td>${it.confidence.toFixed(2)}</td>
+      <td class="mono">${it.source_count}</td><td class="mono">${it.confidence.toFixed(2)}</td>
       <td class="hd">${esc(batchOf[it.item_id] || '—')}</td>
       <td class="hd">${it.human_decision ? esc(it.human_decision.action) : '—'}</td>
     </tr>`).join('');
@@ -399,16 +412,16 @@ async function openPolicy() {
     const r = sp[k];
     const flags = flagKeys.filter(f => r[f]).join(', ');
     const mins = (r.minimum_independent_sources != null) ? r.minimum_independent_sources : '—';
-    return `<tr><td>${esc(k)}</td>
+    return `<tr><td class="mono">${esc(k)}</td>
       <td><span class="pill action">${esc(r.action||'')}</span></td>
-      <td>${esc(String(mins))}</td>
+      <td class="mono">${esc(String(mins))}</td>
       <td class="flags">${esc(flags||'—')}</td></tr>`;
   }).join('');
   $('#policyBody').innerHTML = `
     <h3>Studio policy <span class="muted">${esc((POLICY&&POLICY.policy_id)||'')}</span></h3>
     <p class="muted">Deterministic triage policy — maps item type + evidence to a state.
       It does <b>not</b> decide legality; humans make the final call (§12/§14).</p>
-    <table class="ptable"><thead><tr><th>Type</th><th>Action</th><th>Min sources</th><th>Flags</th></tr></thead>
+    <table class="ptable"><thead><tr><th>Type</th><th>Action</th><th>Min src</th><th>Flags</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="4" class="muted">Policy unavailable.</td></tr>'}</tbody></table>`;
   $('#policyDrawer').classList.add('open');
 }
