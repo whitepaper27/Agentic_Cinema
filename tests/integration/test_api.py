@@ -65,3 +65,14 @@ def test_override_requires_reason():
 
 def test_unknown_run_404():
     assert client.get("/run/run_nope").status_code == 404
+
+
+def test_policy_endpoint_exposes_rules():
+    r = client.get("/policy")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["policy_id"] == "demo_policy_v1"
+    sp = body["studio_policy"]
+    assert sp["historical_claim"]["minimum_independent_sources"] == 2
+    assert sp["living_person"]["action"] == "ESCALATE"
+    assert sp["fictional_brand_negative_context"]["insufficient_evidence_allowed"] is True

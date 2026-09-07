@@ -17,6 +17,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from studioclear import store
+from studioclear.contract.clearance_contract import load_policy
 from studioclear.pipeline import run_pipeline
 from studioclear.providers import build_providers, describe_providers
 
@@ -90,6 +91,13 @@ def upload(req: UploadRequest) -> dict:
             "summary": report["summary"], "metrics": report["metrics"],
             "governance": report["governance"],
             "providers": describe_providers(providers)}
+
+
+@app.get("/policy")
+def policy() -> dict:
+    """The deterministic studio policy (§12) that drives every triage state —
+    exposed so the UI can show the config behind each CLEAR/REVIEW/ESCALATE."""
+    return {"policy_id": "demo_policy_v1", "studio_policy": load_policy()}
 
 
 @app.get("/runs")
