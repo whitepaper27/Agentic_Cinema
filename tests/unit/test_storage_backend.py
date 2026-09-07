@@ -5,6 +5,7 @@ a generation precondition so a concurrent create cannot be blindly clobbered.
 """
 
 import json
+from datetime import datetime
 
 from studioclear.storage_backend import GcsBackend, LocalBackend, get_backend
 
@@ -26,6 +27,18 @@ class _FakeBlob:
         self.name = name
         self._store = store
         self.generation = 7 if name in store else None
+        self._custom_time = None
+
+    @property
+    def custom_time(self):
+        return self._custom_time
+
+    @custom_time.setter
+    def custom_time(self, value):
+        # The real GCS client requires a datetime (it calls .strftime).
+        if not isinstance(value, datetime):
+            raise AttributeError("custom_time must be a datetime")
+        self._custom_time = value
 
     def exists(self):
         return self.name in self._store
@@ -59,6 +72,16 @@ def test_gcs_backend_prefixes_keys_and_round_trips():
     assert b.read_json("scenes/s1.json") is None
     b.write_json("scenes/s1.json", {"a": 1})
     assert b.read_json("scenes/s1.json") == {"a": 1}
+
+
+def test_gcs_custom_time_iso_string_is_parsed_to_datetime():
+    # Regression: the GCS client rejects a str custom_time (needs a datetime).
+    client = _FakeClient()
+    b = GcsBackend("mybucket", client=client)
+    # No exception means the ISO string was converted to a datetime before it was
+    # assigned to the blob's custom_time (the FakeBlob rejects a non-datetime).
+    b.write_json("scenes/s2.json", {"a": 1}, custom_time="2026-09-07T18:00:00+00:00")
+    assert "studioclear/scenes/s2.json" in client.store
 
 
 def test_gcs_new_object_requires_absent_precondition():

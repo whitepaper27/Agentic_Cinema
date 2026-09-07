@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -67,8 +68,10 @@ class GcsBackend:
         precondition = blob.generation if existed else 0
         # Custom-Time = creation time drives the daysSinceCustomTime lifecycle rule
         # (sol.md §10). Set it only on create so edits/rechecks never extend expiry.
+        # The GCS client needs a datetime, so parse an ISO string.
         if not existed and custom_time:
-            blob.custom_time = custom_time
+            blob.custom_time = (datetime.fromisoformat(custom_time)
+                                if isinstance(custom_time, str) else custom_time)
         blob.upload_from_string(
             json.dumps(obj, indent=2), content_type="application/json",
             if_generation_match=precondition,
