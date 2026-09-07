@@ -67,6 +67,16 @@ def test_unknown_run_404():
     assert client.get("/run/run_nope").status_code == 404
 
 
+def test_run_includes_agents_and_iam():
+    run_id = _upload()["run_id"]
+    r = client.get(f"/run/{run_id}").json()
+    models = {a["name"]: a["model"] for a in r["agents"]}
+    assert models["research_planner"] == "gemini-2.5-pro"
+    assert models["researcher"] == "gemini-2.5-flash"
+    assert any(c["decision"] == "ALLOW" for c in r["iam_checks"])
+    assert any(c["decision"] == "DENY" for c in r["iam_checks"])
+
+
 def test_policy_endpoint_exposes_rules():
     r = client.get("/policy")
     assert r.status_code == 200

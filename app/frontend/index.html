@@ -3,431 +3,482 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StudioClear — Script Clearance Research Desk</title>
+<title>StudioClear — Script clearance research desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* "Clearance Desk" — a film-studio script-clearance report with a screenplay
-     (Courier) voice. The verdicts are inked stamps; the chrome stays quiet warm
-     ink so the state colors are the only saturation on the page. */
+  /* claude_ui.md — the clearance binder on a production coordinator's desk.
+     Color is reserved for STATE (verdicts, allow/deny). The verdict stamp is the
+     one memorable object; everything else is script pages, rules, and a sources log. */
   :root {
-    --paper:#141210; --panel:#1d1a15; --panel2:#25201a; --line:#39322a;
-    --ink:#ece5d7; --dim:#a89d89; --brass:#cbb277;
-    --clear:#79bd6a; --review:#e0a53f; --escalate:#e26141; --insuf:#ac8ee2;
-    --mono:"Courier New","Courier",ui-monospace,monospace;
-    --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+    --paper:#F3F4F1; --panel:#FBFBFA; --ink:#1C2331; --rule:#BFC4BD;
+    --dim:#5b6472; --clear:#2F7A4F; --review:#A8780A; --escalate:#B23A2E; --insuf:#6B5B95;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --script:"Courier Prime","Courier New",monospace;
   }
   * { box-sizing:border-box; }
-  body { margin:0; font:15px/1.55 var(--sans); background:var(--paper); color:var(--ink);
-         -webkit-font-smoothing:antialiased; }
-  a { color:var(--brass); }
+  body { margin:0; font:400 15px/1.55 var(--sans); background:var(--paper); color:var(--ink); }
+  a { color:var(--ink); }
+  .mono { font-family:var(--script); }
 
-  /* masthead — reads like the header of a clearance document */
-  header { padding:20px 26px 16px; border-bottom:1px solid var(--line); background:var(--panel);
-           display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; }
-  .doc { font:700 20px/1 var(--mono); letter-spacing:3px; }
-  .doc .amp { color:var(--brass); }
-  .tagline { color:var(--dim); font-size:12.5px; margin-top:5px; font-family:var(--mono); }
-  .trust { margin-left:auto; font:600 12.5px/1 var(--mono); display:flex; align-items:center; gap:7px;
-           padding:6px 10px; border:1px solid var(--line); border-radius:4px; background:var(--paper); }
-  .trust .dot { font-size:12px; }
-  .trust-live { color:var(--clear); border-color:rgba(121,189,106,.4); }
-  .trust-mock { color:var(--dim); }
-  .trust-hybrid { color:var(--review); border-color:rgba(224,165,63,.4); }
-  .trust .sub { color:var(--dim); font-weight:400; }
-
-  main { max-width:1120px; margin:0 auto; padding:22px 26px 70px; }
-
-  .controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:6px; }
-  button { font:700 13px var(--mono); letter-spacing:.4px; background:var(--ink); color:var(--paper);
-           border:0; border-bottom:2px solid #a49a86; padding:9px 16px; border-radius:5px; cursor:pointer; }
-  button:hover { filter:brightness(1.06); }
-  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); border-bottom:1px solid var(--line); }
-  button:disabled { opacity:.5; cursor:default; }
+  header { padding:16px 26px 0; }
+  .top { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  .brand { font-weight:600; font-size:19px; }
+  .brand .s { color:var(--dim); font-weight:400; font-size:13px; display:block; margin-top:1px; }
+  .runmeta { text-align:right; color:var(--dim); font-size:13px; }
+  .runmeta b { color:var(--ink); }
+  .toolbar { display:flex; gap:9px; align-items:center; flex-wrap:wrap; margin:14px 0 0; }
+  button { font:600 13.5px var(--sans); background:var(--ink); color:#fff; border:0;
+           padding:9px 15px; border-radius:6px; cursor:pointer; }
+  button:hover { filter:brightness(1.1); }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--rule); }
+  button.ghost:hover { background:rgba(28,35,49,.05); filter:none; }
+  button:disabled { opacity:.45; cursor:default; }
   label.chk { color:var(--dim); font-size:13px; display:flex; gap:6px; align-items:center; }
-  .badges { margin-left:auto; color:var(--dim); font-size:11.5px; font-family:var(--mono); }
-  #status { color:var(--dim); font-size:12.5px; font-family:var(--mono); }
 
-  /* section headers as screenplay scene slugs (uppercase Courier is heritage, not an eyebrow) */
-  .sec { margin:26px 0 12px; }
-  .sec h2 { font:700 12px var(--mono); letter-spacing:2px; color:var(--ink); margin:0 0 3px;
-            padding-bottom:6px; border-bottom:1px solid var(--line); text-transform:uppercase; }
-  .sec h2 .marker { color:var(--brass); margin-right:8px; }
-  .sec .hint { color:var(--dim); font-size:12px; font-family:var(--sans); text-transform:none; letter-spacing:0; font-weight:400; }
-  code { font-family:var(--mono); color:var(--brass); }
+  /* tabs */
+  .tabs { display:flex; gap:2px; margin:16px 0 0; border-bottom:1px solid var(--rule); }
+  .tab { padding:10px 18px; cursor:pointer; color:var(--dim); font-weight:600; font-size:14px;
+         border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab.active { color:var(--ink); border-bottom-color:var(--ink); }
 
-  /* agent pipeline — left-to-right order carries the sequence; no arrow decoration */
-  .agents { display:flex; flex-wrap:wrap; gap:14px; }
-  .agent-card { flex:1 1 250px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px; }
-  .agent-card .role { font:700 11px var(--mono); letter-spacing:1.5px; color:var(--brass); text-transform:uppercase; }
-  .agent-card .name { font:700 15px var(--mono); margin-top:3px; }
-  .agent-card .model { color:var(--dim); font:11px var(--mono); }
-  .agent-card .did { margin-top:11px; font-size:14px; }
-  .agent-card .big { font:700 26px var(--mono); }
-  .agent-card .cap { color:var(--dim); font-size:11.5px; margin-top:10px; line-height:1.5; }
+  main { max-width:1180px; margin:0 auto; padding:0 26px 80px; }
 
-  .chip { display:inline-block; padding:3px 10px; border-radius:4px; background:var(--panel2);
-          border:1px solid var(--line); font:12px var(--mono); margin:4px 4px 0 0; }
-  .chip b { color:var(--ink); } .chip .c { color:var(--brass); }
+  /* status strip */
+  .strip { display:flex; gap:22px; flex-wrap:wrap; padding:16px 0; border-bottom:1px solid var(--rule); font-size:13.5px; }
+  .strip .chip { cursor:pointer; color:var(--ink); }
+  .strip .chip .k { color:var(--dim); }
+  .strip .ok { color:var(--clear); font-weight:600; }
+  .strip .deny { color:var(--escalate); font-weight:600; }
+  .strip .wait { margin-left:auto; font-weight:600; }
+  .strip .wait b { font-size:16px; }
 
-  /* governance — the DENY is the hero moment */
-  .deny-hero { border:1px solid var(--escalate); background:rgba(226,97,65,.09); border-radius:8px; padding:14px 16px; }
-  .deny-hero .h { color:var(--escalate); font:700 13px var(--mono); letter-spacing:.5px; }
-  details.audit { margin-top:12px; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:11px 15px; }
-  details.audit summary { cursor:pointer; font:600 13px var(--mono); }
-  .timeline { margin-top:11px; border-top:1px solid var(--line); }
-  .tl { display:flex; gap:12px; padding:5px 0; border-bottom:1px solid var(--line); font-size:12px; align-items:baseline; }
-  .tl .act { min-width:158px; font:600 12px var(--mono); }
-  .tl .det { color:var(--dim); flex:1; }
-  .tl .hash { color:var(--brass); font:11px var(--mono); }
-  .tl.deny .act { color:var(--escalate); }
-  .verdict { margin-top:11px; font-size:13px; font-family:var(--mono); }
+  /* two-pane desk */
+  .desk { display:grid; grid-template-columns:minmax(340px,1fr) 1.3fr; gap:0; }
+  @media (max-width:820px){ .desk{ grid-template-columns:1fr; } }
+  .queue { border-right:1px solid var(--rule); padding:18px 20px 18px 0; }
+  @media (max-width:820px){ .queue{ border-right:0; border-bottom:1px solid var(--rule); padding-right:0; } }
+  .qh { font-weight:600; font-size:13px; color:var(--dim); margin:0 0 8px; }
+  .qrow { display:flex; align-items:center; gap:10px; padding:11px 10px; border-radius:6px; cursor:pointer; border:1px solid transparent; }
+  .qrow:hover { background:#fff; }
+  .qrow.sel { background:#fff; border-color:var(--rule); }
+  .qrow .id { font-family:var(--script); font-weight:700; font-size:13px; min-width:64px; }
+  .qrow .ty { flex:1; color:var(--dim); font-size:13px; }
+  .qrow .sc { color:var(--dim); font-size:12px; font-family:var(--script); }
+  .cleared { margin-top:14px; }
+  .cleared summary { cursor:pointer; color:var(--dim); font-size:13px; font-weight:600; }
+  .cleared .qrow .id { color:var(--dim); }
 
-  /* triage tiles */
-  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; }
-  .tile { background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:13px 15px; }
-  .tile .n { font:700 26px var(--mono); }
-  .tile .l { color:var(--dim); font:11px var(--mono); letter-spacing:.6px; text-transform:uppercase; margin-top:2px; }
-  .tile.clear .n{color:var(--clear)} .tile.review .n{color:var(--review)}
-  .tile.escalate .n{color:var(--escalate)} .tile.insuf .n{color:var(--insuf)}
+  .pane { padding:18px 4px 18px 26px; }
+  @media (max-width:820px){ .pane{ padding-left:0; } }
+  .pane .eyebrow { color:var(--dim); font-size:12px; font-weight:600; }
+  .pane h2 { margin:2px 0 14px; font-size:20px; }
+  .quote { border-left:3px solid var(--ink); padding:6px 0 6px 14px; margin:0 0 18px;
+           font-family:var(--script); font-size:14px; line-height:1.6; }
+  .block { margin:0 0 20px; }
+  .block .lbl { font-size:12px; font-weight:600; color:var(--dim); margin-bottom:7px; }
+  .rule-line { font-size:13.5px; color:var(--dim); margin-top:8px; }
+  .rule-line .rid { font-family:var(--script); color:var(--ink); cursor:pointer; border-bottom:1px dashed var(--rule); }
 
-  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-  th,td { text-align:left; padding:11px 12px; border-bottom:1px solid var(--line); font-size:13.5px; }
-  th { color:var(--dim); font:600 11px var(--mono); text-transform:uppercase; letter-spacing:.6px; }
-  tr.item { cursor:pointer; } tr.item:hover { background:var(--panel2); }
-  tr.item.hl { background:rgba(203,178,119,.12); }
-  td.mono { font-family:var(--mono); color:var(--dim); }
+  /* evidence sources */
+  .src { display:flex; gap:12px; padding:11px 0; border-top:1px solid var(--rule); }
+  .src .n { font-family:var(--script); font-weight:700; color:var(--dim); }
+  .src .title { font-weight:600; }
+  .src .title a { text-decoration:none; }
+  .src .title a:hover { text-decoration:underline; }
+  .src .ex { color:var(--dim); font-size:13px; margin:3px 0; }
+  .src .meta { color:var(--dim); font-size:12px; font-family:var(--script); }
+  .via { color:var(--dim); font-size:12.5px; margin-bottom:2px; }
+  .insuff { color:var(--dim); font-size:13.5px; }
 
-  /* verdicts as inked stamps */
-  .pill { font:700 11px var(--mono); letter-spacing:.6px; text-transform:uppercase;
-          border:1.5px solid currentColor; border-radius:3px; padding:2px 8px; white-space:nowrap; }
-  .CLEAR{color:var(--clear)} .REVIEW{color:var(--review)}
-  .ESCALATE{color:var(--escalate)} .INSUFFICIENT_EVIDENCE{color:var(--insuf)}
-  .pill.action { color:var(--ink); }
-  .hd { color:var(--dim); font-size:12.5px; font-family:var(--mono); }
+  .actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:6px; }
+  .recorded { margin-top:12px; font-size:13px; color:var(--clear); font-family:var(--script); }
+  .ovr { margin-top:10px; }
+  .ovr textarea { width:100%; font:14px var(--sans); padding:9px; border:1px solid var(--rule); border-radius:6px; resize:vertical; background:#fff; color:var(--ink); }
 
-  .drawer { position:fixed; top:0; right:0; width:min(560px,94vw); height:100%; background:var(--panel);
-            border-left:1px solid var(--line); padding:22px; overflow:auto; transform:translateX(100%);
-            transition:transform .2s ease; z-index:10; box-shadow:-14px 0 40px rgba(0,0,0,.4); }
-  .drawer.open { transform:none; }
-  .drawer h3 { margin:0 0 3px; font-family:var(--mono); } .drawer .close { float:right; }
-  .drawer h4 { font:700 11px var(--mono); letter-spacing:1px; text-transform:uppercase; color:var(--brass); margin:16px 0 4px; }
-  .ev { background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:11px; margin:8px 0; }
-  .ev a { word-break:break-all; text-decoration:none; }
-  .ev .pub { color:var(--dim); font:11px var(--mono); margin-top:2px; }
-  .kv { color:var(--dim); font-size:12.5px; margin:6px 0; }
-  .kv b { color:var(--ink); font-family:var(--mono); font-weight:700; }
-  .acts { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
-  .acts button { font-size:12px; padding:7px 12px; }
-  .muted { color:var(--dim); }
-  .ok { color:var(--clear); font-weight:700; } .bad { color:var(--escalate); font-weight:700; }
-  .ptable td, .ptable th { font-size:12.5px; }
-  .ptable .flags { color:var(--dim); font:11px var(--mono); }
-  @media (max-width:640px){ .doc{font-size:17px;letter-spacing:2px} }
+  /* verdict stamp — the one memorable object */
+  .stamp { display:inline-block; font:700 12px var(--script); letter-spacing:1.5px; text-transform:uppercase;
+           border:1.5px solid currentColor; border-radius:3px; padding:3px 9px; transform:rotate(-1.5deg); white-space:nowrap; }
+  .stamp.CLEAR,.CLEAR{color:var(--clear)} .stamp.REVIEW,.REVIEW{color:var(--review)}
+  .stamp.ESCALATE,.ESCALATE{color:var(--escalate)} .stamp.INSUFFICIENT_EVIDENCE,.INSUFFICIENT_EVIDENCE{color:var(--insuf)}
+  .stamp.big { font-size:15px; padding:6px 14px; letter-spacing:2px; }
+
+  /* run view */
+  .run { display:grid; grid-template-columns:1.15fr 1fr; gap:0; padding-top:18px; }
+  @media (max-width:820px){ .run{ grid-template-columns:1fr; } }
+  .exec { border-right:1px solid var(--rule); padding-right:24px; }
+  @media (max-width:820px){ .exec{ border-right:0; } }
+  .auth { padding-left:26px; }
+  @media (max-width:820px){ .auth{ padding-left:0; margin-top:20px; } }
+  .colh { font-weight:600; font-size:13px; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; margin:0 0 14px; }
+  .node { padding:10px 0; border-bottom:1px solid var(--rule); }
+  .node .nl { display:flex; align-items:baseline; gap:9px; }
+  .node .nm { font-weight:600; }
+  .node .ck { color:var(--clear); font-weight:700; } .node .pend { color:var(--review); font-weight:700; }
+  .node .det { color:var(--dim); font-size:13px; margin-top:3px; }
+  .node .sub { color:var(--dim); font-size:13px; margin-top:2px; padding-left:2px; font-family:var(--script); }
+  .allow { color:var(--clear); font-family:var(--script); font-size:13px; }
+  .deny { color:var(--escalate); font-family:var(--script); font-size:13px; }
+  .authblk { margin:0 0 20px; }
+  .authblk .h { font-weight:600; font-size:13px; margin-bottom:6px; }
+  .authblk .row { font-family:var(--script); font-size:13px; color:var(--ink); }
+  .authblk .no { color:var(--escalate); } .authblk .yes { color:var(--clear); }
+  .authblk .mut { color:var(--dim); }
+
+  .auditbox { margin-top:22px; border-top:1px solid var(--rule); padding-top:14px; }
+  .auditbox .hd { display:flex; justify-content:space-between; align-items:center; }
+  .auditbox .hd h3 { margin:0; font-size:14px; }
+  table.audit { width:100%; border-collapse:collapse; margin-top:10px; }
+  table.audit td { padding:5px 8px; border-bottom:1px solid var(--rule); font:13px var(--script); vertical-align:top; }
+  table.audit td.seq { color:var(--dim); } table.audit td.h { color:var(--dim); }
+  table.audit tr.deny td { color:var(--escalate); }
+  pre.raw { background:#fff; border:1px solid var(--rule); border-radius:6px; padding:12px; overflow:auto; font-size:12px; max-height:360px; }
+
+  /* report */
+  .report { padding-top:22px; max-width:820px; }
+  .report h1 { font-size:22px; margin:0 0 2px; }
+  .report .rsub { color:var(--dim); font-size:13.5px; margin-bottom:20px; }
+  .totals { width:100%; border-collapse:collapse; margin-bottom:8px; }
+  .totals td { padding:5px 0; font-size:14px; } .totals td.v { text-align:right; font-weight:600; font-family:var(--script); }
+  .ritem { border-top:1px solid var(--rule); padding:16px 0; }
+  .ritem .rh { display:flex; justify-content:space-between; align-items:baseline; }
+  .ritem .rid { font-family:var(--script); font-weight:700; }
+  .ritem .rt { color:var(--dim); font-size:13px; }
+  .ritem .rl { color:var(--dim); font-size:13px; margin-top:6px; }
+  .ritem .rl b { color:var(--ink); font-weight:600; }
+  .foot { margin-top:26px; padding-top:14px; border-top:1px solid var(--rule); color:var(--dim); font-style:italic; }
+
+  .empty { padding:60px 0; text-align:center; color:var(--dim); }
+  @media print {
+    header, .tabs, .strip, .toolbar { display:none !important; }
+    #viewDesk, #viewRun { display:none !important; }
+    body { background:#fff; } main { max-width:none; }
+    .report { padding-top:0; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <div class="doc">STUDIO<span class="amp">·</span>CLEAR</div>
-    <div class="tagline">Agents research and recommend. The studio clears.</div>
+  <div class="top">
+    <div class="brand">StudioClear<span class="s">Script clearance research desk</span></div>
+    <div class="runmeta" id="runmeta"></div>
   </div>
-  <div class="trust" id="trustbar"></div>
+  <div class="toolbar">
+    <button id="loadDemo">Load demo run</button>
+    <button class="ghost" id="runLive">Run live</button>
+    <label class="chk"><input type="checkbox" id="adk" /> via ADK agent</label>
+    <span class="mono" id="status" style="color:var(--dim);font-size:12.5px"></span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-view="desk">Decision desk</div>
+    <div class="tab" data-view="run">Run</div>
+    <div class="tab" data-view="report">Report</div>
+  </div>
 </header>
 <main>
-  <div class="controls">
-    <button id="run">Run demo script</button>
-    <label class="chk"><input type="checkbox" id="live" /> Use live Gemini + Parallel</label>
-    <label class="chk"><input type="checkbox" id="adk" /> Agentic (ADK)</label>
-    <button class="ghost" id="policyBtn">Studio policy</button>
-    <span id="status">Ready.</span>
-    <span class="badges" id="providers"></span>
-  </div>
-
-  <section class="sec" id="agentsSec" hidden>
-    <h2><span class="marker">INT.</span>AGENT PIPELINE <span class="hint">three Google ADK agents (real <code>google.adk</code> Agents)</span></h2>
-    <div class="agents" id="agents"></div>
-  </section>
-
-  <section class="sec" id="govSec" hidden>
-    <h2><span class="marker">INT.</span>GOVERNANCE</h2>
-    <div id="gov"></div>
-  </section>
-
-  <section class="sec" id="planSec" hidden>
-    <h2><span class="marker">INT.</span>RESEARCH PLAN <span class="hint">how the Planner grouped the work</span></h2>
-    <div id="plan"></div>
-  </section>
-
-  <section class="sec" id="tilesSec" hidden>
-    <h2><span class="marker">INT.</span>TRIAGE SUMMARY</h2>
-    <div class="tiles" id="tiles"></div>
-  </section>
-
-  <table id="table" hidden>
-    <thead><tr>
-      <th>Item</th><th>Sc</th><th>Type</th><th>Reference</th>
-      <th>Recommendation</th><th>Src</th><th>Conf.</th><th>Batch</th><th>Human</th>
-    </tr></thead>
-    <tbody id="rows"></tbody>
-  </table>
+  <div id="viewDesk"></div>
+  <div id="viewRun" hidden></div>
+  <div id="viewReport" hidden></div>
 </main>
 
-<div class="drawer" id="drawer">
-  <button class="ghost close" onclick="closeDrawer()">Close</button>
-  <div id="drawerBody"></div>
-</div>
-
-<div class="drawer" id="policyDrawer">
-  <button class="ghost close" onclick="closePolicy()">Close</button>
-  <div id="policyBody"></div>
-</div>
-
 <script>
-let RUN = null, POLICY = null, HEALTH = null, PROVIDERS = null;
+let RUN=null, POLICY=null, HEALTH=null, PROVIDERS=null, VIEW='desk', SEL=null, RAW=false, OVR=false;
 const $ = s => document.querySelector(s);
-const api = (p, opts) => fetch(p, opts).then(r => r.json());
+const api = (p,opts) => fetch(p,opts).then(r=>r.json());
 
-// one-time: learn the ADK version so the trust bar doesn't hardcode it
-(async () => { try { HEALTH = await api('/health'); } catch (e) { HEALTH = null; } })();
+(async()=>{ try{ HEALTH=await api('/health'); }catch(e){} loadDemo(); })();
 
-$('#run').onclick = async () => {
-  $('#run').disabled = true;
-  const live = $('#live').checked;
-  const adk = $('#adk').checked;
-  $('#status').textContent = adk ? 'Running agentic ADK pipeline…'
-    : live ? 'Extracting with live Gemini…' : 'Running (offline mock)…';
-  try {
-    const res = await api('/upload', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prefer_live: live, use_adk: adk, title: 'Midnight Signal' })
-    });
+$('#loadDemo').onclick = loadDemo;
+$('#runLive').onclick = () => go(true, $('#adk').checked);
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
+
+function loadDemo(){ go(false,false); }
+
+async function go(live, adk){
+  $('#loadDemo').disabled = $('#runLive').disabled = true;
+  $('#status').textContent = adk ? 'Running agentic pipeline (live, ~75s)…'
+    : live ? 'Running live pipeline (real Parallel calls, ~40s)…' : 'Loading demo run…';
+  try{
+    const res = await api('/upload',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prefer_live:live, use_adk:adk, title:'Midnight Signal'})});
     PROVIDERS = res.providers;
-    RUN = await api('/run/' + res.run_id);
+    RUN = await api('/run/'+res.run_id);
+    SEL = firstQueueId(); OVR=false;
+    $('#status').textContent = '';
     render();
-    $('#status').textContent = 'Run ' + res.run_id;
-    $('#providers').textContent = 'llm: ' + res.providers.llm + ' · search: ' + res.providers.search;
-  } catch (e) {
-    $('#status').textContent = 'Error: ' + e;
+  }catch(e){ $('#status').textContent = 'Error: '+e; }
+  $('#loadDemo').disabled = $('#runLive').disabled = false;
+}
+
+// --- helpers ---
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function domainOf(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u||''; } }
+function fmtTime(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return iso;
+  return d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'UTC'})+' UTC'; }
+function needsDecision(it){ return it.state!=='CLEAR' && !it.human_decision; }
+function firstQueueId(){ const q=(RUN.items||[]).filter(needsDecision); return q.length?q[0].item_id:(RUN.items[0]&&RUN.items[0].item_id); }
+function itemById(id){ return (RUN.items||[]).find(i=>i.item_id===id); }
+function batchOf(id){ const b=(RUN.batches||[]).find(b=>(b.items||[]).includes(id)); return b?b.name:''; }
+function totalSources(){ return (RUN.items||[]).reduce((a,i)=>a+(i.source_count||0),0); }
+function humanReason(r){ return (r||'').replace(/_/g,' '); }
+function stamp(state,big){ return `<span class="stamp ${state}${big?' big':''}">${esc(state.replace('_',' '))}</span>`; }
+
+function switchView(v){ VIEW=v; RAW=false;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===v));
+  render(); }
+
+function render(){
+  if(!RUN){ return; }
+  renderRunMeta();
+  $('#viewDesk').hidden = VIEW!=='desk';
+  $('#viewRun').hidden  = VIEW!=='run';
+  $('#viewReport').hidden = VIEW!=='report';
+  if(VIEW==='desk') renderDesk();
+  else if(VIEW==='run') renderRun();
+  else renderReport();
+}
+
+function renderRunMeta(){
+  const g=RUN.governance||{};
+  $('#runmeta').innerHTML = `<b>${esc(RUN.title)}</b> · v1<br>Run ${esc((RUN.run_id||'').replace('run_',''))} · completed ${esc(fmtTime(RUN.generated_at))}`;
+}
+
+// ---------------- Decision desk ----------------
+function renderDesk(){
+  const items=RUN.items||[], m=RUN.metrics||{}, g=RUN.governance||{}, s=RUN.summary||{};
+  const queue=items.filter(needsDecision);
+  const done=items.filter(i=>!needsDecision(i));
+  const strip = `<div class="strip">
+    <span class="chip" data-goto="run"><span class="ok">✓</span> Analyzer <b>${m.references_detected||0}</b> <span class="k">items</span></span>
+    <span class="chip" data-goto="run"><span class="ok">✓</span> Planner <b>${(RUN.batches||[]).length}</b> <span class="k">batches</span></span>
+    <span class="chip" data-goto="run"><span class="ok">✓</span> Parallel <b>${totalSources()}</b> <span class="k">sources</span></span>
+    <span class="chip" data-goto="run"><span class="ok">✓</span> Policy <b>${m.references_detected||0}</b> <span class="k">evaluated</span></span>
+    <span class="chip" data-goto="run"><span class="deny">✕</span> Authorization <span class="k">·</span> ${g.unauthorized_blocked||0} denied</span>
+    <span class="wait">Waiting on you: <b>${queue.length}</b></span>
+  </div>`;
+
+  const qrow = it => `<div class="qrow ${it.item_id===SEL?'sel':''}" data-id="${esc(it.item_id)}">
+      <span class="id">${esc(it.item_id)}</span>
+      <span class="ty">${esc(it.type.replace(/_/g,' '))} <span class="sc">sc.${esc(String(it.scene))}</span></span>
+      ${stamp(it.state)}</div>`;
+
+  const clearedRows = done.map(qrow).join('') || '<div class="qh" style="margin-top:8px">None yet.</div>';
+  const deskHtml = `${strip}
+    <div class="desk">
+      <div class="queue">
+        <p class="qh">Items needing your decision (${queue.length})</p>
+        ${queue.map(qrow).join('') || '<div class="empty" style="padding:24px 0">Nothing waiting — every item is cleared or decided.</div>'}
+        <details class="cleared" ${queue.length?'':'open'}>
+          <summary>Resolved &amp; cleared (${done.length})</summary>
+          ${clearedRows}
+        </details>
+      </div>
+      <div class="pane" id="pane"></div>
+    </div>`;
+  $('#viewDesk').innerHTML = deskHtml;
+  document.querySelectorAll('.strip .chip').forEach(c=>c.onclick=()=>switchView('run'));
+  document.querySelectorAll('.qrow').forEach(r=>r.onclick=()=>{ SEL=r.dataset.id; OVR=false; renderDesk(); });
+  renderPane();
+}
+
+function renderPane(){
+  const it=itemById(SEL);
+  const pane=$('#pane'); if(!pane) return;
+  if(!it){ pane.innerHTML='<div class="empty">Select an item.</div>'; return; }
+  const ev=it.evidence||[];
+  const evHtml = ev.length ? ev.map((e,i)=>`
+      <div class="src"><span class="n">${i+1}</span><div>
+        <div class="title"><a href="${esc(e.source_url)}" target="_blank" rel="noopener">${esc(e.title||e.source_url)}</a></div>
+        ${e.excerpt?`<div class="ex">${esc(e.excerpt)}</div>`:''}
+        <div class="meta">${esc(domainOf(e.source_url))} · retrieved ${esc(fmtTime(e.retrieved_at))}</div>
+      </div></div>`).join('')
+    : `<div class="insuff">Insufficient evidence — no authoritative source met the policy bar.<br>
+        <span class="mono" style="font-size:12.5px">Searched: ${esc(it.query)}</span></div>`;
+  const rec = it.human_decision
+    ? `${stamp(it.state,true)} <span class="rule-line">recommended</span>`
+    : stamp(it.state,true);
+  const recorded = it.human_decision
+    ? `<div class="recorded">Recorded · ${esc(it.human_decision.action.replace(/_/g,' '))}${it.human_decision.reason?' · "'+esc(it.human_decision.reason)+'"':''} · audit #${RUN.governance.audit_events}</div>`
+    : '';
+  pane.innerHTML = `
+    <div class="eyebrow">${esc(it.type.replace(/_/g,' '))} · scene ${esc(String(it.scene))}</div>
+    <h2 class="mono">${esc(it.item_id)}</h2>
+    <div class="quote">${esc(it.text_span)}</div>
+    <div class="block">
+      <div class="lbl">Recommendation</div>
+      ${rec}
+      <div class="rule-line">rule <span class="rid" data-rid="${esc(it.policy_key)}">${esc(it.policy_key)}</span> → ${esc(humanReason(it.reason))}</div>
+    </div>
+    <div class="block">
+      <div class="lbl">Evidence — ${ev.length} source${ev.length===1?'':'s'}</div>
+      <div class="via">via Parallel Search${batchOf(it.item_id)?' · batch '+esc(batchOf(it.item_id)):''}</div>
+      ${evHtml}
+    </div>
+    <div class="block">
+      <div class="lbl">Your decision</div>
+      <div class="actions">
+        <button data-act="clear">Clear to continue</button>
+        <button class="ghost" data-act="escalate">Send to legal</button>
+        <button class="ghost" id="ovrBtn">Override recommendation…</button>
+      </div>
+      <div class="ovr" id="ovrBox" ${OVR?'':'hidden'}>
+        <textarea id="ovrReason" rows="2" placeholder="Reason for overriding the recommendation (required)"></textarea>
+        <div class="actions" style="margin-top:8px"><button id="ovrConfirm" disabled>Record override</button></div>
+      </div>
+      ${recorded}
+    </div>`;
+  pane.querySelectorAll('.rid').forEach(r=>r.onclick=()=>openPolicy(r.dataset.rid));
+  pane.querySelector('[data-act="clear"]').onclick=()=>decide(it.item_id,'clear');
+  pane.querySelector('[data-act="escalate"]').onclick=()=>decide(it.item_id,'escalate');
+  pane.querySelector('#ovrBtn').onclick=()=>{ OVR=!OVR; renderPane(); };
+  if(OVR){
+    const ta=pane.querySelector('#ovrReason'), btn=pane.querySelector('#ovrConfirm');
+    ta.focus(); ta.oninput=()=>btn.disabled=!ta.value.trim();
+    btn.onclick=()=>decide(it.item_id,'override',ta.value.trim());
   }
-  $('#run').disabled = false;
-};
-
-function render() {
-  renderTrustBar();
-  renderAgents();
-  renderGovernance();
-  renderPlan();
-  renderTiles();
-  renderTable();
 }
 
-// --- Trust bar: is this a real run or the deterministic offline take? ---
-function renderTrustBar() {
-  const p = PROVIDERS || {};
-  const llmLive = p.llm === 'GeminiLLMProvider';
-  const adkInPath = p.search === 'ADKSearchProvider';
-  const searchLive = p.search === 'ParallelSearchProvider' || adkInPath;
-  const ver = (HEALTH && HEALTH.adk_version) ? HEALTH.adk_version : '';
-  let cls, dot = '●', label, sub;
-  if (llmLive && searchLive) {
-    cls = 'trust-live'; label = 'LIVE';
-    sub = 'Gemini 2.5 Pro / Parallel Search / ' + (adkInPath ? ('ADK ' + ver + ' in path') : ('ADK ' + ver + ' ready'));
-  } else if (llmLive && !searchLive) {
-    cls = 'trust-hybrid'; label = 'LIVE Gemini'; sub = 'mock search';
-  } else {
-    cls = 'trust-mock'; label = 'cached / mock'; sub = 'deterministic offline run';
-  }
-  $('#trustbar').className = 'trust ' + cls;
-  $('#trustbar').innerHTML = `<span class="dot">${dot}</span> ${label} <span class="sub">${esc(sub)}</span>`;
+async function decide(item_id, action, reason=''){
+  await api('/decision',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({run_id:RUN.run_id, item_id, action, reason})});
+  RUN = await api('/run/'+RUN.run_id);
+  OVR=false; render();
 }
 
-// --- Agent pipeline: derived entirely from the run report (no fabrication) ---
-function renderAgents() {
-  const batches = RUN.batches || [];
-  const m = RUN.metrics || {}, s = RUN.summary || {};
-  const sources = (RUN.items || []).reduce((a, it) => a + (it.source_count || 0), 0);
-  const batchChips = batches.map(b =>
-    `<span class="chip"><b>${esc(b.name)}</b> <span class="c">${(b.items||[]).length}</span></span>`).join('') ||
-    '<span class="muted">—</span>';
-  const distPills = ['CLEAR','REVIEW','ESCALATE','INSUFFICIENT_EVIDENCE']
-    .filter(k => s[k]).map(k => `<span class="pill ${k}">${s[k]} ${k.replace('_EVIDENCE','').replace('_',' ')}</span>`).join(' ');
+// ---------------- Run view ----------------
+function renderRun(){
+  const a=RUN.audit_chain||[], g=RUN.governance||{}, m=RUN.metrics||{}, s=RUN.summary||{};
+  const agents=RUN.agents||[], iam=RUN.iam_checks||[];
+  const model = (agents.find(x=>x.name==='research_planner')||{}).model||'';
+  const denyIdx = a.findIndex(e=>e.body&&e.body.decision==='DENY');
+  const deny = denyIdx>=0 ? a[denyIdx].body : null;
+  const decided=(RUN.items||[]).filter(i=>i.human_decision).length;
+  const waiting=(RUN.items||[]).filter(needsDecision).length;
+  const batchLines=(RUN.batches||[]).map(b=>`<div class="sub">${esc(b.name)} · ${(b.items||[]).length} items</div>`).join('');
 
-  const planner = card('Planner', 'research_planner', 'gemini-2.5-pro',
-    `<div><span class="big">${batches.length}</span> research batches</div><div style="margin-top:7px">${batchChips}</div>`,
-    'Groups extracted references into batches so related items are researched together.');
-  const researcher = card('Researcher', 'researcher', 'gemini-2.5-flash',
-    `<div><span class="big">${RUN.items ? RUN.items.length : 0}</span> items researched, <b>${sources}</b> cited sources</div>
-     <div style="margin-top:5px" class="muted">${m.evidence_backed || 0}/${m.references_detected || 0} evidence-backed, multi-source ${m.multi_source_satisfied||0}/${m.multi_source_required||0}</div>`,
-    'Calls parallel_search as an ADK tool. URLs come only from the tool response — the model never emits a citation (evidence-integrity invariant).');
-  const reviewer = card('Reviewer', 'reviewer', 'gemini-2.5-flash',
-    `<div>${distPills || '<span class="muted">—</span>'}</div>`,
-    'Triage state comes from the deterministic apply_policy tool, not the model. No "cleared by AI" state exists — humans decide.');
+  const exec = `<div class="exec">
+    <p class="colh">Execution</p>
+    ${node('Script upload','✓',esc(RUN.script_id||''))}
+    ${node('Script analyzer','✓',`${m.references_detected||0} items · Gemini ${esc(model)}`)}
+    ${node('Research planner','✓',`${(RUN.batches||[]).length} batches`,batchLines)}
+    <div class="node"><div class="nl"><span class="nm">Authorization gate</span></div>
+      <div class="allow">✓ parallel.search.public_web · ALLOW</div>
+      ${deny?`<div class="deny">✕ ${esc(deny.tool)} · DENY · ${esc(deny.reason)}</div>`:''}</div>
+    ${node('Parallel Search','✓',`searched ${m.references_detected||0} items · ${totalSources()} sources · ${m.evidence_backed||0}/${m.references_detected||0} evidence-backed`)}
+    ${node('Reviewer / policy','✓',`${s.CLEAR||0} clear · ${s.REVIEW||0} review · ${s.ESCALATE||0} escalate${s.INSUFFICIENT_EVIDENCE?' · '+s.INSUFFICIENT_EVIDENCE+' insufficient':''}`)}
+    <div class="node"><div class="nl"><span class="pend">●</span><span class="nm">Human decisions</span></div>
+      <div class="det">${decided} recorded · ${waiting} waiting on the producer</div></div>
+  </div>`;
 
-  $('#agents').innerHTML = planner + researcher + reviewer;
-  $('#agentsSec').hidden = false;
+  const may=['parallel.search.public_web','evidence.read','policy.evaluate'];
+  const mayNot=['final_legal_clearance','iam.modify','oauth.scope.expand'];
+  const auth = `<div class="auth">
+    <p class="colh">Authority</p>
+    <div class="authblk"><div class="h">Acting as</div>
+      <div class="row mut">producer_123 → ${esc(RUN.run_id)} → research_agent</div></div>
+    <div class="authblk"><div class="h">Effective access</div>
+      <div class="row mut">user ∩ script ∩ agent ∩ tool ∩ Cloud IAM ∩ studio policy</div></div>
+    <div class="authblk"><div class="h">Researcher may</div>
+      ${may.map(t=>`<div class="row"><span class="yes">✓</span> ${esc(t)}</div>`).join('')}
+      ${mayNot.map(t=>`<div class="row"><span class="no">✕</span> ${esc(t)}</div>`).join('')}</div>
+    ${deny?`<div class="authblk"><div class="h">Denied this run</div>
+      <div class="row no">${esc(deny.tool)}</div>
+      <div class="row mut">${esc(deny.reason)} · audit #${denyIdx+1}</div></div>`:''}
+    <div class="authblk"><div class="h">Cloud IAM (service identity)</div>
+      ${iam.map(c=>`<div class="row"><span class="${c.decision==='ALLOW'?'yes':'no'}">${c.decision==='ALLOW'?'✓':'✕'}</span> ${esc(c.resource)}</div>`).join('')}</div>
+  </div>`;
+
+  const rows = a.map((e,i)=>{ const b=e.body||{}; const isDeny=b.decision==='DENY';
+    const actor = b.agent_id || (String(b.action||'').startsWith('human')?'producer_123':'—');
+    return `<tr class="${isDeny?'deny':''}"><td class="seq">#${String(i+1).padStart(3,'0')}</td>
+      <td>${esc(b.action||'')}</td><td>${esc(actor)}</td>
+      <td>${esc(auditDetail(b))}</td><td class="h">${esc((e.hash||'').slice(0,10))}</td></tr>`; }).join('');
+  const audit = `<div class="auditbox">
+    <div class="hd"><h3>Audit — ${a.length} events · <span style="color:${g.audit_verified?'var(--clear)':'var(--escalate)'}">${g.audit_verified?'✓ chain verified':'✗ chain broken'}</span></h3>
+      <button class="ghost" id="rawBtn">${RAW?'Hide raw JSON':'Show raw JSON'}</button></div>
+    ${RAW?`<pre class="raw">${esc(JSON.stringify(a,null,2))}</pre>`
+         :`<table class="audit"><tbody>${rows}</tbody></table>`}
+  </div>`;
+
+  $('#viewRun').innerHTML = `<div class="run">${exec}${auth}</div>${audit}`;
+  $('#rawBtn').onclick=()=>{ RAW=!RAW; renderRun(); };
 }
-function card(role, name, model, did, cap) {
-  return `<div class="agent-card">
-    <div class="role">${esc(role)}</div>
-    <div class="name">${esc(name)}</div>
-    <div class="model">${esc(model)}</div>
-    <div class="did">${did}</div>
-    <div class="cap">${esc(cap)}</div>
+function node(name,ck,det,sub){ return `<div class="node"><div class="nl"><span class="ck">${ck}</span><span class="nm">${esc(name)}</span></div>
+  ${det?`<div class="det">${det}</div>`:''}${sub||''}</div>`; }
+function auditDetail(b){ const x=[];
+  if(b.batch)x.push(b.batch); if(b.item_id)x.push(b.item_id); if(b.tool)x.push(b.tool);
+  if(b.state)x.push(b.state); if(typeof b.count==='number')x.push(b.count+' items');
+  if(typeof b.sources==='number')x.push(b.sources+' sources'); if(b.reason)x.push(b.reason);
+  return x.join(' · '); }
+
+// ---------------- Report view ----------------
+function renderReport(){
+  const items=RUN.items||[], g=RUN.governance||{}, s=RUN.summary||{};
+  const citations=totalSources();
+  const backed=items.filter(i=>i.source_count>0).length;
+  const decided=items.filter(i=>i.human_decision).length;
+  const overrides=items.filter(i=>i.human_decision&&i.human_decision.action==='override').length;
+  const T=(l,v)=>`<tr><td>${l}</td><td class="v">${v}</td></tr>`;
+  const totals=`<table class="totals">
+    ${T('References detected',items.length)}
+    ${T('Evidence-backed',backed)}
+    ${T('Independent citations',citations)}
+    ${T('Clear to continue',s.CLEAR||0)}
+    ${T('Review',s.REVIEW||0)}
+    ${T('Escalate',s.ESCALATE||0)}
+    ${T('Insufficient evidence',s.INSUFFICIENT_EVIDENCE||0)}
+    ${T('Human decisions',decided+(overrides?` (${overrides} override)`:''))}
+    ${T('Unauthorized tool calls',(g.unauthorized_blocked||0)+' blocked')}
+  </table>`;
+  const blocks=items.map(it=>{
+    const ev=(it.evidence||[]).map((e,i)=>`<div class="rl">[${i+1}] ${esc(e.title||domainOf(e.source_url))} · ${esc(domainOf(e.source_url))} · retrieved ${esc(fmtTime(e.retrieved_at))}</div>`).join('')
+      || `<div class="rl mut">Insufficient evidence.</div>`;
+    const dec=it.human_decision
+      ? `<div class="rl"><b>Decision:</b> ${esc(it.human_decision.action.replace(/_/g,' '))} · producer_123${it.human_decision.reason?' · "'+esc(it.human_decision.reason)+'"':''} · audit #${g.audit_events}</div>`
+      : `<div class="rl mut">Decision: pending producer</div>`;
+    return `<div class="ritem">
+      <div class="rh"><span class="rid">${esc(it.item_id)}</span> ${stamp(it.state)}</div>
+      <div class="rt">${esc(it.type.replace(/_/g,' '))} · scene ${esc(String(it.scene))}</div>
+      <div class="rl mono">"${esc(it.text_span)}"</div>
+      <div class="rl"><b>Recommendation:</b> ${esc(it.state.replace('_',' '))} — ${esc(it.policy_key)} → ${esc(humanReason(it.reason))}</div>
+      ${ev}${dec}</div>`;
+  }).join('');
+  $('#viewReport').innerHTML=`<div class="report">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><h1>Script clearance research report</h1>
+        <div class="rsub">${esc(RUN.title)} · v1 · run ${esc((RUN.run_id||'').replace('run_',''))} · generated ${esc(fmtTime(RUN.generated_at))}</div></div>
+      <button class="ghost" onclick="window.print()">Print / Save PDF</button>
+    </div>
+    ${totals}${blocks}
+    <div class="foot">Agents research and recommend. The studio clears.</div>
   </div>`;
 }
 
-// --- Governance: the real DENY + the verifiable audit chain ---
-function renderGovernance() {
-  const chain = RUN.audit_chain || [];
-  const g = RUN.governance || {};
-  const deny = chain.find(e => e && e.body && e.body.decision === 'DENY');
-  let html = '';
-  if (deny) {
-    const b = deny.body;
-    html += `<div class="deny-hero">
-      <div class="h">TOOL CALL DENIED &amp; AUDITED</div>
-      <div style="margin-top:6px"><code>${esc(b.agent_id||'agent')}</code> requested
-        <code>${esc(b.tool||'?')}</code> → <b>${esc(b.reason||'denied')}</b></div>
-      <div class="muted" style="margin-top:5px">Not in the approved-tool registry — a genuine block, not a mock (${g.unauthorized_blocked||0} blocked this run).</div>
-    </div>`;
-  }
-  const rows = chain.map(e => {
-    const b = (e && e.body) || {};
-    const isDeny = b.decision === 'DENY';
-    return `<div class="tl ${isDeny?'deny':''}">
-      <span class="act">${esc(b.action||'event')}</span>
-      <span class="det">${esc(auditDetail(b))}</span>
-      <span class="hash">${esc((e.hash||'').slice(0,10))}</span>
-    </div>`;
-  }).join('');
-  const verified = g.audit_verified;
-  html += `<details class="audit">
-    <summary>Verify audit chain — ${chain.length} tamper-evident events</summary>
-    <div class="timeline">${rows}</div>
-    <div class="verdict">
-      <span class="${verified?'ok':'bad'}">${verified?'✓ tamper-evident chain verified':'✗ chain broken'}</span>
-      <span class="muted"> · ${g.audit_events||chain.length} events · head ${esc((g.audit_head||'').slice(0,12))}…</span>
-    </div>
-  </details>`;
-  $('#gov').innerHTML = html;
-  $('#govSec').hidden = false;
+// ---------------- Policy drawer ----------------
+async function openPolicy(rid){
+  if(!POLICY){ try{ POLICY=await api('/policy'); }catch(e){ POLICY=null; } }
+  const sp=(POLICY&&POLICY.studio_policy)||{};
+  let d=$('#policyDrawer');
+  if(!d){ d=document.createElement('div'); d.id='policyDrawer';
+    d.style.cssText='position:fixed;top:0;right:0;width:min(520px,94vw);height:100%;background:var(--panel);border-left:1px solid var(--rule);padding:22px;overflow:auto;box-shadow:-14px 0 40px rgba(28,35,49,.18);z-index:20';
+    document.body.appendChild(d); }
+  const flagKeys=['evidence_required','human_review_required','rights_review_required','insufficient_evidence_allowed'];
+  const rows=Object.keys(sp).map(k=>{ const r=sp[k]; const on=k===rid;
+    const flags=flagKeys.filter(f=>r[f]).join(', ');
+    return `<tr style="${on?'background:rgba(168,120,10,.12)':''}"><td class="mono" style="padding:6px 8px;border-bottom:1px solid var(--rule)">${esc(k)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid var(--rule)">${stamp(({VERIFY:'CLEAR',REVIEW:'REVIEW',ESCALATE:'ESCALATE'}[r.action])||'REVIEW')}</td>
+      <td class="mono" style="padding:6px 8px;border-bottom:1px solid var(--rule)">${r.minimum_independent_sources!=null?r.minimum_independent_sources:'—'}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid var(--rule);color:var(--dim);font-size:12px">${esc(flags||'—')}</td></tr>`;}).join('');
+  d.innerHTML=`<button class="ghost" style="float:right" onclick="document.getElementById('policyDrawer').remove()">Close</button>
+    <h3 style="margin:0 0 2px">Studio policy <span class="mono" style="color:var(--dim);font-size:13px">${esc((POLICY&&POLICY.policy_id)||'')}</span></h3>
+    <p style="color:var(--dim);font-size:13px">Deterministic triage — maps item type + evidence to a state. It does not decide legality; humans make the final call.</p>
+    <table style="width:100%;border-collapse:collapse"><thead><tr>
+      <th style="text-align:left;font-size:11px;color:var(--dim);padding:4px 8px">Type</th>
+      <th style="text-align:left;font-size:11px;color:var(--dim);padding:4px 8px">Action</th>
+      <th style="text-align:left;font-size:11px;color:var(--dim);padding:4px 8px">Min src</th>
+      <th style="text-align:left;font-size:11px;color:var(--dim);padding:4px 8px">Flags</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
-function auditDetail(b) {
-  const bits = [];
-  if (b.batch) bits.push(b.batch);
-  if (b.item_id) bits.push(b.item_id);
-  if (b.tool) bits.push(b.tool);
-  if (b.decision) bits.push(b.decision);
-  if (b.state) bits.push(b.state);
-  if (typeof b.count === 'number') bits.push(b.count + ' items');
-  if (typeof b.sources === 'number') bits.push(b.sources + ' sources');
-  if (b.reason) bits.push(b.reason);
-  return bits.join(' · ');
-}
-
-// --- Plan: the Planner's batches, clickable to highlight table rows ---
-function renderPlan() {
-  const batches = RUN.batches || [];
-  $('#plan').innerHTML = batches.map((b, i) =>
-    `<span class="chip" style="cursor:pointer" onclick="highlightBatch(${i})">
-       <b>${esc(b.name)}</b> <span class="c">${(b.items||[]).length} item(s)</span></span>`).join('') ||
-    '<span class="muted">No research batches.</span>';
-  $('#planSec').hidden = false;
-}
-function highlightBatch(i) {
-  const ids = new Set(((RUN.batches[i]||{}).items) || []);
-  document.querySelectorAll('tr.item').forEach(tr =>
-    tr.classList.toggle('hl', ids.has(tr.dataset.id)));
-}
-
-function renderTiles() {
-  const s = RUN.summary, m = RUN.metrics, g = RUN.governance;
-  const tile = (n,l,cls) => `<div class="tile ${cls}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
-  $('#tiles').innerHTML =
-    tile(s.CLEAR||0,'Clear','clear') + tile(s.REVIEW||0,'Review','review') +
-    tile(s.ESCALATE||0,'Escalate','escalate') + tile(s.INSUFFICIENT_EVIDENCE||0,'Insufficient','insuf') +
-    tile(m.references_detected,'References','') + tile(m.evidence_backed,'Evidence-backed','') +
-    tile(m.multi_source_satisfied+'/'+m.multi_source_required,'Multi-source','') +
-    tile(g.unauthorized_blocked,'Blocked','');
-  $('#tilesSec').hidden = false;
-}
-
-function renderTable() {
-  const batchOf = {};
-  (RUN.batches||[]).forEach(b => (b.items||[]).forEach(id => batchOf[id] = b.name));
-  $('#rows').innerHTML = RUN.items.map((it,i) => `
-    <tr class="item" data-id="${esc(it.item_id)}" onclick="openDrawer(${i})">
-      <td class="mono">${esc(it.item_id)}</td><td class="mono">${esc(String(it.scene))}</td><td class="muted">${esc(it.type)}</td>
-      <td>${esc(it.text_span)}</td>
-      <td><span class="pill ${it.state}">${it.state.replace('_',' ')}</span></td>
-      <td class="mono">${it.source_count}</td><td class="mono">${it.confidence.toFixed(2)}</td>
-      <td class="hd">${esc(batchOf[it.item_id] || '—')}</td>
-      <td class="hd">${it.human_decision ? esc(it.human_decision.action) : '—'}</td>
-    </tr>`).join('');
-  $('#table').hidden = false;
-}
-
-function openDrawer(i) {
-  const it = RUN.items[i];
-  const ev = it.evidence.map(e => `
-    <div class="ev"><a href="${esc(e.source_url)}" target="_blank" rel="noopener">${esc(e.title||e.source_url)}</a>
-      <div class="pub">${esc(e.publisher||'')} · ${esc(e.retrieved_at||'')}</div>
-      <div class="muted">${esc(e.excerpt||'')}</div></div>`).join('') ||
-    '<div class="muted">No authoritative sources — insufficient evidence.</div>';
-  $('#drawerBody').innerHTML = `
-    <h3>${esc(it.item_id)} <span class="pill ${it.state}">${it.state.replace('_',' ')}</span></h3>
-    <div class="muted">${esc(it.type)} · scene ${esc(String(it.scene))}</div>
-    <p>${esc(it.text_span)}</p>
-    <div class="kv"><b>Research query:</b> ${esc(it.query)}</div>
-    <div class="kv"><b>Policy basis:</b> ${esc(it.policy_key)} → ${esc(it.reason)}</div>
-    <div class="kv"><b>Confidence:</b> ${it.confidence.toFixed(2)} · ${it.source_count} independent source(s)</div>
-    <h4>Evidence</h4>${ev}
-    <div class="acts">
-      <button onclick="decide('${it.item_id}','clear')">Clear</button>
-      <button class="ghost" onclick="decide('${it.item_id}','send_to_review')">Send to review</button>
-      <button class="ghost" onclick="decide('${it.item_id}','escalate')">Escalate</button>
-      <button class="ghost" onclick="override('${it.item_id}')">Override…</button>
-    </div>`;
-  $('#drawer').classList.add('open');
-}
-function closeDrawer(){ $('#drawer').classList.remove('open'); }
-
-async function decide(item_id, action, reason='') {
-  await api('/decision', { method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ run_id: RUN.run_id, item_id, action, reason }) });
-  RUN = await api('/run/' + RUN.run_id);
-  render(); closeDrawer();
-}
-function override(item_id){
-  const reason = prompt('Override reason (required):');
-  if (reason && reason.trim()) decide(item_id, 'override', reason.trim());
-}
-
-// --- Studio policy drawer (the deterministic config behind every state) ---
-$('#policyBtn').onclick = openPolicy;
-async function openPolicy() {
-  if (!POLICY) { try { POLICY = await api('/policy'); } catch (e) { POLICY = null; } }
-  const sp = (POLICY && POLICY.studio_policy) || {};
-  const flagKeys = ['evidence_required','human_review_required','rights_review_required','insufficient_evidence_allowed'];
-  const rows = Object.keys(sp).map(k => {
-    const r = sp[k];
-    const flags = flagKeys.filter(f => r[f]).join(', ');
-    const mins = (r.minimum_independent_sources != null) ? r.minimum_independent_sources : '—';
-    return `<tr><td class="mono">${esc(k)}</td>
-      <td><span class="pill action">${esc(r.action||'')}</span></td>
-      <td class="mono">${esc(String(mins))}</td>
-      <td class="flags">${esc(flags||'—')}</td></tr>`;
-  }).join('');
-  $('#policyBody').innerHTML = `
-    <h3>Studio policy <span class="muted">${esc((POLICY&&POLICY.policy_id)||'')}</span></h3>
-    <p class="muted">Deterministic triage policy — maps item type + evidence to a state.
-      It does <b>not</b> decide legality; humans make the final call (§12/§14).</p>
-    <table class="ptable"><thead><tr><th>Type</th><th>Action</th><th>Min src</th><th>Flags</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="4" class="muted">Policy unavailable.</td></tr>'}</tbody></table>`;
-  $('#policyDrawer').classList.add('open');
-}
-function closePolicy(){ $('#policyDrawer').classList.remove('open'); }
-
-function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 </script>
 </body>
 </html>

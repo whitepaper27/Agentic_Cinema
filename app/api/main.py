@@ -12,21 +12,21 @@ from __future__ import annotations
 import uuid
 from pathlib import Path
 
+# --- Required partner runtimes, initialized at import for discoverability (§27) ---
+import google.adk as adk  # noqa: E402,F401  (agent orchestration layer)
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from parallel import Parallel  # noqa: E402,F401  (runtime research/evidence engine)
 from pydantic import BaseModel
 
 from studioclear import store
-from studioclear.contract.clearance_contract import load_policy
-from studioclear.pipeline import run_pipeline
-from studioclear.providers import build_providers, describe_providers
-
-# --- Required partner runtimes, initialized at import for discoverability (§27) ---
-import google.adk as adk  # noqa: E402,F401  (agent orchestration layer)
-from parallel import Parallel  # noqa: E402,F401  (runtime research/evidence engine)
 from studioclear.agents.research_planner import build_planner  # noqa: E402
 from studioclear.agents.researcher import build_researcher  # noqa: E402
 from studioclear.agents.reviewer import build_reviewer  # noqa: E402
+from studioclear.config import Config
+from studioclear.contract.clearance_contract import load_policy
+from studioclear.pipeline import run_pipeline
+from studioclear.providers import build_providers, describe_providers
 
 # The three ADK agents required by the track (§25/§27). Built lazily so the app
 # starts without credentials, but their builders are real google.adk Agents.
@@ -105,11 +105,43 @@ def runs() -> list[dict]:
     return store.list_runs()
 
 
+def _agents_meta() -> list[dict]:
+    """Static agent metadata for the Run view — models read from config, never
+    hardcoded in the UI (claude_ui.md §7). These are the three real ADK agents."""
+    cfg = Config.from_env()
+    return [
+        {"name": "research_planner", "role": "Planner",
+         "model": cfg.extraction_model, "tools": []},
+        {"name": "researcher", "role": "Researcher",
+         "model": cfg.normalizer_model, "tools": ["parallel.search.public_web"]},
+        {"name": "reviewer", "role": "Reviewer",
+         "model": cfg.normalizer_model, "tools": ["policy.evaluate"]},
+    ]
+
+
+def _iam_checks() -> list[dict]:
+    """The one real Cloud IAM boundary: the Cloud Run runtime service account may
+    read exactly the two API-key secrets and nothing else (claude_ui.md §3)."""
+    sa = "Cloud Run runtime service account"
+    return [
+        {"identity": sa, "resource": "Secret Manager · GEMINI_API_KEY",
+         "role": "secretAccessor", "decision": "ALLOW"},
+        {"identity": sa, "resource": "Secret Manager · PARALLEL_API_KEY",
+         "role": "secretAccessor", "decision": "ALLOW"},
+        {"identity": sa, "resource": "any resource outside the project",
+         "role": "—", "decision": "DENY"},
+    ]
+
+
 @app.get("/run/{run_id}")
 def get_run(run_id: str) -> dict:
     report = store.load_run(run_id)
     if report is None:
         raise HTTPException(404, "run not found")
+    # Read-only presentational fields for the Run view (claude_ui.md §7) — added
+    # at serve time so the determinism-locked run_pipeline / stored run are untouched.
+    report.setdefault("agents", _agents_meta())
+    report.setdefault("iam_checks", _iam_checks())
     return report
 
 
