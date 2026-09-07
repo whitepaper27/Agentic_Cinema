@@ -56,6 +56,16 @@ def test_select_option_persists_decision():
     assert again["decision"]["option_id"] == "NEARBY_PRACTICAL"
 
 
+def test_location_suggestions_return_candidates_as_leads():
+    scene = _scene()
+    r = client.post(f"/scenes/{scene['scene_id']}/location-suggestions",
+                    json={"mode": "example", "brief": BRIEF})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["candidates"] and all("name" in c and "rationale" in c
+                                       for c in body["candidates"])
+
+
 def test_unknown_option_is_rejected():
     scene = _scene()
     comp = client.post(f"/scenes/{scene['scene_id']}/shoot-comparisons",

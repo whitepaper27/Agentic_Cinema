@@ -49,6 +49,18 @@ class MockLLMProvider:
         # the live provider's job — the API must never use this for a live upload.
         return [ClearanceItem(**it) for it in self._items]
 
+    def suggest_locations(self, scene_text, instruction):
+        # Deterministic simulated location suggestions — leads to research, not
+        # feasibility/permission/cost claims.
+        return [
+            {"name": "Ireland (Atlantic coast)",
+             "rationale": "Rugged coastline and section 481 film incentives."},
+            {"name": "Nova Scotia, Canada",
+             "rationale": "Similar coastal look; provincial film tax credit."},
+            {"name": "Cornwall, UK",
+             "rationale": "Dramatic sea cliffs; UK expenditure credits."},
+        ]
+
     def propose_creative(self, scene_text, instruction, kind):
         # Deterministic offline creative proposal: an addition (elaboration) that
         # invents no facts and preserves the existing text/locks.
@@ -253,7 +265,7 @@ class ExampleProductionProvider:
             {"slot": "NEARBY_PRACTICAL", "candidate": f"Practical location near {base}",
              "cost_lines": nearby, "contingency_pct": 10, "source_ids": ["S-day"],
              "limitations": ["Permit availability unconfirmed."]},
-            {"slot": "TRAVEL_PRACTICAL", "candidate": region,
+            {"slot": "TRAVEL_PRACTICAL", "candidate": f"Filming in {region}",
              "cost_lines": travel, "contingency_pct": 10, "source_ids": ["S-day", "S-hotel"],
              "limitations": ["Crew availability unconfirmed.", "Incentives not calculated."]},
             {"slot": "LOCAL_VFX", "candidate": f"Local shoot + VFX near {base}",

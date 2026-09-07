@@ -84,7 +84,7 @@ class LiveProductionProvider:
             {"slot": "NEARBY_PRACTICAL", "candidate": f"Practical location near {base}",
              "cost_lines": nearby, "contingency_pct": 10, "source_ids": source_ids,
              "limitations": [est_note, "Availability unconfirmed."]},
-            {"slot": "TRAVEL_PRACTICAL", "candidate": region,
+            {"slot": "TRAVEL_PRACTICAL", "candidate": f"Filming in {region}",
              "cost_lines": travel, "contingency_pct": 10, "source_ids": source_ids,
              "limitations": [est_note, "Incentives not calculated.", "Availability unconfirmed."]},
             {"slot": "LOCAL_VFX", "candidate": f"Local shoot + VFX near {base}",

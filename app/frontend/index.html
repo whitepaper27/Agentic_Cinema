@@ -140,6 +140,7 @@ const S = {                       // minimal frontend state (sol_ui.md §16)
     day_rate_low:400,day_rate_high:650,flight_low:500,flight_high:900,
     hotel_low:120,hotel_high:200,permit_low:800,permit_high:2500,
     equipment_low:900,equipment_high:1400,vfx_rate_low:3000,vfx_rate_high:8000}, comparison:null,
+  locSuggestions:null,
 };
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -630,6 +631,15 @@ function viewShoot(){
         ${briefField("local_crew","Local crew","number")}${briefField("accommodation_nights","Accommodation nights","number")}
         ${briefField("vfx_shots","VFX shots","number")}${briefField("budget_ceiling","Budget ceiling (optional)","number")}
       </div>
+      <div class="row" style="margin-top:6px">
+        <button class="ghost" id="suggestBtn">${S.busy?'<span class="spin"></span> Suggesting…':'Suggest alternative locations'}</button>
+        <span class="hint">Not sure where to travel? Get candidate locations to research, then pick one.</span>
+      </div>
+      ${S.locSuggestions?`<div style="margin:8px 0">
+        <div class="hint">Candidate locations (leads to research — availability &amp; incentives unconfirmed):</div>
+        <div class="chips">${S.locSuggestions.candidates.map(c=>`<span class="chip" data-loc="${esc(c.name)}" title="${esc(c.rationale)}">${esc(c.name)}</span>`).join("")}</div>
+        ${(S.locSuggestions.sources||[]).slice(0,3).map(s=>`<div class="hint">• lead: <a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.title||domainOf(s.url))}</a></div>`).join("")}
+      </div>`:""}
       <h2 style="margin-top:14px">Rate estimates <span class="hint" style="font-weight:400">— your assumptions (editable). Replace with supplier quotes when you have them. Leave blank for "quote needed."</span></h2>
       <div class="briefgrid">
         ${briefField("day_rate_low","Crew day rate low","number")}${briefField("day_rate_high","Crew day rate high","number")}
@@ -675,6 +685,16 @@ function wireShoot(){
   const rc=el("recalcBtn"); if(rc) rc.onclick=()=>compareOptions(S.comparison.comparison_id);
   document.querySelectorAll("[data-select]").forEach(b=>b.onclick=()=>selectOption(b.dataset.select));
   const dl=el("briefDl"); if(dl) dl.onclick=downloadBrief;
+  const sg=el("suggestBtn"); if(sg) sg.onclick=suggestLocations;
+  document.querySelectorAll("[data-loc]").forEach(c=>c.onclick=()=>{S.brief.travel_region=c.dataset.loc;render();});
+}
+async function suggestLocations(){
+  S.error=""; S.busy=true; render();
+  try{
+    S.locSuggestions=await api(`/scenes/${S.scene.scene_id}/location-suggestions`,{method:"POST",
+      body:JSON.stringify({mode:S.scene.provider_mode||"example", brief:S.brief})});
+    S.busy=false; render();
+  }catch(e){ S.busy=false; S.error=String(e.message||e); render(); }
 }
 async function compareOptions(parent){
   S.error=""; S.busy=true; render();

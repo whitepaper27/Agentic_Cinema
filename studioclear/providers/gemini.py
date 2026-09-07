@@ -82,6 +82,13 @@ class _CreativeProposal(BaseModel):
     rationale: str = ""
 
 
+class _LocationSuggestion(BaseModel):
+    """A candidate filming location to research (not a feasibility claim)."""
+
+    name: str
+    rationale: str = ""
+
+
 class GeminiLLMProvider:
     def __init__(self, api_key: str | None = None, model: str | None = None):
         from google import genai
@@ -157,6 +164,30 @@ class GeminiLLMProvider:
                           text_span=e.text_span, context=e.context)
             for i, e in enumerate(extracted, start=1)
         ]
+
+    def suggest_locations(self, scene_text, instruction):
+        """Suggest candidate alternative filming locations (sol.md §6A). These are
+        leads to research and confirm — not feasibility, permission, or cost."""
+        from google.genai import types
+
+        system = (
+            "You are a film location scout. Given the SCENE and INSTRUCTION, suggest "
+            "2-3 REAL-WORLD filming locations (city/region/country) whose look and "
+            "period suit the scene and that are known for film incentives. Return "
+            "each as name + a one-line rationale. These are SUGGESTIONS to research; "
+            "do NOT assert that filming is permitted, available, or affordable there, "
+            "and do not invent incentive figures."
+        )
+        resp = self.client.models.generate_content(
+            model=self.normalizer_model,
+            contents=(f"{system}\n\n<INSTRUCTION>\n{instruction}\n</INSTRUCTION>\n"
+                      f"<SCENE>\n{scene_text}\n</SCENE>"),
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=list[_LocationSuggestion], temperature=0.5),
+        )
+        parsed = resp.parsed or []
+        return [s.model_dump(mode="json") for s in parsed]
 
     def propose_creative(self, scene_text, instruction, kind):
         """Propose AI-authored creative scene text (sol.md §7) — no citations.

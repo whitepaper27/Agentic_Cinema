@@ -30,6 +30,12 @@ class LLMProvider(Protocol):
         sources via research.evidence_normalizer.resolve_assessments."""
         ...
 
+    def suggest_locations(self, scene_text: str, instruction: str) -> list[dict]:
+        """Suggest candidate alternative filming locations (sol.md §6A) as
+        [{"name", "rationale"}]. These are leads to research and confirm — never an
+        assertion of feasibility, permission, or cost. The producer picks one."""
+        ...
+
     def propose_creative(self, scene_text: str, instruction: str, kind: str) -> dict:
         """Propose optional AI-authored scene text (sol.md §7) — an elaboration or a
         dialogue/action rewrite. Returns {original_text, proposed_text, rationale};

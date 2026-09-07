@@ -38,7 +38,7 @@ from studioclear.providers import (
     build_providers_for_mode,
     describe_providers,
 )
-from studioclear.providers.mock import ExampleProductionProvider
+from studioclear.providers.mock import ExampleLLMProvider, ExampleProductionProvider
 from studioclear.research_pipeline import run_research
 from studioclear.scene_store import ExpiredError, OwnershipError
 from studioclear.shoot_comparison import build_comparison
@@ -637,6 +637,45 @@ def decide_creative_proposal(scene_id: str, proposal_id: str,
 
 
 # ---------------- Shoot comparison (sol.md §6A / §9) ----------------
+
+
+@app.post("/scenes/{scene_id}/location-suggestions")
+def suggest_locations(scene_id: str, req: ShootComparisonRequest, request: Request,
+                      response: Response) -> dict:
+    """Suggest candidate alternative filming locations to research (sol.md §6A).
+    Leads only — never a feasibility, permission, or cost claim."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+
+    version = scene_store.latest_version(scene)
+    scene_text = "\n\n".join(s.get("text", "") for s in version["scenes"])
+    instruction = scene.get("instruction", "")
+
+    sources: list[dict] = []
+    if req.mode == "example":
+        candidates = ExampleLLMProvider().suggest_locations(scene_text, instruction)
+    elif req.mode == "live":
+        cfg = Config.from_env()
+        if not cfg.gemini_api_key:
+            raise HTTPException(503, "live location suggestions need a Gemini key")
+        from studioclear.providers.gemini import GeminiLLMProvider
+        candidates = GeminiLLMProvider().suggest_locations(scene_text, instruction)
+        if cfg.parallel_api_key and candidates:
+            from studioclear.providers.parallel import ParallelSearchProvider
+            from studioclear.providers.production import LiveProductionProvider
+            lp = LiveProductionProvider(ParallelSearchProvider())
+            leads = lp._search(f"film incentives and locations {candidates[0]['name']}")
+            for i, r in enumerate(leads[:3]):
+                sources.append({"source_id": f"L{i + 1:03d}", "url": r.get("source_url", ""),
+                                "title": r.get("title", ""), "provenance": "sourced_lead"})
+    else:
+        raise HTTPException(422, f"unknown mode: {req.mode}")
+    return {"candidates": candidates, "sources": sources, "mode": req.mode}
 
 
 @app.post("/scenes/{scene_id}/shoot-comparisons")
