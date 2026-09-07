@@ -1,6 +1,6 @@
 # Build Progress — StudioClear
 
-Snapshot of what's built and verified vs. the plan in `sol.md`. Updated 2026-09-05.
+Snapshot of what's built and verified vs. the plan in `sol.md`. Updated 2026-09-06.
 
 ## Verified working (live, with real credentials)
 
@@ -38,18 +38,26 @@ Snapshot of what's built and verified vs. the plan in `sol.md`. Updated 2026-09-
 - `demo/cached_run.json` frozen for the demo/video (deterministic, shows the
   clean LunarFizz INSUFFICIENT-EVIDENCE narrative).
 
-## Deployment (scaffolded, not applied)
+## Deployment (LIVE on Cloud Run — DONE)
 
-- `Dockerfile` + `.dockerignore` for Cloud Run.
-- `deploy/terraform/` — Cloud Run service + runtime SA + Secret Manager binding
-  (the one real IAM check). `deploy/README.md` has gcloud + Terraform paths.
+- **Hosted:** https://studioclear-602811764567.us-central1.run.app
+  - Project `gen-lang-client-0406755615` (the only one with billing), region
+    `us-central1`, service `studioclear`, unauthenticated (public demo).
+  - Keys in **Secret Manager** (`GEMINI_API_KEY`, `PARALLEL_API_KEY`), mounted as
+    env vars; runtime compute SA has `secretAccessor` on both.
+  - Built from source via Cloud Build (`gcloud run deploy --source .`, Dockerfile).
+- **Verified live:** `POST /upload` (prefer_live) → GeminiLLMProvider +
+  ParallelSearchProvider, 14/14 evidence-backed, multi-source 3/3, 5 CLEAR / 6
+  REVIEW / 3 ESCALATE, 1 unauthorized blocked, `audit_verified: true`.
+  Health at **`/health`** (and `/status`) lists ADK 2.8.0 + the 3 agents.
+- **Gotcha:** `/healthz` is swallowed by the Google Front End on `*.run.app`
+  (never reaches the container) — use `/health` or `/status` instead.
+- `deploy/terraform/` + `deploy/README.md` still valid for a reproducible redeploy.
 
-## Remaining (priority order)
+## Remaining
 
-1. **Deploy** to Cloud Run and verify the hosted app (Day-4). Dockerfile +
-   Terraform ready; blocked only on `gcloud auth` + a GCP project.
-2. **Record the 3-minute video** against `demo/cached_run.json` (sol.md E6).
-3. **Demo tuning** — the fictional brand (LunarFizz) returns tangential live
+1. **Record the 3-minute video** against `demo/cached_run.json` (sol.md E6).
+2. **Demo tuning** — the fictional brand (LunarFizz) returns tangential live
    matches → ESCALATE; the cached/mock run shows the clean INSUFFICIENT-EVIDENCE
    honesty beat, so record the honesty moment from cached mode.
 

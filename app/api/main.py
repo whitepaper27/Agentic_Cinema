@@ -58,7 +58,12 @@ def index() -> str:
     return "<h1>StudioClear</h1><p>API up. See /docs.</p>"
 
 
+# NOTE: `/healthz` is intercepted by the Google Front End on *.run.app (the
+# request never reaches the container), so we also expose `/health` and
+# `/status`, which are not reserved. All three run the same check.
 @app.get("/healthz")
+@app.get("/health")
+@app.get("/status")
 def healthz() -> dict:
     # Build the ADK agents to prove they initialize (real google.adk Agents).
     agents = [build_planner().name, build_researcher().name, build_reviewer().name]

@@ -21,8 +21,12 @@ Working and tested **live** (real Gemini + Parallel keys): full spine, FastAPI
 backend + UI, human override→audit, and **real ADK agents** (the §25/§27
 compliance lock is CLOSED — Planner/Researcher/Reviewer are `google.adk` Agents;
 Researcher calls `parallel_search` as an ADK tool at runtime). CI is green (43
-tests). **Remaining: (1) deploy to Cloud Run — blocked on user's gcloud/GCP;
-(2) record the 3-min video.** Do NOT re-do finished work — check PROGRESS.md.
+tests). **DEPLOYED & verified live on Cloud Run:**
+https://studioclear-602811764567.us-central1.run.app (project
+`gen-lang-client-0406755615`, region `us-central1`, keys in Secret Manager).
+A live `/upload` returns real Gemini+Parallel providers, 14/14 evidence-backed,
+audit verified. **Remaining: record the 3-min video.** Do NOT re-do finished
+work — check PROGRESS.md.
 
 ## How to run
 
@@ -81,8 +85,29 @@ google-genai, google-adk, parallel-web, python-dotenv, pytest, ruff).
 - Remote `origin` = `https://github.com/whitepaper27/Agentic_Cinema.git` (account **whitepaper27**, auth via Windows Credential Manager — `git push` works non-interactively). `gh` CLI is NOT authenticated.
 - Commit only when asked. End messages with the Co-Authored-By trailer. Never commit `.env` or `app/data/`.
 
-## Next steps (tomorrow)
+## Deployment (DONE — how to redeploy)
 
-1. **Deploy to Cloud Run** — `deploy/README.md` Option A (Console + GitHub, no local tooling). After deploy, verify hosted `/healthz` and a live `/upload`.
-2. **Record the 3-min video** against `demo/cached_run.json` (sol.md E6) — deterministic take.
-3. Optional: demo polish, README screenshots, Devpost submission text.
+Deployed via `gcloud run deploy --source .` (Cloud Build builds the Dockerfile).
+gcloud is installed at `C:\Users\Sahil\google-cloud-sdk` **but its bundled Python
+is missing**, so every gcloud call needs two env vars (sourced from
+`scratchpad/gcenv.sh`):
+```bash
+export CLOUDSDK_PYTHON="C:\\Python310\\python.exe"
+export PYTHONPATH="C:\\Users\\Sahil\\google-cloud-sdk\\lib\\third_party"
+export PATH="/c/Users/Sahil/google-cloud-sdk/bin:$PATH"
+```
+Redeploy after a code change:
+```bash
+gcloud run deploy studioclear --source . --region us-central1 \
+  --allow-unauthenticated \
+  --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest,PARALLEL_API_KEY=PARALLEL_API_KEY:latest \
+  --memory 1Gi --cpu 1 --timeout 600 --quiet
+```
+- **Health check is `/health` (or `/status`), NOT `/healthz`** — Google's front
+  end swallows `/healthz` on `*.run.app` before it reaches the container.
+- `.gcloudignore` keeps `.env`/`.venv`/`.git` out of the Cloud Build upload.
+
+## Next steps
+
+1. **Record the 3-min video** against `demo/cached_run.json` (sol.md E6) — deterministic take.
+2. Optional: demo polish, README screenshots, Devpost submission text (include the live URL).

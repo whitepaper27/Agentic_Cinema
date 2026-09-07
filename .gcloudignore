@@ -1,0 +1,15 @@
+# Controls what `gcloud run deploy --source .` uploads to Cloud Build.
+# Never upload secrets, local venv, git history, or local run data.
+.env
+.env.*
+.venv/
+.git/
+.github/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+app/data/
+demo/*.json.bak
+node_modules/
+*.log
