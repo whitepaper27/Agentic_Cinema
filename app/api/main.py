@@ -29,7 +29,7 @@ from studioclear.agents.reviewer import build_reviewer  # noqa: E402
 from studioclear.analyzer.script_parser import parse_screenplay_text
 from studioclear.config import Config
 from studioclear.contract.clearance_contract import load_policy
-from studioclear.handoff import build_handoff
+from studioclear.handoff import build_comparison_handoff, build_handoff
 from studioclear.models import ClearanceItem
 from studioclear.pipeline import run_pipeline
 from studioclear.providers import (
@@ -38,8 +38,10 @@ from studioclear.providers import (
     build_providers_for_mode,
     describe_providers,
 )
+from studioclear.providers.mock import ExampleProductionProvider
 from studioclear.research_pipeline import run_research
 from studioclear.scene_store import ExpiredError, OwnershipError
+from studioclear.shoot_comparison import build_comparison
 
 # The three ADK agents required by the track (§25/§27). Built lazily so the app
 # starts without credentials, but their builders are real google.adk Agents.
@@ -132,6 +134,18 @@ class RecheckRequest(BaseModel):
 class FindingDecisionRequest(BaseModel):
     action: str                          # "keep" | "review" | "escalate"
     note: str = ""
+
+
+class ShootComparisonRequest(BaseModel):
+    brief: dict = {}
+    mode: str = "example"                # "live" | "example"
+    parent_comparison_id: str | None = None
+
+
+class ComparisonDecisionRequest(BaseModel):
+    option_id: str
+    rationale: str = ""
+    idempotency_key: str | None = None
 
 
 def _session(request: Request, response: Response) -> str:
@@ -562,3 +576,94 @@ def delete_scene(scene_id: str, request: Request, response: Response) -> dict:
     except OwnershipError as e:
         raise HTTPException(403, "not your scene") from e
     return {"deleted": scene_id}
+
+
+# ---------------- Shoot comparison (sol.md §6A / §9) ----------------
+
+
+@app.post("/scenes/{scene_id}/shoot-comparisons")
+def create_shoot_comparison(scene_id: str, req: ShootComparisonRequest,
+                            request: Request, response: Response) -> dict:
+    """Research + calculate a three-option production comparison (sol.md §6A)."""
+    owner = _session(request, response)
+    try:
+        scene = scene_store.get_scene(scene_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your scene") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+
+    if req.mode == "example":
+        provider = ExampleProductionProvider()
+    else:
+        # Live location/rate research is not wired yet; never fabricate prices.
+        raise HTTPException(503, "live production research is not yet available; "
+                                 "use mode=example for the simulated comparison")
+
+    calc_version = 1
+    if req.parent_comparison_id:
+        parent = scene_store.get_comparison(req.parent_comparison_id, owner=owner)
+        if parent is not None:
+            calc_version = int(parent.get("calculation_version", 1)) + 1
+
+    now = _server_now() if req.mode == "live" else FIXTURE_NOW
+    comp = build_comparison(scene, req.brief, provider,
+                            comparison_id=f"cmp_{uuid.uuid4().hex[:8]}",
+                            provider_mode=req.mode, parent_id=req.parent_comparison_id,
+                            calculation_version=calc_version, now=now)
+    scene_store.save_comparison(comp, owner, scene=scene)
+    scene_store.register_comparison(scene, comp["comparison_id"])
+    return comp
+
+
+@app.get("/shoot-comparisons/{comparison_id}")
+def get_shoot_comparison(comparison_id: str, request: Request,
+                         response: Response) -> dict:
+    owner = _session(request, response)
+    try:
+        comp = scene_store.get_comparison(comparison_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your comparison") from e
+    if comp is None:
+        raise HTTPException(404, "comparison not found")
+    return comp
+
+
+@app.post("/shoot-comparisons/{comparison_id}/decision")
+def decide_shoot_comparison(comparison_id: str, req: ComparisonDecisionRequest,
+                            request: Request, response: Response) -> dict:
+    """Persist the producer's option choice for further planning (no booking)."""
+    owner = _session(request, response)
+    try:
+        comp = scene_store.get_comparison(comparison_id, owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your comparison") from e
+    if comp is None:
+        raise HTTPException(404, "comparison not found")
+    if req.option_id not in {o["option_id"] for o in comp.get("options", [])}:
+        raise HTTPException(422, "unknown option_id")
+    existing = comp.get("decision")
+    if existing and req.idempotency_key and existing.get("idempotency_key") == req.idempotency_key:
+        return {"selected": existing["option_id"], "decision": existing}
+    comp["decision"] = {"option_id": req.option_id, "rationale": req.rationale,
+                        "selected_for_planning": True, "at": _server_now(),
+                        "idempotency_key": req.idempotency_key}
+    scene_store.save_comparison(comp, owner)
+    return {"selected": req.option_id, "decision": comp["decision"]}
+
+
+@app.get("/shoot-comparisons/{comparison_id}/handoff")
+def get_comparison_handoff(comparison_id: str, request: Request,
+                           response: Response) -> dict:
+    """One sanitized production planning brief snapshot (sol.md §9)."""
+    owner = _session(request, response)
+    try:
+        comp = scene_store.get_comparison(comparison_id, owner=owner)
+        if comp is None:
+            raise HTTPException(404, "comparison not found")
+        scene = scene_store.get_scene(comp["scene_id"], owner=owner)
+    except OwnershipError as e:
+        raise HTTPException(403, "not your comparison") from e
+    if scene is None:
+        raise HTTPException(404, "scene not found")
+    return build_comparison_handoff(comp, scene)

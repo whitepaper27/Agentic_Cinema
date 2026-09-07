@@ -19,6 +19,42 @@ def _text(version: dict) -> str:
     return "\n\n".join(s.get("text", "") for s in version.get("scenes", []))
 
 
+def build_comparison_handoff(comp: dict, scene: dict) -> dict:
+    """Sanitized production planning brief (sol.md §9). Allowlisted — no owner or
+    session. Estimate status is separate from scene review; a comparison against an
+    older scene version is Stale."""
+    versions = scene.get("versions", [])
+    current = versions[-1]
+    stale = comp.get("scene_version") != scene.get("current_version")
+    status = ("Stale comparison" if stale else comp.get("estimate_status", "incomplete estimate"))
+    decision = comp.get("decision")
+    return {
+        "schema": "studioclear.planning_brief.v1",
+        "handoff_id": f"{comp['comparison_id']}:{scene.get('current_version')}",
+        "comparison_id": comp["comparison_id"],
+        "parent_comparison_id": comp.get("parent_comparison_id"),
+        "calculation_version": comp.get("calculation_version"),
+        "scene_id": scene.get("scene_id"),
+        "scene_version": scene.get("current_version"),
+        "comparison_scene_version": comp.get("scene_version"),
+        "title": scene.get("title", ""),
+        "provider_mode": comp.get("provider_mode"),
+        "simulated": comp.get("provider_mode") == "example",
+        "estimate_status": status,
+        "stale": stale,
+        "reporting_currency": comp.get("reporting_currency"),
+        "brief": comp.get("brief", {}),
+        "options": comp.get("options", []),
+        "recommendation": comp.get("recommendation"),
+        "selected": decision,
+        "sources": comp.get("sources", []),
+        "scene_text": "\n\n".join(s.get("text", "") for s in current.get("scenes", [])),
+        "instruction": current.get("instruction", ""),
+        "expires_at": scene.get("expires_at"),
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 def build_handoff(run: dict, scene: dict,
                   historical_runs: dict[str, dict] | None = None) -> dict:
     """Return the sanitized, shareable handoff for a run + its scene.

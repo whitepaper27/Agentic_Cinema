@@ -1,128 +1,211 @@
-# StudioClear — LAST LIGHT live demo and video test
+# StudioClear — one scene, three filming options
 
-**Status:** Test script for use only after the workflow repairs below are complete. It is not evidence that the current hosted app works, and it must not be used to label a simulated run as live.
+**Status:** Post-implementation test and recording script. No live comparison, filming quote, measured saving, or successful run is established by this document.
 
-**Demo pack:** [LAST LIGHT README](demo/last-light/README.md), [scene text](demo/last-light/scene.txt), [page prompts](demo/last-light/comic-prompts.md), and private [reviewer notes](demo/last-light/reviewer-notes.md).
+**Authority:** [sol.md](sol.md), especially sections 6A, 9, 12, and 14; [sol_ui.md](sol_ui.md), especially Shoot options and Handoff.
 
-**Goal:** Prove one coherent filmmaking workflow: original comic pages are read, a factual issue receives evidence, a filmmaker approves one minimal revision, the changed scene is re-extracted and rechecked, and one version-consistent handoff is exported.
+**Primary demo:** One selected gold-stone transformation scene from the user's fantasy premise. LAST LIGHT remains a supporting regression case.
 
-## 1. Do not start recording until these gates pass
+**Product promise:** Give StudioClear a scene. Compare practical ways to film it using evidence, transparent cost assumptions, and creative tradeoffs.
 
-- [ ] Three original final comic pages exist as separate PNG/JPEG/WebP files, have no third-party characters/logos, and have documented creation/tool provenance.
-- [ ] The live app accepts the pages in order without using the pasted script to conceal a failed image extraction.
-- [ ] Full dialogue/captions, page locations, visual descriptions, and candidate claims are retained separately. A claim list is not being used as the transcript.
-- [ ] A confirmed canonical scene version is the only source for research, revisions, recheck, screen view, TXT, PDF, and JSON.
-- [ ] Research records actual Gemini/Parallel operation outcome, time, query/operation identifier, and provider mode. A live-provider failure remains a failure; it never receives fixture data.
-- [ ] The page 2 accepted revision has applicable evidence, cites at least one stored source passage, and has a specific version-bound target.
-- [ ] Exact dialogue locks are enforced by the server. A matching phrase elsewhere cannot satisfy a changed protected occurrence.
-- [ ] Recheck calls extraction on the accepted scene version, then researches changed and newly added claims or explicitly records a skip/failure.
-- [ ] Every accepted-change evidence tuple `{origin_run_id, source_id}` resolves to exactly one source record in the handoff snapshot, including sources from before recheck.
-- [ ] A handoff with no recheck, a failed/pending recheck, or a version mismatch is labeled **Accepted revision — recheck incomplete**, never **Production handoff**.
-- [ ] Screen, TXT, printable PDF, and JSON come from one server-generated handoff ID and identical scene version.
-- [ ] A separate regression test adds a new claim after acceptance and proves it appears in recheck coverage. Do not test this destructive variation during the filmed showcase run.
-- [ ] The 24-hour expiry and private-asset behavior have passed their own smoke test.
+## 1. What the demonstration must prove
 
-If any box is unchecked, record the failure for debugging but do not use that run in the submission video.
+A producer confirms the scene's requirements, supplies production inputs, compares three approaches, changes a constraint, and chooses an option for further planning. The resulting brief lets a collaborator understand the decision, its evidence, and remaining work.
 
-## 2. Test data and expected boundaries
+The three slots are Nearby practical location, Alternative travel location, and Local filming + VFX. Research at most two jurisdictions. A slot can be infeasible or lack sufficient information; do not invent a candidate, quote, or winner to complete the screen.
 
-Use the scene's exact research instruction:
+The gold-touching power is intentional fantasy. Practical-location options still require a way to depict the transformation: include practical effects/VFX assumptions in every option that needs them. Do not compare a practical shoot that omits the effect against a VFX shoot that delivers the full scene.
 
-> This is grounded historical fiction set in 1935, not time travel. Check the depicted equipment and factual narration against that setting. Preserve all spoken dialogue exactly. Propose only evidence-backed caption or action-description changes. Do not invent an identity or permission status for the door symbol. Separate pending artwork changes from applied text changes.
+A complete comparison does not require a text correction. Optional rewriting is separate, requires acceptance, and invalidates dependent scene requirements and comparisons.
 
-Lock all five dialogue lines named in `demo/last-light/README.md` before research.
+## 2. Input material
 
-The prepared test inputs are intentional; they are not verdicts the system may hardcode:
+### A. Rough-premise interpretation check
 
-| Material | Desired demonstration | Boundary |
+First test the user's rough premise in a separate run: a romantic outing becomes a California gold and sea-treasure adventure; a discovered stone turns touched objects, food, and people into gold; the ending is unfinished.
+
+Expected behavior: preserve the full premise, recognize fantasy, identify unresolved story choices, and invite selection of one scene. Generic links about California do not satisfy production research. The app must not assume California is the producer's home base or invent an ending as if the author supplied it.
+
+### B. Proposed selected scene for rehearsal
+
+The following is a proposed adaptation for the demo, including newly written dialogue. Approve or edit it before recording. It is not a transcript of the original user input and is not claimed to be generated by the app.
+
+~~~text
+EXT. ROCKY COVE - LATE AFTERNOON
+
+An adult WOMAN and her PARTNER shelter beside a weathered chest.
+The sea is visible behind them. Neither enters the water.
+
+Inside the chest, she finds a small stone. She closes her bare hand
+around it. A discarded metal clasp catches her other hand and turns gold.
+
+PARTNER
+We found it.
+
+She picks up an apple from their bag. Gold spreads across its skin.
+She tries to press her thumbnail into it. The apple is solid metal.
+
+WOMAN
+Then why am I still hungry?
+
+Her partner reaches toward her. She steps back before their hands meet.
+
+WOMAN
+Don't touch me.
+~~~
+
+Select task: **Plan this shoot**.
+
+Instruction:
+
+> Preserve the stone's magical power, the threat of touching another person, and all dialogue. Compare a nearby coastal location, an alternative travel location, and local filming with a recreated coastal background. Identify the effects each approach needs. Use my production brief for costs; expose missing quotes and conditional incentives.
+
+Lock the three spoken lines exactly as written. The larger story's ending stays outside this selected scene.
+
+For image testing, use an original storyboard of this same scene and inspect its lettering/visible action before the run. Do not supply the text alongside the image to conceal failed vision. A text demonstration can proceed before artwork exists; claim image support only after an actual image test passes.
+
+### C. Confirm the production breakdown
+
+Confirm these requirements with the producer, allowing corrections:
+
+- Two adult principal performers; no extras assumed.
+- Rocky/coastal exterior appearance, visible sea, late-afternoon light.
+- Chest, stone, clasp, apple, and gold replacement props/effects.
+- Two transformations: clasp and apple. Shot counts, screen duration, camera movement, and practical/VFX split must be supplied or confirmed.
+- No boat, diving, crowd, or person-transformation shot is required by this selected scene.
+- Coastal background can be practical or recreated; any visual compromise must be disclosed.
+
+Do not make automatic legal/access assumptions about beaches or protected locations.
+
+## 3. Producer brief required before live comparison
+
+Fill these from an actual producer or record them as explicit demo assumptions. No preset price or jurisdiction is a real quote.
+
+| Input | Record before running |
+| --- | --- |
+| Production base city/country | Required; not inferred from story location |
+| Alternative travel region/country | Producer-selected or confirmed candidate; two jurisdictions maximum |
+| Filming dates/window | Supplied dates, or unknown with availability/rate limitations |
+| Reporting currency and budget ceiling | Currency required; unknown budget prevents an affordability verdict |
+| Principal cast and traveling/local crew | Counts and staffing assumptions, without double counting |
+| Preparation, shooting, and travel days | Separate quantities and who is paid for each |
+| Accommodation and transport | Nights, rooms/occupancy, travelers, vehicles, and supplied rate assumptions |
+| Effect shots | Number, duration, movement, practical plates/props, revision allowance |
+| Creative constraints | Dialogue, fantasy rules, coastline appearance, acceptable camera/lighting compromises |
+| Rate/quote inputs | Amount/range, currency, date, inclusions, provenance; unknown where unavailable |
+| Incentive context | Available production-company/qualifying-spend information; do not assume eligibility |
+
+An unknown price remains **Quote needed**. If only some costs are known, show a known-cost subtotal and exclusions. Never describe it as the whole shoot's price.
+
+## 4. Preconditions for the primary demo
+
+- [ ] Task and full-scene interpretation work; the gold power remains a creative premise.
+- [ ] One scene and its requirements are confirmed; incidental place names do not trigger irrelevant searches.
+- [ ] The producer brief persists through retry and refresh.
+- [ ] Actual Gemini and Parallel operations are recorded with outcomes, times, relevant questions, and source provenance.
+- [ ] All three approach slots show their requirements, evidence, tradeoffs, costs or gaps, and availability status.
+- [ ] Published rates, supplier quotes, producer estimates, and unknown amounts are distinguishable.
+- [ ] Quantities, currency conversion, contingency, and shared expenses are calculated in code.
+- [ ] Before-incentive estimates are the default; conditional benefits require sufficient source-backed assumptions.
+- [ ] No unconfirmed directory listing becomes a crew/studio availability confirmation.
+- [ ] Recalculation produces a saved comparison revision and accurate change explanation.
+- [ ] Selection persists as **Selected for further planning**.
+- [ ] An unchanged scene can produce a planning brief; no artificial accepted correction is required.
+- [ ] Current scene, comparison, and export snapshot versions agree; all cited source records resolve.
+- [ ] Private access, refresh/recovery, and fixed 24-hour expiry pass independent smoke tests.
+
+Record failures for repair. Do not script a successful result in advance. An incomplete but candid estimate can be useful; invented totals cannot.
+
+## 5. Live acceptance test
+
+### A. Understand and confirm
+
+1. Start a fresh session; record the build/commit and actual UTC start time.
+2. Paste the approved selected scene or upload its actual storyboard. Select **Plan this shoot** and enter the instruction.
+3. Confirm complete content, fantasy intent, selected scene, dialogue locks, and production requirements.
+4. Enter the producer brief. The app must use the production base for nearby scouting and retain unknowns.
+5. Save the confirmed scene and brief; record their versions.
+
+Pass: the app understands the selected filming task. A source list about California alone is a failure.
+
+### B. Research and compare
+
+6. Run **Compare three options** with real providers.
+7. Open each approach. Verify that the method delivers the confirmed scene, including both transformation effects.
+8. Inspect one substantive source passage that influences a location, permit question, production support lead, or relevant assumption. Verify actual query, retrieval date, and applicability.
+9. Inspect the cost table. Check quantities and provenance, missing categories, tax/overtime inclusions where known, currency conversions, and contingency.
+10. Open the incentive section. If eligibility or the calculation basis is missing, expect **Not calculated — eligibility information needed**. Do not force a numerical benefit for the video.
+11. Confirm that crew, studio, and location availability remain unconfirmed unless actual dated evidence supports them.
+
+Pass: three comparable approach slots contain relevant evidence and transparent estimates or explicit insufficiency. Any recommendation explains constraints and uncertainty.
+
+### C. Change a real constraint
+
+12. Save the initial comparison ID.
+13. Change traveling crew size using producer-confirmed values; leave unrelated fields unchanged and record whether this adds staff or replaces local hires. If changing available days instead, identify which labor/rental/accommodation quantities actually change.
+14. Click **Recalculate costs**. Verify the affected lines and new comparison/parent IDs. Pure arithmetic must not appear as a fresh web search.
+15. Inspect the explanation and all three updated options under the new brief. Overlapping ranges and missing prices remain explicit. The recommendation may stay the same.
+16. If the change requires new dates, a new region, or different effects scope, expect affected research/quotes to become stale and require refresh.
+
+Pass: differences are reproducible from saved assumptions. The new comparison does not erase the prior version or relabel reused evidence with a new retrieval time.
+
+### D. Decide and export
+
+17. Select an approach for further planning and save the producer's reason.
+18. Open the production planning brief. Verify current scene/comparison versions, selected option, alternatives, costs/coverage, assumptions, conditional incentives, unconfirmed availability, and next actions.
+19. Resolve every evidence reference to an included source, including reused records from earlier comparison/review runs.
+20. Download scene TXT, printable PDF, and production JSON. They share a handoff identity and scene version. TXT carries scene text and minimal identity; PDF/JSON carry the production comparison.
+21. Refresh and reopen the saved comparison and handoff before expiry. Verify that the selection and numbers persist and no owner/session/access data is exposed.
+
+Pass: a collaborator can understand the chosen approach and its unresolved work without replaying the app session. **Complete estimate** describes modeled coverage, not confirmed suppliers or incentive approval. Show scene-review status separately, including **Not requested**.
+
+## 6. Three-minute recording script
+
+Use the verified run above. An opening outcome preview must be labeled; all subsequent footage must correspond to that run or explicitly identify another recorded run. Record full elapsed processing time separately from edited video duration.
+
+| Time | On screen | Suggested narration |
 | --- | --- | --- |
-| Page 1 compact digital camera with screen in 1935 | A page/panel-linked period concern and a pending art note | Text revision does not alter original comic pixels or establish a replacement prop/rights clearance. |
-| Page 2 narration saying 1868 for the first transatlantic cable | Evidence-backed, minimal correction if live evidence supports it | Do not change dialogue or add unsupported historical detail. |
-| Page 2 ambiguous door mark | Honest uncertainty/restraint | No inferred real identity, owner, permission, or “cleared” result. |
+| 0:00–0:15 | Outcome preview: selected scene and three actual approaches | “We want to film this fantasy scene. StudioClear compares practical locations and a local/VFX approach using our production assumptions.” |
+| 0:15–0:45 | Input, confirmed requirements, producer brief | “The gold-touching power stays. We confirm what the scene needs and where our production is based.” |
+| 0:45–1:25 | Three cards, a relevant source passage, editable cost table | “Each option shows its evidence, costs, and missing quotes. These amounts are labeled by their source or estimate basis.” |
+| 1:25–2:00 | Change crew size or available days; show recalculated lines and explanation | “Changing this constraint updates these costs. Here is what changes in the comparison.” Describe the actual result; do not promise a new winner. |
+| 2:00–2:30 | Inspect a remaining quote/availability gap or conditional incentive; save selection | “We select this approach for further planning, with these items still to confirm.” |
+| 2:30–3:00 | Readable brief, snapshot/version match, brief provider proof | “The handoff preserves our scene, alternatives, assumptions, and decision.” Include an observed-user result only if collected. |
 
-The likely source leads in `reviewer-notes.md` are only rehearsal leads. The runtime must make its own actual Parallel request and retain the returned passage. If its evidence differs, show the real result rather than forcing this planned result.
+Use plain language over audit terminology. End on the producer's decision and next action. Do not claim actual money saved, guaranteed tax benefits, booked crew, generated film, or corrected comic artwork.
 
-## 3. Live acceptance test — run before filming
+## 7. Regression tests outside the main recording
 
-### A. Start clean
+- **Cost arithmetic:** Use clearly labeled synthetic values in automated tests. For a flight line with a producer-estimated unit rate of 500 reporting-currency units, changing quantity from four to eight changes that line from 2,000 to 4,000. This is a calculation fixture, not a flight quote or whole-budget result.
+- **Missing costs:** Remove a VFX rate or currency conversion. The estimate must become incomplete, never cheaper because the unknown was treated as zero.
+- **Incentives:** Remove required eligibility/qualifying-spend information. The conditional benefit must become not calculated; the before-incentive subtotal must remain unchanged.
+- **Comparable scope:** Confirm both practical-location options include a method/cost assumption for gold transformations; no option may omit a required effect to appear cheaper.
+- **Optional writing:** Request a proposed simplification of the selected scene without any factual contradiction. Do not apply its reduced effect requirements until the user accepts. Locks and fantasy rules must survive.
+- **Version changes:** After an accepted scene edit, re-extract its requirements/claims and mark affected comparisons stale. New claims must appear in recheck coverage or have an explicit failure/skip reason.
+- **Provenance and recovery:** Earlier accepted-change and comparison-source references remain resolvable after recheck/recalculation. Duplicate retries create no duplicate decisions.
+- **Access/expiry:** Check session isolation and expiry using a test clock. Adding comparisons or exporting cannot extend scene creation plus 24 hours. Saved external downloads are outside that lifecycle.
+- **Image and historical review:** [LAST LIGHT](demo/last-light/README.md), its [script](demo/last-light/scene.txt), and [reviewer notes](demo/last-light/reviewer-notes.md) remain tests for full transcription, the historical caption correction, ambiguous-mark restraint, dialogue preservation, and pending art notes. Generated images are not presumed to exist.
+- **Context sensitivity:** A separate camera scene set in 1935 versus 2035 must not inherit an inapplicable period objection. An explicit intentional future prop can remain a creative choice while factual context stays accurate.
 
-1. Use a fresh browser session. Capture app build/revision, UTC start time, and the source-page file hashes in a local test record.
-2. Select **Storyboard / comic pages**. Upload the three pages, verify their previews/order, and enter the instruction above.
-3. Click **Read my scene** in live mode. Record the returned scene ID/version and actual mode. Stop if it says simulated, example, mock, missing provider, or has no real provider operation.
+Once used for development, these cases are regression material, not held-out model-quality evidence.
 
-**Pass:** Every page is retained and visible, no fixture material appears, and the app shows a recoverable error instead of substituting a demo on failure.
+## 8. User observation, artifacts, and freeze
 
-### B. Confirm what the system read
+Ask a relevant creator to compare approaches for a different short scene using their own inputs. Observe without coaching them toward a preferred option. If possible, ask a second reader to explain the exported brief and its next actions. No outreach is performed automatically.
 
-4. Review page by page. Confirm that all five dialogue lines remain in the transcript, even though they are not all research claims.
-5. Confirm the setting, electronic camera/screen, page 2 narration, and door mark are described at page/panel level only where the system has reliable location data.
-6. Correct any transcription mistake in the canonical scene, then save it. Confirm a new scene version exists and any draft findings/proposals are invalidated.
-7. Apply exact dialogue locks to the current version. Confirm lock feedback names the text and version.
+| Observation | Result |
+| --- | --- |
+| Build/commit, UTC run time, provider/model, scene/comparison/handoff IDs | Not recorded |
+| Prepared-scene live comparison attempted/completed | Not run |
+| Participant role and count; different-scene source | Not measured |
+| Completion without coaching; interventions | Not measured |
+| Full duration including waits, failures, and retries | Not measured |
+| Selected approach and participant's stated reason | Not measured |
+| Could a collaborator identify cost assumptions, evidence, and work still needed? | Not measured |
+| Actual failures and unfamiliar scenes attempted | Not measured |
 
-**Pass:** The app does not treat a concatenated list of claims as the comic's transcript. The edit/research target and visible source are the same version.
+Retain original input, producer assumptions, source/calculation snapshots, comparison revisions, selection, exports, and the full recording. Do not publish private drafts or supplier quotes without appropriate permission. An optional manual comparison must use comparable inputs and evidence requirements; report limitations and do not manufacture a weak baseline.
 
-### C. Research and review
+Freeze after a reliable working comparison, a usable handoff, and an accurate recording of the result. If the app still returns generic location links or unsupported totals, repair that path before spending more time on artwork or extra features. If user impact remains untested, report it as unvalidated.
 
-8. Click **Confirm and research** in live mode. In Run details, check actual Gemini extraction/assessment and Parallel Search events separately from policy, self-test, and audit rows.
-9. Open the camera finding. Read the researched question, visible passage, limitation, and page/panel reference. Record any art correction as pending; do not say artwork changed.
-10. Open the page 2 historical narration finding. Verify the full caption/context and the precise returned passage before offering a revision.
-11. Open the door-mark finding, if present. Confirm its treatment stays limited to the available context. If no finding is extracted, do not fabricate one for the video.
-
-**Pass:** The user can understand the issue, exact evidence, and uncertainty without reading raw JSON. An authorization self-test is not presented as proof of research execution.
-
-### D. Revision and recheck
-
-12. Request a small revision only for the historical caption. Check that the original target appears exactly once in the current version, evidence references are nonempty/applicable, and the diff changes only the supported date/detail.
-13. Accept the revision. Confirm a new scene version and that all five locked dialogue lines are byte-for-byte unchanged.
-14. Start recheck. Confirm it first re-extracts the accepted version, then shows retained, modified, added, and removed claim coverage with actual operation results.
-15. If recheck fails, retain the accepted scene but stop the showcase run. The correct label is **Accepted revision — recheck incomplete**.
-
-**Pass:** A successful recheck names the accepted scene version and still leaves the camera art note/ambiguous mark honestly unresolved where applicable.
-
-### E. Handoff integrity
-
-16. Open the server-generated handoff. Verify its handoff ID, scene version, run/recheck lineage, accepted caption, locks, pending art note, unresolved work, and exact provider mode.
-17. For every accepted-change evidence reference, open the included source record. Verify origin run, source ID, URL, passage, query, and retrieval time resolve correctly.
-18. Download TXT, Print/Save PDF, and JSON. Compare handoff ID and scene version across all three. Confirm PDF includes the supporting passage, full citation, original/proposed text, instruction, decisions, pending art work, and unresolved work.
-19. Refresh the page and reopen the saved scene/run. Confirm the same version-bound handoff is returned before expiry.
-
-**Pass:** Nothing mixes old findings with newer scene text; no owner/session/access data appears in JSON.
-
-## 4. Separate regression test — never hide this behind the showcase
-
-Run this after the clean demo, in a new test scene or copy:
-
-1. After an accepted revision, append a new factual sentence to canonical scene text through the normal editor.
-2. Save the new version and run recheck.
-3. Assert the extraction operation is called on that new version.
-4. Assert the new claim appears as added and is researched, skipped with reason, or failed with error. A generic **complete** state is not enough.
-5. Assert old accepted-change citations remain resolvable in the new handoff.
-
-Record results in an automated regression test and keep a screenshot or JSON artifact. This test addresses the pre-repair defect where zero re-extraction calls still produced a “complete” result.
-
-## 5. Three-minute public video beats
-
-Use a real, previously verified live run. Waiting may be edited only if the footage remains faithful and the displayed result is not substituted. If a clip is a replay, label it **Recorded live run** with original date/provider provenance. Never use the simulated example as the proof run.
-
-| Time | Footage | Say/show |
-| --- | --- | --- |
-| 0:00–0:20 | Three original LAST LIGHT pages and the instruction | “A production researcher needs to catch factual problems without rewriting the scene’s emotional core.” |
-| 0:20–0:50 | Confirm extraction: full dialogue, 1935 context, page locations, locks | “We confirm what Gemini read before research. These dialogue lines are protected.” |
-| 0:50–1:30 | Historical caption finding, Parallel source passage, camera art note | “The evidence challenges this caption. The camera remains a pending artwork issue, not a falsely edited image.” |
-| 1:30–2:05 | Small diff and acceptance | “The filmmaker chooses one minimal, evidence-backed caption correction. Dialogue stays unchanged.” |
-| 2:05–2:30 | Recheck coverage for the new version | “StudioClear reads the revised scene again and reports what was rechecked and what remains unresolved.” |
-| 2:30–2:50 | Matching production handoff, PDF/TXT/JSON, source passage | “The handoff keeps the accepted change, evidence, decision, and remaining art work together.” |
-| 2:50–3:00 | Brief Run details | “This run records actual Gemini and Parallel operations. Configuration, self-tests, and audit integrity are supporting details.” |
-
-Do not make claims about legal clearance, automatic comic-image editing, generated video, perfect truth, measured cost/time savings, or an assured hackathon win.
-
-## 6. Evidence to keep beside the submission
-
-- Live run/recheck IDs, handoff ID, UTC timestamps, and build commit.
-- Original page files and non-sensitive provenance; do not publish private source drafts unless intended.
-- Screenshots of full extraction, evidence passage, accepted diff, recheck coverage, and matching exports.
-- A short actual-user observation: task, participant role, completion result, duration, and limitation. Do not invent metrics.
-- Public repository/runtime proof that Gemini and Parallel Search are imported and actually called in the submitted application.
-- Final rules check: hosted URL, public repo/license, original content, English public video at most three minutes, and correct track submission.
-
-Rules reference: https://agentic-cinema.devpost.com/rules
+Before submission, recheck the [official rules](https://agentic-cinema.devpost.com/rules), hosted app access, public repository/license, required actual integrations, and the public English demonstration video. Preserve original-content and tooling provenance. Completing this test establishes observed behavior; it does not guarantee a prize.

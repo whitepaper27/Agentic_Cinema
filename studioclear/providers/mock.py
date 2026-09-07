@@ -182,3 +182,72 @@ def build_example_providers() -> Providers:
     a corrected claim genuinely re-extracts and a recheck can flip its status
     (sol.md §14). Clearly a Simulated example; never presented as a live run."""
     return Providers(llm=ExampleLLMProvider(), search=ExampleSearchProvider())
+
+
+class ExampleProductionProvider:
+    """Deterministic simulated production research (sol.md §6A). Costs are derived
+    from the producer's brief so a changed constraint genuinely changes the numbers.
+    Rates are labeled Simulated; a live provider would source them via Parallel."""
+
+    def research_options(self, scene: dict, brief: dict) -> dict:
+        rc = brief.get("reporting_currency", "USD")
+        shoot = int(brief.get("shoot_days", 5) or 5)
+        tcrew = int(brief.get("traveling_crew", 10) or 0)
+        lcrew = int(brief.get("local_crew", 10) or 0)
+        nights = int(brief.get("accommodation_nights", shoot) or 0)
+        vfx_shots = int(brief.get("vfx_shots", 6) or 0)
+        region = brief.get("travel_region") or "the alternative region"
+        base = brief.get("base_city") or "base"
+
+        def ln(cat, desc, qty, lo, hi, prov, src=None, shared=None):
+            d = {"category": cat, "description": desc, "quantity": qty,
+                 "low_rate": lo, "high_rate": hi, "provenance": prov,
+                 "original_currency": rc, "reporting_currency": rc}
+            if src:
+                d["source_ref"] = src
+            if shared:
+                d["shared_expense_id"] = shared
+            return d
+
+        labor_local = ln("labor", f"{lcrew} local crew x {shoot} days",
+                         lcrew * shoot, 400, 600, "sourced", "S-day")
+        equip = ln("equipment", "camera/lighting package", shoot, 900, 1400, "estimate")
+        nearby = [
+            labor_local,
+            ln("location_permits", "local permit", 1, 800, 1500, "estimate"),
+            equip,
+        ]
+        travel = [
+            ln("labor", f"{tcrew} traveling crew x {shoot} days",
+               tcrew * shoot, 420, 650, "sourced", "S-day"),
+            ln("travel", f"{tcrew} return flights to {region}",
+               tcrew, 500, 900, "estimate"),
+            ln("accommodation", f"{tcrew} crew x {nights} nights",
+               tcrew * nights, 120, 200, "sourced", "S-hotel"),
+            ln("location_permits", "regional permit", 1, 1000, 2500, "estimate"),
+        ]
+        vfx = [
+            dict(labor_local),
+            ln("vfx", f"{vfx_shots} transformation shots",
+               vfx_shots, 3000, 8000, "estimate"),
+            dict(equip),
+        ]
+        sources = [
+            {"source_id": "S-day", "url": "https://example.gov/film-day-rates",
+             "title": "Regional film crew day rates", "provenance": "sourced",
+             "excerpt": "Published daily crew rates for the region."},
+            {"source_id": "S-hotel", "url": "https://example.com/regional-hotels",
+             "title": "Regional accommodation rates", "provenance": "sourced",
+             "excerpt": "Nightly accommodation rates near the location."},
+        ]
+        return {"sources": sources, "options": [
+            {"slot": "NEARBY_PRACTICAL", "candidate": f"Practical location near {base}",
+             "cost_lines": nearby, "contingency_pct": 10, "source_ids": ["S-day"],
+             "limitations": ["Permit availability unconfirmed."]},
+            {"slot": "TRAVEL_PRACTICAL", "candidate": region,
+             "cost_lines": travel, "contingency_pct": 10, "source_ids": ["S-day", "S-hotel"],
+             "limitations": ["Crew availability unconfirmed.", "Incentives not calculated."]},
+            {"slot": "LOCAL_VFX", "candidate": f"Local shoot + VFX near {base}",
+             "cost_lines": vfx, "contingency_pct": 15, "source_ids": ["S-day"],
+             "limitations": ["VFX quote needed; shot complexity assumed."]},
+        ]}

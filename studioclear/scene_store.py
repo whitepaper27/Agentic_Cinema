@@ -66,6 +66,10 @@ def _run_key(run_id: str) -> str:
     return f"v2runs/{run_id}.json"
 
 
+def _comparison_key(comparison_id: str) -> str:
+    return f"comparisons/{comparison_id}.json"
+
+
 class OwnershipError(PermissionError):
     """Raised when a session tries to touch a scene/run it does not own."""
 
@@ -143,6 +147,8 @@ def delete_scene(scene_id: str, owner: str) -> None:
         raise OwnershipError(scene_id)
     for rid in raw.get("run_ids", []):
         _backend().delete(_run_key(rid))
+    for cid in raw.get("comparison_ids", []):
+        _backend().delete(_comparison_key(cid))
     _backend().delete(_scene_key(scene_id))
 
 
@@ -208,3 +214,31 @@ def get_run(run_id: str, owner: str | None = None) -> dict | None:
     if is_expired(run):
         raise ExpiredError(run_id)
     return run
+
+
+def save_comparison(comp: dict, owner: str, scene: dict | None = None) -> str:
+    comp["owner"] = owner
+    if scene is not None:  # comparisons inherit the scene's fixed expiry (sol.md §10)
+        comp["expires_at"] = scene.get("expires_at")
+        comp["scene_created_at"] = scene.get("created_at")
+    _backend().write_json(_comparison_key(comp["comparison_id"]), comp,
+                          custom_time=comp.get("scene_created_at"))
+    return comp["comparison_id"]
+
+
+def get_comparison(comparison_id: str, owner: str | None = None) -> dict | None:
+    comp = _backend().read_json(_comparison_key(comparison_id))
+    if comp is None:
+        return None
+    if owner is not None and comp.get("owner") != owner:
+        raise OwnershipError(comparison_id)
+    if is_expired(comp):
+        raise ExpiredError(comparison_id)
+    return comp
+
+
+def register_comparison(scene: dict, comparison_id: str) -> None:
+    scene.setdefault("comparison_ids", [])
+    if comparison_id not in scene["comparison_ids"]:
+        scene["comparison_ids"].append(comparison_id)
+        save_scene(scene)

@@ -4,11 +4,11 @@
 
 **Track:** Agentic Cinema / Parallel
 
-**Status:** Repair contract, not a completion claim. Parts are implemented; the fresh-scene recheck gate currently fails. Verify each gate before marking it shipped.
+**Status:** Approved implementation target: one scene, three filming options. Production comparison is planned, not shipped. Earlier diagnostic results below are dated observations; reverify current code before assigning implementation status.
 
 **Official deadline:** September 9, 2026, 2:00 p.m. PDT / 4:00 p.m. CDT.
 
-**Delivery target:** Complete the core loop September 8; submit that evening if verified.
+**Delivery target:** Verify one complete scene-to-production comparison before recording. Preserve a submission buffer; use observed progress to schedule the remaining work.
 
 **UI contract:** [sol_ui.md](sol_ui.md).
 
@@ -16,30 +16,34 @@ This revision replaces the previous frozen plan at the user's request. It supers
 
 Keep the existing working integrations, explicit human decisions, source provenance, policy engine, and audit implementation where useful. Correctness fixes may change the pipeline and its expected outputs. There is no requirement to preserve erroneous verdicts or keep run_pipeline byte-identical.
 
+This revision incorporates the approved narrower production-planning direction. It replaces the historical-research-first product promise and the proposed expansion into full screenplay generation. Change only the selected scene when requested; retain longer-form authoring as a future direction. Section 14 defines the production-comparison showcase; [demo_scene_video.md](demo_scene_video.md) provides its matching live test and recording script, with LAST LIGHT retained as a separate revision regression.
+
 ## 1. Product promise and competitive thesis
 
-> Bring your storyboard. StudioClear investigates questionable details and helps you make the smallest evidence-backed correction while preserving your creative intent.
+> Give StudioClear a scene. Compare practical ways to film it using evidence, transparent cost assumptions, and creative tradeoffs.
 
-**Product:** A scene research and revision desk for filmmakers, storyboard artists, and production researchers preparing material for shooting or animation.
+**Product:** A scene-to-production planning desk for independent filmmakers, storyboard artists, and producers.
 
-**Primary job:** Investigate factual details in a scene, decide what to change, and hand the production team a traceable revision. The initial focus is historical and factual consistency. Brand, music, and likeness questions can be flagged for human review; they are not automatically resolved by web search.
+**Primary job:** Understand one selected scene, confirm what filming it requires, and compare three production approaches. Contextual factual research and optional scene/dialogue revision support that decision. Preserve creative premises, including fantasy. Brand, music, and likeness questions can be recorded for human review; web search does not grant permission.
 
-**Acceptance story:** A user brings an unfamiliar scene, gives a concrete instruction, inspects evidence, accepts one constrained revision, rechecks the revised scene, and exports a usable handoff.
+**Acceptance story:** A producer brings an unfamiliar scene, confirms requirements and production assumptions, compares a nearby practical location, an alternative travel location, and local filming with VFX, changes one constraint, then selects an approach and exports a usable brief. Existing scene research/revision remains available without forcing an edit before comparison.
 
 ~~~text
-Bring material → State intent → Confirm extraction → Investigate
-    → Propose a small revision → Accept or reject → Recheck → Export
+Understand scene → Confirm production requirements → Compare three options
+    → Adjust constraints → Select an option → Export production brief
+
+Optional: Review scene → Propose edit → Accept or reject → Recheck dependencies
 ~~~
 
-The differentiated moment is an observable correction: changing a researched detail changes the relevant finding while protected dialogue stays intact. An ambiguous second finding remains unresolved. This demonstrates perception, research, user control, and verification in one workflow.
+The differentiated moment is an observable decision: changing traveling crew size, available days, or a creative constraint changes the applicable cost lines and may change the preferred approach. Explain the actual result, including overlapping ranges and missing quotes; do not force a recommendation switch for the demonstration.
 
-Gemini reads and reasons about the material. Parallel supplies the retrieved evidence that influences the revision. Google Cloud hosts the application and controls its cloud-resource access. StudioClear connects those capabilities to a specific production task.
+Gemini interprets the scene and formulates relevant production questions. Parallel supplies retrieved information about candidate locations, production support, permit/incentive conditions, and applicable rate sources. Code performs arithmetic and constraint checks. The producer reviews assumptions and chooses an option. Google Cloud hosts the application.
 
 Winning is an aspiration, not a claim or guaranteed outcome. Judge value comes from demonstrated behavior and measured results.
 
 ## 2. Verified starting point and implementation gaps
 
-Assessment date: September 7, 2026. The following baseline comes from current local code and offline diagnostics, not a fresh live-provider test of the hosted deployment. It replaces the obsolete pre-reimplementation gap list. Availability and initialized components do not establish end-to-end behavior.
+Assessment date: September 7, 2026. The following table preserves earlier local observations and offline diagnostics; subsequent repairs may have changed individual rows. It is not a fresh certification of the hosted deployment. Re-run relevant checks before describing any listed defect as current or any feature as complete.
 
 | Area | Existing implementation | Required change |
 | --- | --- | --- |
@@ -53,6 +57,9 @@ Assessment date: September 7, 2026. The following baseline comes from current lo
 | UI outputs | Print/TXT use browser state; JSON uses a separate server builder | Render every deliverable from the same validated handoff snapshot |
 | Execution | Example mode/self-test labels exist; research audit is not full provider trace | Record actual stage calls/outcomes; keep audit and self-tests secondary |
 | Timestamps | Initial live run supplies current time; recheck omits it and inherits fixture default | Use actual live operation/retrieval timestamps on every path |
+| Task understanding | Extraction targets clearance references; blank intent falls back to historical accuracy | Confirm the user's task and preserve genre/fictional rules before deriving research questions |
+| Location questions | A bare California reference produces generic entity searches | Derive location questions from selected scene requirements, production base, and constraints |
+| Production comparison | No verified filming-cost comparison was demonstrated | Implement versioned options, transparent cost arithmetic, conditional incentives, and editable assumptions |
 
 Offline diagnostic results: an accepted revision was labeled Production handoff before recheck; earlier-run evidence references were missing from exported sources. A fresh Signal Room scene with an added cable claim triggered zero extraction calls, passed only the saved camera item to research, and returned recheck status complete. These are control-flow failures, not model-accuracy measurements.
 
@@ -64,10 +71,10 @@ The official rules give equal weight to technological implementation, design, po
 
 | Criterion | What the submission must demonstrate | Evidence to retain |
 | --- | --- | --- |
-| Technological implementation | Real Gemini extraction, Parallel research, evidence interpretation, revision and recheck | Actual request/tool events, provider metadata, repository path, live smoke results |
-| Design | A user completes the entire workflow with their own material | Browser walkthrough, clear failures, source preview, usable export |
-| Potential impact | A filmmaker makes a supported correction and produces a useful handoff | An observed user session and measured task results; clearly label any anecdote |
-| Idea quality | Research leads to a minimal creative revision under user constraints | Before/after scene, protected-text comparison, changed finding, unresolved finding |
+| Technological implementation | Gemini scene understanding, actual Parallel research, deterministic cost calculations, and versioned outputs | Provider events, source provenance, calculation checks, live results |
+| Design | A producer understands assumptions and completes an option comparison using their own scene | Browser walkthrough, editable inputs, clear missing information, usable brief |
+| Potential impact | A filmmaker can assess a filming choice and communicate the next work to a collaborator | Observed user session, decision rationale, actual task results |
+| Idea quality | Creative requirements and production constraints determine relevant research and recommendations | Same scene before/after a constraint change, applicable cost differences, honest uncertainty |
 
 Do not substitute agent counts, animated stages, citation totals, or security badges for a demonstrated outcome.
 
@@ -75,72 +82,108 @@ Do not substitute agent counts, animated stages, citation totals, or security ba
 
 ### Required for this submission
 
-- One project/run at a time, with a title.
+- One selected scene and one active comparison at a time, with a title. If input covers several scenes, preserve the full source and ask the user to select one for production comparison.
 - Paste text or upload up to three original comic/storyboard pages.
 - PNG, JPEG, and WebP only; validate decoded content, not just extensions.
 - Starting limits: 4 MiB per image, 12 MiB total decoded images, 20 megapixels per image, and 20,000 characters of pasted text. Account separately for base64 request overhead if using JSON transport.
-- A research/revision instruction and exact text spans the user wants to preserve.
+- An explicit task, genre/fictional premises, confirmed scene requirements, and exact text spans the user wants to preserve. Remove the silent historical-accuracy fallback.
 - Page/scene-linked extraction with a correction step before research.
 - Claim-level evidence, clear uncertainty, and separate human-review routing.
-- One proposed revision at a time, before/after comparison, accept/reject.
+- Optional elaboration, action/dialogue rewrite, or factual correction of the selected scene, one proposal at a time with accept/reject. Creative proposals need no external factual verdict; factual corrections require applicable evidence.
 - Re-extraction and research of the entire changed scene, including newly introduced claims.
-- Revised text plus a printable production handoff and structured JSON export.
+- Three options: nearby practical location; one alternative travel location, domestic or international; local filming with VFX. At most two researched jurisdictions per comparison.
+- Confirmed production base, dates, budget/currency, traveling/local crew counts, preparation/shoot/travel days, creative constraints, and VFX shot assumptions.
+- Editable cost ranges with source/estimate/quote provenance, explicit missing costs, conditional incentives, and unconfirmed availability.
+- A producer-selected option and a consistent production brief: scene TXT, printable PDF, and structured JSON.
 - Authentic runtime metadata, explicit demo modes, durable hosted runs.
 - Existing demo remains accessible as a clearly labeled example.
 
 ### Deferred until after submission
 
-PDF/DOCX import; generated video; comic art redrawing; face identification; automated rights clearance; full screenplay continuity graphs; batch revisions; external publishing; email outreach; additional partner tracks; new orchestration frameworks; semantic memory; enterprise SSO; multi-user collaboration.
+Full-story/screenplay generation; extensive multi-scene dialogue development; production-wide scheduling/optimization; worldwide tax-law coverage; automated tax filing; crew/location booking; PDF/DOCX import; generated video; comic art redrawing; face identification; automated rights clearance; full screenplay continuity graphs; batch revisions; external publishing; email outreach; additional partner tracks; new orchestration frameworks; semantic memory; enterprise SSO; multi-user collaboration.
 
 Image revision in this build means dialogue/caption text and panel-specific production notes. Uploaded artwork remains unchanged. A proposed drawing change stays marked as pending art work and cannot be verified as visually applied.
 
-If time tightens, reduce the showcase to one page and one researched correction. Preserve evidence correctness, user acceptance, and recheck. If only text works, describe that limitation honestly and mark the comic-input objective incomplete.
+If time tightens, reduce source pages and the number of quoted cost lines while retaining one useful, honest comparison. Do not present an incomplete subtotal as a full production budget. If only text input works, state that limitation and leave the comic objective incomplete. No promise of winning follows from passing this specification.
 
 ## 5. User workflow and intent contract
 
-1. **Bring a scene.** Upload pages or paste text; preview, reorder, or remove pages before analysis.
-2. **Direct the work.** Enter an instruction such as “Check historical details. Preserve the characters, joke, and ending.” Select exact dialogue/caption spans to lock.
-3. **Confirm extraction.** Gemini returns page descriptions, candidate panels, transcribed text, and candidate claims. The user corrects misreads before research.
-4. **Investigate.** Select a finding, inspect its source location, see the exact research question and relevant retrieved passages.
-5. **Request a revision.** Propose the smallest supported change. Show what changes, why, what remains protected, and any unresolved tradeoff.
-6. **Accept or reject.** The proposal does not alter the current scene until accepted.
-7. **Recheck.** Create a new scene version, re-extract its claims, and research changes and new claims. Preserve prior findings and decisions as history.
-8. **Export.** Leave with the accepted text and a production handoff, including pending art notes and unresolved questions.
+1. **Bring a scene.** Upload pages or paste an idea/script. Preserve the full input; select one scene when it contains several dramatic events.
+2. **Choose the task.** Show Plan this shoot as the visible default, with Review factual details and Improve this scene as alternatives. Confirm intent, genre, creative rules, and protected dialogue. Never silently substitute historical research.
+3. **Confirm understanding.** Present a concise scene summary, full transcript, setting, cast, props, effects, and unknowns. Distinguish user text, image transcription, interpreted action, and creative suggestions.
+4. **Confirm production inputs.** Supply the brief described in section 6A. Budget/location-dependent work waits for those inputs; optional writing can continue without them.
+5. **Compare options.** Research relevant questions and show three approaches with evidence, costs, creative fit, availability limitations, and next actions.
+6. **Adjust constraints.** Edit crew/day/rate assumptions and recalculate. Research new conditions only when needed, recording what was reused or refreshed.
+7. **Select for further planning.** Persist the producer's choice and rationale against the comparison version. Optional scene edits use preview/acceptance and invalidate affected comparisons until refreshed.
+8. **Export.** Download current scene text and a production brief containing alternatives, assumptions, evidence, conditional incentives, and outstanding work.
 
 Intent must change observable behavior: research scope/prioritization, the question asked, or revision constraints. Echoing the prompt in a report is insufficient.
 
 Exact locked text is enforced with code. Semantic constraints such as preserving a joke or character motivation are model-assessed and user-reviewed; do not call them mechanically guaranteed.
+
+For a gold-touching-stone premise, recognize the fantasy rule and leave it intact. A reference to California is context, not an assertion to mark UNRESOLVED. An unfinished phrase such as “she is a source of plague not…” remains an unresolved creative choice; optional completions are proposals. Do not fabricate dialogue in the source transcript. Offer scene elaboration separately from sourced research, and do not disable writing because no factual contradiction was found.
 
 ## 6. Architecture and execution
 
 Extend the existing Python/FastAPI backend and vanilla-JavaScript frontend. Keep provider adapters and deterministic policy evaluation. Do not introduce a new frontend framework solely for this enhancement.
 
 ~~~text
-Browser: pages/text + instruction + locked spans
+Browser: pages/text + selected task + instruction + locked spans
   → validate and persist source material
-  → Gemini multimodal/text extraction
-  → user confirms corrected scene version
-  → plan focused claim questions
-  → authorize each actual research tool call
-  → Parallel Search returns source records
-  → Gemini classifies passages against claims using source IDs
-  → code validates references, quotes, constraints, and policy
-  → user reviews evidence and requests a small revision
-  → Gemini proposes structured edits against a version
-  → code validates protected spans and evidence references
-  → user accepts
-  → persist new scene version and mark findings stale
-  → re-extract changed scene + research changed/new claims
-  → export versioned handoff and audit history
+  → Gemini reads the complete scene and proposes production requirements
+  → producer confirms scene version, requirements, constraints, and cost inputs
+  → formulate focused questions for three production approaches
+  → authorize Parallel searches and register actual retrieved evidence
+  → validate source applicability and identify missing quotes/requirements
+  → code calculates comparable costs and checks constraints
+  → producer adjusts assumptions; code recalculates and explains differences
+  → producer selects an option for further planning
+  → export one snapshot of scene, comparison, sources, and remaining work
+
+Optional scene review: propose → accept/reject → new version → recheck dependencies
 ~~~
 
-**Execution approach:** Begin with bounded synchronous requests for each user-visible operation: extraction, research, proposal, acceptance, and recheck. The frontend shows an indeterminate busy state while a request runs. Acceptance persists independently of recheck so a provider failure does not lose an accepted edit.
+**Execution approach:** Use bounded requests for extraction, research, comparison, proposal, acceptance, and recheck. Persist operation IDs and results. The frontend shows an indeterminate busy state while a request runs. Acceptance persists independently of recheck; failed research does not erase producer inputs. Simple quantity/rate recalculation uses code and needs no model call.
 
 Do not claim streaming progress or cancellation unless the backend implements them. A browser timeout does not prove server cancellation. Use operation IDs and idempotency keys so retries can recover prior results.
 
 **Starting research budgets:** At most eight prioritized findings per analysis; at most two search attempts per finding; at most five candidate sources per attempt. Show unresearched findings as “Not researched: run limit reached.” Record actual attempts and tune the budgets against live latency before freeze. These are scope controls, not measured performance claims.
 
 Research follow-up must be purposeful: refine an ambiguous entity, seek a primary source, or investigate conflicting evidence. Stop on sufficient evidence, explicit failure, or budget exhaustion. Log the reason and actual tool response.
+
+## 6A. Production comparison contract
+
+### Confirmed brief and options
+
+Store production base city/country, filming window, reporting currency, optional budget ceiling, traveling/local crew and principal cast counts, preparation/shoot/travel days, accommodation nights, location requirements, and hard creative constraints. Missing dates/rates remain unknown. Do not infer nationality, tax residence, production-company eligibility, or travel willingness from the scene setting. Require a base and a selected scene before recommending nearby locations; an unknown budget permits comparison but not an affordability verdict.
+
+Offer three fixed approach slots: NEARBY_PRACTICAL, TRAVEL_PRACTICAL, and LOCAL_VFX. The producer selects the alternative region/country, or confirms a research-suggested candidate, before detailed comparison. Limit jurisdiction research to two. A slot may return infeasible or insufficient information; do not invent a viable location to fill it. Research location/permit feasibility for the actual intended activity. A public destination description is not proof filming is allowed there.
+
+Ask up to eight prioritized production questions across the comparison, with at most twelve total Parallel attempts including follow-ups and at most five candidate results per attempt. Record skipped questions and budget exhaustion. These are implementation limits, not observed latency claims.
+
+### Cost calculation and provenance
+
+Each cost line stores category, description, quantity/unit, low/high unit rate, original currency, reporting-currency conversion basis/date, source reference or producer note, and provenance: sourced published rate, supplier quote, producer estimate, or unknown. Include labor, travel, accommodation, local transport, equipment, location/permits, sets/props, VFX, and separately entered contingency. Record whether a rate includes tax, overtime, or related charges; uncertain inclusions remain explicit. Do not reuse current prices outside their applicable dates without a stale-rate warning.
+
+Use decimal arithmetic. Line range = quantity × unit-rate range; subtotal = sum of known line ranges in the reporting currency. A contingency percentage applies to a displayed eligible subtotal and is counted once. Missing rates or conversions produce an incomplete estimate, never zero-valued free items. Do not label a known-cost subtotal as a complete total. Show assumptions for paid travel/preparation days and locally hired versus traveling crew. Use shared expense identifiers to avoid charging the same flight, lodging, or equipment rental twice within an option. Do not sum the mutually exclusive option budgets.
+
+Savings comparisons use the same scene, dates, scope, and a named baseline. Display ranges and exclusions. Only claim one option is cheaper across the estimate range when its upper bound is below the other's lower bound and cost coverage is comparable. Otherwise say ranges overlap or comparison is incomplete. Do not invent precise savings from model prose.
+
+### Incentives, availability, and effects
+
+Show costs before incentives as the default. A separate conditional scenario may show potential benefits only when an official source and explicit qualifying-expenditure assumptions support the calculation. Include jurisdiction, program, effective date, rate basis, conditions, minimum spend/caps where known, certification/application requirements, tax treatment, payment timing, and unanswered eligibility questions. Do not apply a headline percentage to the entire budget or count unconfirmed incentives as cash available for the shoot. If a required fact is missing, show not calculated and a review task. These are sourced planning scenarios, not eligibility determinations or tax filings.
+
+Crew and studio directories establish leads. Availability stays unconfirmed without a dated supplier response or appropriate live availability data. Do not contact, hire, reserve, or book anyone through this feature. Record next actions for the producer.
+
+For LOCAL_VFX, confirm shot count, shot duration, camera movement, transformation/water/reflection complexity, practical set/plate requirements, and revision allowance. Use producer estimates or applicable supplier quotes for costs; generic vendor pages do not establish a quote. A proposed rewrite reducing effects is a creative option that requires acceptance before its lower-complexity assumptions apply to the current scene.
+
+### Recommendation and versioning
+
+Evaluate confirmed hard constraints first. Recommend investigating an eligible option when its costs, creative suitability, and evidence support that recommendation. Otherwise return a qualified shortlist or insufficient information. Explain tradeoffs and assumptions; do not use invented quality scores. A budget overrun can eliminate an option even if it is the cheapest; uncertain availability cannot be called confirmed feasible.
+
+Recalculation creates an immutable comparison revision with a parent ID and change summary. Reuse applicable source records with their original provenance; refresh research when dates, jurisdiction, or requirements invalidate them. Scene changes mark dependent comparisons stale. Selection requires a current comparison, and is recorded as selected for further planning, not approved for expenditure.
+
+Planning references: [BFI certification guidance](https://www.bfi.org.uk/apply-british-certification-expenditure-credits), [British Film Commission production support](https://britishfilmcommission.org.uk/why-the-uk/how-we-support-you). These illustrate required source quality; every actual jurisdiction/rate must be researched for the user's case.
 
 ## 7. Evidence contract and research states
 
@@ -204,9 +247,11 @@ Canonical scene content is the source of truth. Claims are derived from an ident
 
 Bind research, proposals, decisions, and rechecks to scene ID/version. A confirmed text/context/instruction change invalidates dependent current results. Pass full relevant context and instruction to question planning and evidence applicability assessment. Ask a specific question (for example, availability of a prop in the scene's year), not merely whether an entity exists.
 
-Validate edit targets using version-bound span locations and original text. Refuse missing/ambiguous targets and no-op edits. Each protected occurrence must remain unchanged; finding the same string elsewhere is not lock validation. Require nonempty, applicable evidence for the proposed correction rather than merely filtering IDs against all sources in the run.
+Validate edit targets using version-bound span locations and original text. Refuse missing/ambiguous targets and no-op edits. Each protected occurrence must remain unchanged; finding the same string elsewhere is not lock validation. Require nonempty, applicable evidence for a proposed factual correction rather than merely filtering IDs against all sources in the run.
 
 A proposal includes revision_id, base_scene_version, target span IDs, original text, proposed edits, rationale, grounded evidence references, exact-lock validation, semantic-constraint notes, and any art-change instructions. Each evidence reference is the pair `{origin_run_id, source_id}` so a recheck cannot accidentally reinterpret `S001` from a different run.
+
+Record proposal kind: creative_edit or factual_correction. The evidence requirements below apply to factual corrections and any asserted factual basis of a creative edit. A creative elaboration/dialogue proposal may have no citations; label it AI-proposed creative text and enforce the same target, version, user-acceptance, and lock rules. Never label invented narrative as researched fact. Recheck derived factual claims and production requirements after either kind of accepted edit.
 
 **Rules:**
 
@@ -231,7 +276,7 @@ Text-only changes cannot establish that a depicted visual error was corrected. I
 
 ## 9. Versioned data and API contract
 
-These are target interfaces, not existing endpoints. Agree on them before frontend implementation; keep sol_ui.md in sync.
+These are target contracts; some existing scene endpoints already implement portions. New comparison and creative-edit routes are planned. Keep sol_ui.md in sync and preserve legacy saved-report access.
 
 ### Required stored entities
 
@@ -245,6 +290,10 @@ These are target interfaces, not existing endpoints. Agree on them before fronte
 | Revision | revision_id, base/result versions, structured edits, rationale, `{origin_run_id, source_id}` evidence references, constraints, decision |
 | Recheck | operation_id, before/after run IDs, claim lineage, unresolved/new/removed claims, status/error |
 | Event | sequence, UTC time, run/version, actor category, actual action/result, operation ID, hash-chain fields |
+| Production brief | scene_id/version, task, confirmed requirements, producer inputs, unresolved creative choices |
+| Shoot comparison | comparison_id, parent_comparison_id, scene_id/version, input snapshot, three option slots, calculation version, source records, operation outcome, expiry |
+| Cost line | category, quantity/unit, low/high rate, original/reporting currency, conversion basis/date, provenance, source or estimate note, shared expense ID |
+| Planning decision | comparison_id, option_id, selected-for-planning status, producer rationale, actual decision time |
 
 Panel bounds are optional normalized coordinates tied to a specific asset. If bounds are unreliable, fall back to page-level navigation. Never invent precise regions or treat extraction order as identity across edits.
 
@@ -259,6 +308,11 @@ Panel bounds are optional normalized coordinates tied to a specific asset. If bo
 | POST /runs/{run_id}/revisions | Propose an evidence-backed edit against the current version |
 | POST /revisions/{revision_id}/decision | Accept or reject using expected version and idempotency key |
 | POST /scenes/{scene_id}/recheck | Re-extract and research a specified accepted version |
+| POST /scenes/{scene_id}/creative-proposals | Propose optional scene elaboration/dialogue edits against expected scene version; no factual finding required |
+| POST /scenes/{scene_id}/shoot-comparisons | Research/calculate a brief against expected scene version; optional parent_comparison_id creates a new revision for changed assumptions |
+| GET /shoot-comparisons/{comparison_id} | Read saved brief, options, calculations, sources, limitations, and status |
+| POST /shoot-comparisons/{comparison_id}/decision | Persist option choice/rationale for further planning; require current scene/comparison and idempotency key |
+| GET /shoot-comparisons/{comparison_id}/handoff | Read/create the single persisted snapshot of the selected comparison and its scene; matching scene review is optional |
 | GET /report/{run_id} | Versioned structured handoff; frontend supports print/PDF |
 | GET /scenes/{scene_id}/assets/{asset_id} | Authorized preview of uploaded material |
 | GET /operations/{operation_id} | Recover persisted outcome/error after an uncertain timeout |
@@ -268,6 +322,10 @@ Keep existing /policy, /health, and legacy /upload behavior available for the ex
 
 The shareable handoff is an allowlisted export schema rather than a dump of the internal run object. It contains the complete original and accepted scene text, scene/version lineage, instruction, protected spans, accepted/rejected/keep decisions, evidence references and source records, recheck lineage, unresolved work, and pending art notes. It excludes `owner`, session identifiers, cookies, internal authorization context, and other access-control material. Text, PDF, and JSON are the product outputs; generated film/video remains deferred.
 
+Creative proposals use the existing revision-decision route with their recorded proposal kind. Comparison creation accepts the confirmed brief, editable rate/quantity assumptions, expected scene version, and an idempotency key. Invalid inputs fail validation; absent prices return explicit incomplete estimates. The server performs all calculations and records actual research failures. A retry must not create duplicate accepted edits, comparison revisions, or planning decisions.
+
+The comparison handoff adds comparison_id, parent ID, selected option/decision, all three approaches, cost lines/totals/coverage, currency and conversion basis, source dates, conditional incentives, unconfirmed availability, and remaining quotes/tasks. Preserve originating evidence tuples across comparison revisions. Planning sources use the same source-provenance contract as scene research. Legacy reports remain readable and receive no synthetic comparison data.
+
 ### Single handoff snapshot and export validation
 
 - Build and identify one handoff snapshot using `handoff_id`, `scene_id`, `scene_version`, `run_id`, and `exported_at`. Screen preview, TXT, printable PDF, and JSON consume that same snapshot. Do not join an old run to `versions[-1]` or construct a second client-side report.
@@ -276,6 +334,10 @@ The shareable handoff is an allowlisted export schema rather than a dump of the 
 - Export accepted/rejected/keep decisions with their version and actual decision time. Unresolved work includes the question, limitation, human decision, and next action, not just a claim/status pair.
 - No accepted change: Research draft. Accepted change with absent, pending, failed, or version-mismatched recheck: Accepted revision — recheck incomplete. A version-matching completed check can produce a Production handoff, with any skipped research, unresolved questions, and pending artwork prominently disclosed. This label never means clearance or that every finding is supported.
 - A new scene edit leaves an old snapshot as labeled history; it cannot become the current handoff. Revalidate ownership and fixed expiry whenever serving or generating a snapshot.
+
+The preceding Research draft/recheck labels describe the scene-research component. A production comparison does not require an accepted text edit or a factual contradiction. Its heading is Production planning brief with independent estimate status: Complete estimate, Incomplete estimate, or Stale comparison. A complete estimate means all modeled cost categories have explicit values/assumptions, not that suppliers, incentives, or real-world feasibility are confirmed. Display scene-review/recheck status separately, including Not requested. Both components must reference the same scene version if combined. Export a saved incomplete planning brief with its limitations; block mismatched versions or unresolved citation references from a current validated snapshot.
+
+Comparison snapshots add comparison_id and calculation_version to the existing identifiers; run_id may be absent when scene research was not requested. TXT contains the current scene and minimal snapshot/version identification; PDF/JSON contain the production comparison. They share one snapshot identity without requiring a cost table inside the screenplay text.
 
 Separate fixture provenance from operation time. A simulated example keeps its fixture timestamp in a clearly named provenance field; revisions, decisions, rechecks, and exports use their actual server UTC timestamps. Never present a fixture timestamp as the creation time of later user actions.
 
@@ -294,6 +356,7 @@ Cloud Run instances must read the same durable state. Validate that a run surviv
 ### Twenty-four-hour lifecycle rule
 
 - Set `expires_at = scene.created_at + 24 hours` when the scene is created. Every related asset, run, revision, recheck, and operation inherits this fixed deadline; edits and rechecks never extend it.
+- Production briefs, comparisons, saved rates/quotes, decisions, and handoff snapshots inherit that same deadline. Recalculation and export never restart the clock.
 - After validating session ownership, enforce expiry on every read, asset request, mutation, decision, recheck, and export. Return `410 Gone` for expired material. Revalidate before saving a long-running result so processing cannot resurrect an expired scene.
 - Store private user data under the dedicated `studioclear/` prefix in a private Cloud Storage bucket. Write the original scene creation time to each related object's Custom-Time metadata.
 - Configure lifecycle deletion for that prefix using `daysSinceCustomTime: 1`, plus `age: 1` as a fallback for legacy objects without Custom-Time. Merge these rules with unrelated bucket rules and keep permanent public examples outside the disposable prefix.
@@ -340,6 +403,24 @@ Retain useful existing tests and add meaningful coverage for the changed behavio
 - Session ownership, private assets, upload bounds, and rendering of untrusted content.
 - Export agrees with the accepted version and exposes unresolved findings.
 - Injection attempts in scenes and retrieved text cannot expand tool access.
+- Fantasy rules and bare place names do not automatically become factual contradictions or generic location queries; the selected task changes research questions.
+- Creative scene/dialogue proposals work without a CONTRADICTED finding, remain unaccepted until the user decides, and preserve exact locks.
+- Decimal cost arithmetic, day/night quantities, currency conversion, explicit inclusions, contingency, and shared expenses; no double-counted flights/rentals.
+- Unknown rates/conversions remain incomplete rather than zero. Compare ranges only with equivalent coverage; overlapping estimates do not imply a guaranteed saving.
+- Incentives apply only in an explicitly conditional scenario with sufficient assumptions; missing eligibility or rate basis prevents a calculated benefit.
+- Availability leads remain unconfirmed. New dates/jurisdictions invalidate applicable rates and research. Constraint failures prevent an unqualified recommendation.
+- Changed scene content makes dependent comparisons stale; cost-only recalculation preserves applicable source provenance and creates a new comparison revision.
+- A scene with no accepted correction can still produce a planning brief; PDF/JSON and scene TXT resolve to the same snapshot and version.
+
+### Primary product gate: gold-stone scene
+
+Use the user's rough premise as input: a romantic date becomes a California gold/sea-treasure adventure; a discovered stone turns touched objects, food, and people into gold; the ending is unfinished. Preserve the complete premise, identify fantasy intent, and ask the user to select one scene for comparison. Default suggested selection is the discovery/first-transformation scene, pending confirmation; do not combine the entire journey into one shoot.
+
+Confirm the selected scene's environment, cast, transformation shot requirements, and unresolved decisions. Optional elaboration may suggest action/dialogue but cannot replace the premise or silently finish its ending. No generic California link collection counts as production research.
+
+Given a producer-supplied base, dates, crew, currency, and rate assumptions, compare nearby practical, alternative travel, and local/VFX approaches. Record sources and missing quotes. Change traveling crew size or available days; verify exactly which cost/constraint terms change. A recommendation may stay the same. Save a choice and export consistent outputs. All test budgets/rates are labeled synthetic when used offline; a live demonstration records real searches and distinguishes estimates from quotes.
+
+This is the primary submission acceptance story. Signal Room and LAST LIGHT below remain regression material for evidence, image reading, creative constraints, and recheck; they do not replace the production-comparison gate.
 
 Keep deterministic fixture tests for regression, but do not call their outputs live model quality measurements.
 
@@ -406,7 +487,7 @@ Current repository commands:
 
 The cached golden command is a legacy regression check. Run new schema-v2 checks and the unseen-scene evaluation separately once implemented.
 
-Live acceptance must exercise actual uploaded pixels, Gemini, Parallel tool events, one accepted revision, recheck, and export. Browser checks cover narrow and wide layouts, keyboard operation, errors, and readable print output. Record commit/revision and artifacts; do not carry forward old “45 tests passed” claims as new verification.
+Live acceptance must exercise actual source reading, confirmed requirements, Gemini/Parallel operations, the three option slots, transparent estimates, one changed producer constraint, selection, and export. Verify one optional accepted revision and dependent recheck in a separate regression run. If images are advertised, test actual uploaded pixels. Browser checks cover narrow/wide layouts, keyboard operation, errors, and readable print output. Record build and artifacts; old test counts are not new verification.
 
 ## 13. Implementation order and freeze
 
@@ -414,42 +495,36 @@ Each phase has a gate. Do not polish an unsupported conclusion or record planned
 
 | Phase | Work and principal files | Exit condition |
 | --- | --- | --- |
-| 1. Reproduce before repair | Signal Room; regression tests for revision, recheck, and handoff | Failing cases capture missing new claims, unresolved citation references, premature completion, and mixed versions |
-| 2. Canonical source and research | providers/gemini.py; scene store; app/api/main.py; research_pipeline.py | Complete text/image extraction; confirmed version and intent determine researched questions |
-| 3. Repair revision and recheck | revision.py; providers; version/decision store | Exact-target edits, protected occurrences, fresh extraction, complete claim lineage, preserved decisions, truthful failure states |
-| 4. Repair handoff integrity | handoff.py; source snapshots; API | All citations resolve; matching version/coverage governs completion; one validated snapshot supplies outputs |
-| 5. Connect the UI | app/frontend/index.html; actual operation records | Source/evidence/edit remain connected; preview/TXT/PDF/JSON agree; input survives retry and refresh |
-| 6. Live proof and submission | hosted storage/privacy checks; held-out scenes; observed user; video | Actual Gemini/Parallel workflow, reliable export and 24-hour expiry, honest results and submitted demo |
+| 1. Scene understanding and correctness | Task selection; source/version/proposal/recheck integrity | Fantasy intent survives; selected scene requirements and contextual questions replace bare-name searches; outstanding integrity defects are reproduced and repaired |
+| 2. One working comparison | Production brief; Gemini/Parallel research; deterministic cost module | Three approach slots expose comparable costs or explicit missing information; a producer-input change recalculates correctly |
+| 3. Usable decision and handoff | Comparison UI; selection; shared export snapshot | A producer can choose an approach, understand the basis, and export a version-consistent planning brief |
+| 4. Unfamiliar-user verification | Fresh scene; observed producer; source/privacy/expiry checks | Useful decision without coaching, actual failure observations, reliable recovery and private storage |
+| 5. Record and submit | Runtime evidence; honest video; README/Devpost | Submission describes only verified behavior, with traceable results and no unsupported savings claims |
 
-Integrate upload privacy/storage when introducing real uploads; phase 5 is the release verification of that work, not permission to expose private drafts earlier.
+Integrate private storage, session scope, and expiry with the first new entities; verify them again before release.
 
-**September 7:** Evidence correctness and real input; complete an unfamiliar-scene research slice.
-
-**September 8, first work block:** Finish one constrained revision and recheck; verify export and hosted reliability.
-
-**September 8, remaining time:** Freeze after gates pass, run evaluation, record video, align README and submission.
-
-**September 9:** Verification and submission buffer; avoid speculative feature expansion.
+Use the verified submission deadline above, but schedule remaining blocks from actual progress. The first milestone is one working production comparison. Do not spend another block on artwork or added features if this milestone still returns generic links or unsupported totals. Freeze only the demonstrated scope and retain time for recording/submission.
 
 If a phase overruns, reduce pages/findings and optional UI features. Do not skip correctness, falsely mark completion, or present a replay as fresh processing. Reassess the schedule against actual remaining hours.
 
 ## 14. Showcase and three-minute video
 
-Use an original storyboard with one intentionally researchable factual mismatch and one ambiguous detail. Establish the corrected fact and relevant primary-source passage during rehearsal; do not invent the expected result in this document.
+Use one original scene with a real production choice. The selected gold-stone transformation scene is the primary example; LAST LIGHT can exercise regression cases. Collect a producer-supplied base, dates, constraints, and rate assumptions before rehearsal. Do not prescribe a winning location or savings figure in advance.
 
 A creator's original comic can be the input. Frame the task for a filmmaker adapting it, with a concrete production decision.
 
 | Time | On-screen action | Claim demonstrated |
 | --- | --- | --- |
-| 0:00–0:25 | Show the scene, upload it, enter an instruction | Real input and a specific production task |
-| 0:25–1:10 | Confirm extraction; open one finding and source passage | Vision/text comprehension and evidence interpretation |
-| 1:10–2:05 | Request a small revision, compare, accept | User-controlled correction and preserved constraints |
-| 2:05–2:35 | Recheck; show changed/new findings and an unresolved item | Verification and explicit uncertainty |
-| 2:35–3:00 | Export handoff; briefly open actual Gemini/Parallel execution | Usable output and runtime integration |
+| 0:00–0:15 | Preview the actual scene and resulting three-option comparison | The producer's decision and the product outcome |
+| 0:15–0:45 | Input/confirm selected scene, fantasy rule, production requirements, and brief | Real scene understanding and user control |
+| 0:45–1:25 | Open practical/travel/VFX options, source passage, and cost assumptions | Relevant research and transparent calculations |
+| 1:25–2:00 | Change traveling crew size or available days; recalculate | Actual cause and effect, with no forced ranking change |
+| 2:00–2:30 | Inspect tradeoffs, missing quote/conditional incentive, and select an approach | A qualified, usable production decision |
+| 2:30–3:00 | Export the brief, show actual provider activity, report any observed user result | Traceable handoff and demonstrated usefulness |
 
 Rehearse using real runs. A recording may cut waiting time if labeled; do not replace the result with fixture output. Any replay must visibly say “Recorded example” with its original provenance. Mock examples must say “Simulated example.” Neither demonstrates a newly uploaded image being processed live.
 
-The strongest comparison changes only the factual detail while preserving exact locked text. Keep the evidence and actual scene versions available for inspection. The user acceptance is central; security details belong in the execution view.
+Keep full elapsed processing time and failures alongside edited footage. Label assumptions, estimates, recorded runs, and limitations. Do not treat a purpose-built example as a held-out benchmark. A reader should understand why the producer selected an approach and what must still be confirmed. Optional rewrites require separate acceptance and recalculation before their reduced effects requirements can affect the current budget.
 
 ## 15. Submission requirements and sources
 
@@ -474,6 +549,12 @@ Sources: [Hackathon overview and judging criteria](https://agentic-cinema.devpos
 
 The build is complete when a judge can:
 
+- Bring a scene or rough premise, preserve its creative rules, and select one scene for planning.
+- Confirm production requirements and enter the producer inputs needed for a meaningful comparison.
+- Inspect nearby practical, alternative travel, and local/VFX approaches with sourced facts, editable cost ranges, and explicit missing information.
+- Change a crew/day/creative constraint and understand the resulting calculation and feasibility differences.
+- Distinguish before-incentive costs from conditional incentive scenarios and availability leads from confirmations.
+- Select an option for further planning and export its assumptions, alternatives, sources, and outstanding work without needing to accept a text correction.
 - Bring an unfamiliar storyboard or pasted scene and give a meaningful instruction.
 - Inspect and correct what the system read.
 - Open a finding tied to the material and assess its actual supporting or contradicting passage.
@@ -499,7 +580,7 @@ Source comments still refer to the previous numbered plan. Use this mapping when
 | E2, §4 | Sections 12 and 14: labeled fixtures, unseen evaluation, original demo |
 | E3, E7, §7–§11, §22, §24 | Sections 4–10 and 13: scope, architecture, interfaces, sequence |
 | E5, §20 | Section 12: meaningful evaluation; no arbitrary quality scores |
-| E6, §21 | Section 14: functioning revision-loop demonstration |
+| E6, §21 | Section 14: functioning production comparison; revision loop remains a supporting regression |
 | E8.1 | Section 7: provenance plus passage/claim assessment |
 | E8.2 | Sections 10–12: untrusted input, tool boundaries, tests |
 | E8.3, §19 | Section 11: audit consistency and its limits |
@@ -509,4 +590,4 @@ Source comments still refer to the previous numbered plan. Use this mapping when
 | §23, §31 | Section 4: explicit deferrals |
 | §28, §33 | Sections 13 and 16: freeze and acceptance gates |
 
-**Final product line:** One unfamiliar scene, one evidence-backed improvement, and a production handoff the creator chose.
+**Final product line:** One scene, three ways to film it, and a production decision the creator can explain.
