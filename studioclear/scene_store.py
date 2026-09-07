@@ -1,23 +1,33 @@
 """Schema-v2 persistence: scenes, versions, and runs (sol.md §9, §10).
 
-One JSON file per scene and per run under DATA_DIR. Every scene is owned by an
-opaque session; reads/edits/runs are enforced against that owner so one visitor's
-uploads are not exposed to another (sol.md §10). This is a single-session
-workspace, not studio identity. GCS-backed durable storage is Phase 5; the file
-layout here is the same shape so it ports cleanly.
+One JSON object per scene and per run, stored through a pluggable backend: local
+files for dev, a private GCS bucket for the hosted path (set STUDIOCLEAR_GCS_BUCKET).
+Every scene is owned by an opaque session; reads/edits/runs are enforced against
+that owner so one visitor's uploads are not exposed to another (sol.md §10). This
+is a single-session workspace, not studio identity.
 """
 
 from __future__ import annotations
 
-import json
+import os
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
 
+from studioclear.storage_backend import GcsBackend, LocalBackend
 from studioclear.store import DATA_DIR
 
-SCENES_DIR = DATA_DIR / "scenes"
-V2_RUNS_DIR = DATA_DIR / "v2runs"
+_gcs_backend = None
+
+
+def _backend():
+    """Durable GCS bucket when configured, else local files (sol.md §10)."""
+    global _gcs_backend
+    bucket = os.getenv("STUDIOCLEAR_GCS_BUCKET")
+    if bucket:
+        if _gcs_backend is None:
+            _gcs_backend = GcsBackend(bucket)
+        return _gcs_backend
+    return LocalBackend(DATA_DIR)
 
 
 def _now() -> str:
@@ -28,12 +38,12 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:10]}"
 
 
-def _scene_path(scene_id: str) -> Path:
-    return SCENES_DIR / f"{scene_id}.json"
+def _scene_key(scene_id: str) -> str:
+    return f"scenes/{scene_id}.json"
 
 
-def _run_path(run_id: str) -> Path:
-    return V2_RUNS_DIR / f"{run_id}.json"
+def _run_key(run_id: str) -> str:
+    return f"v2runs/{run_id}.json"
 
 
 class OwnershipError(PermissionError):
@@ -52,7 +62,6 @@ def create_scene(
     locks: list[str] | None = None,
 ) -> dict:
     """Persist a new scene at version 1 with its editable extraction draft."""
-    SCENES_DIR.mkdir(parents=True, exist_ok=True)
     scene_id = new_id("scene")
     scene = {
         "scene_id": scene_id,
@@ -74,23 +83,21 @@ def create_scene(
             "locks": locks or [],
         }],
     }
-    _scene_path(scene_id).write_text(json.dumps(scene, indent=2), encoding="utf-8")
+    _backend().write_json(_scene_key(scene_id), scene)
     return scene
 
 
 def get_scene(scene_id: str, owner: str | None = None) -> dict | None:
-    p = _scene_path(scene_id)
-    if not p.exists():
+    scene = _backend().read_json(_scene_key(scene_id))
+    if scene is None:
         return None
-    scene = json.loads(p.read_text(encoding="utf-8"))
     if owner is not None and scene.get("owner") != owner:
         raise OwnershipError(scene_id)
     return scene
 
 
 def save_scene(scene: dict) -> None:
-    SCENES_DIR.mkdir(parents=True, exist_ok=True)
-    _scene_path(scene["scene_id"]).write_text(json.dumps(scene, indent=2), encoding="utf-8")
+    _backend().write_json(_scene_key(scene["scene_id"]), scene)
 
 
 def latest_version(scene: dict) -> dict:
@@ -136,17 +143,15 @@ def update_scene_version(
 
 
 def save_run(report: dict, owner: str) -> str:
-    V2_RUNS_DIR.mkdir(parents=True, exist_ok=True)
     report["owner"] = owner
-    _run_path(report["run_id"]).write_text(json.dumps(report, indent=2), encoding="utf-8")
+    _backend().write_json(_run_key(report["run_id"]), report)
     return report["run_id"]
 
 
 def get_run(run_id: str, owner: str | None = None) -> dict | None:
-    p = _run_path(run_id)
-    if not p.exists():
+    run = _backend().read_json(_run_key(run_id))
+    if run is None:
         return None
-    run = json.loads(p.read_text(encoding="utf-8"))
     if owner is not None and run.get("owner") != owner:
         raise OwnershipError(run_id)
     return run

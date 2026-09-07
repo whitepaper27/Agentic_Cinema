@@ -159,9 +159,14 @@ ruff check studioclear tests app                # lint
   note and is not verified as visually applied.
 - **Visual references are candidates** — StudioClear does not infer identity,
   ownership, permission, or likeness from a drawing.
-- **Durable hosting is in progress** — runs persist in a JSON store; a private
-  Cloud Storage bucket + 24h retention (sol.md §10) is the open item, so the
-  hosted build currently runs single-instance. PDF/DOCX import is deferred.
+- **Durable hosting** — a pluggable storage backend is in place
+  (`studioclear/storage_backend.py`): local JSON for dev, a private GCS bucket
+  when `STUDIOCLEAR_GCS_BUCKET` is set (writes use a generation precondition).
+  To enable multi-instance durability, provision a private bucket, grant the Cloud
+  Run runtime service account `roles/storage.objectAdmin` on it, and redeploy with
+  `--set-env-vars STUDIOCLEAR_GCS_BUCKET=<bucket>` (drop `--max-instances 1`).
+  24h retention (sol.md §10) and full read-modify-write CAS are follow-ups.
+  PDF/DOCX import is deferred.
 - **Not legal advice** — StudioClear researches and recommends; humans retain
   final authority and no "cleared by AI" state exists.
 

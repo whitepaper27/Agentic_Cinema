@@ -26,3 +26,4 @@ python-dotenv
 # Dev / test
 pytest
 ruff
+google-cloud-storage>=2.10

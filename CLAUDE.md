@@ -36,8 +36,12 @@ Working notes for Claude Code. Read this first each session.
   (`scratchpad/drive_v4.js`): example flip Apollo CONTRADICTED → revise → recheck
   → SUPPORTED, no JS errors.
 - **Tests:** 98 passing (`pytest tests/`), `ruff check studioclear tests app` clean.
-- **Storage:** local JSON under `STUDIOCLEAR_DATA_DIR` (dev). **Not yet durable
-  on Cloud Run** — GCS bucket + retention is the open Phase-5 item (needs GCP).
+- **Storage:** pluggable backend (`studioclear/storage_backend.py`) — local JSON
+  under `STUDIOCLEAR_DATA_DIR` (dev), or a private GCS bucket when
+  `STUDIOCLEAR_GCS_BUCKET` is set (generation-precondition writes). To activate on
+  Cloud Run: create a private bucket, grant the runtime SA `storage.objectAdmin`,
+  redeploy with `--set-env-vars STUDIOCLEAR_GCS_BUCKET=<bucket>` and drop
+  `--max-instances 1`. Retention (24h) + full RMW compare-and-swap are follow-ups.
 
 ## What this is
 
