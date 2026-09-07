@@ -1,7 +1,9 @@
 name: ci
 
-# sol.md E5.8 — quality gate. Runs lint + the pure/offline tests + golden evals
-# against the cached run. No live API keys in CI; nothing here calls Gemini/Parallel.
+# sol.md §12 — quality gate. Installs the real dependencies so the API/integration
+# path is actually exercised (no silent skips), runs lint + the full offline test
+# suite, and gates on the golden eval. No live API keys: every test uses the mock
+# / example providers, so nothing here calls Gemini or Parallel.
 on:
   push:
   pull_request:
@@ -16,17 +18,22 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dev deps
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install pydantic pyyaml pytest ruff
+          pip install -r requirements.txt
 
       - name: Lint
-        run: ruff check studioclear tests
+        run: ruff check studioclear tests app
 
-      - name: Unit + adversarial tests (offline, must be green)
-        run: pytest tests/unit tests/adversarial
+      - name: Tests (offline / deterministic — unit, adversarial, integration)
+        run: pytest tests/
 
-      # Gate: recall regression on the golden set blocks merge (runs against cached fixture).
-      - name: Golden evals (cached)
-        run: python -m studioclear.evals.run_golden --cached demo/cached_run.json || true
+      # Gate: recall regression on the legacy golden set blocks merge.
+      - name: Golden eval (legacy regression, cached)
+        run: python -m studioclear.evals.run_golden --cached demo/cached_run.json
+
+      # Smoke: the unseen-scene harness runs and keeps citation integrity perfect.
+      # Real quality numbers are produced separately with --mode live.
+      - name: Unseen-scene eval harness smoke (example mode)
+        run: python -m studioclear.evals.unseen_eval --mode example
