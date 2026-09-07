@@ -135,7 +135,11 @@ const S = {                       // minimal frontend state (sol_ui.md §16)
   images:[],                      // {name, dataUrl}
   scene:null, run:null, sel:null, proposal:null, busy:false, error:"", expired:false, handoff:null,
   brief:{reporting_currency:"USD",shoot_days:5,prep_days:2,travel_days:2,traveling_crew:10,
-    local_crew:12,accommodation_nights:7,vfx_shots:6}, comparison:null,
+    local_crew:12,accommodation_nights:7,vfx_shots:6,
+    // Editable producer rate estimates (provenance = "estimate"); change to your quotes.
+    day_rate_low:400,day_rate_high:650,flight_low:500,flight_high:900,
+    hotel_low:120,hotel_high:200,permit_low:800,permit_high:2500,
+    equipment_low:900,equipment_high:1400,vfx_rate_low:3000,vfx_rate_high:8000}, comparison:null,
 };
 const $=s=>document.querySelector(s);
 const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -587,17 +591,22 @@ function briefField(k,label,type){return `<label>${esc(label)}<input type="${typ
 function money(cur,r){return `${esc(cur)} ${fmtNum(r.low)}–${fmtNum(r.high)}`}
 function optionCard(o){
   const e=o.estimate;
+  const priced=Number(e.subtotal.high)>0;   // at least one line has a rate
   const cov=e.coverage==="complete"?'<span class="ok">complete estimate</span>'
     :`<span class="s-UNRESOLVED">incomplete — missing ${esc((e.missing_categories||[]).join(", "))}</span>`;
   const lines=(o.cost_lines||[]).map(l=>`<tr><td>${esc(l.category)}</td><td>${esc(l.description||"")}</td>
     <td class="mono">${l.low_rate==null?'<span class="s-UNRESOLVED">quote needed</span>':fmtNum(l.low_rate)+'–'+fmtNum(l.high_rate)+' × '+esc(String(l.quantity))}</td>
     <td>${esc(l.provenance)}</td></tr>`).join("");
   const selected=S.comparison.decision&&S.comparison.decision.option_id===o.option_id;
+  const totalBlock = !priced
+    ? `<div class="ototal s-UNRESOLVED">Not yet priced</div>
+       <div class="hint">Enter rate estimates or quotes to price this option.<br>${cov}</div>`
+    : `<div class="ototal">${e.coverage==="complete"?"Total":"Known-cost subtotal"} ${money(e.currency,e.total)}</div>
+       <div class="hint">Subtotal ${money(e.currency,e.subtotal)} + contingency ${money(e.currency,e.contingency)}<br>${cov}</div>`;
   return `<div class="ocard ${selected?'sel':''}">
     <div class="oh">${esc(slotLabel(o.slot))}</div>
     <div class="ocand">${esc(o.candidate)}</div>
-    <div class="ototal">Total ${money(e.currency,e.total)}</div>
-    <div class="hint">Subtotal ${money(e.currency,e.subtotal)} + contingency ${money(e.currency,e.contingency)}<br>${cov}</div>
+    ${totalBlock}
     <details><summary>Cost lines &amp; basis</summary>
       <table class="ct"><thead><tr><th>Category</th><th>Detail</th><th>Rate × qty</th><th>Basis</th></tr></thead><tbody>${lines}</tbody></table></details>
     ${(o.limitations||[]).map(l=>`<div class="hint">• ${esc(l)}</div>`).join("")}
@@ -620,6 +629,15 @@ function viewShoot(){
         ${briefField("travel_days","Travel days","number")}${briefField("traveling_crew","Traveling crew","number")}
         ${briefField("local_crew","Local crew","number")}${briefField("accommodation_nights","Accommodation nights","number")}
         ${briefField("vfx_shots","VFX shots","number")}${briefField("budget_ceiling","Budget ceiling (optional)","number")}
+      </div>
+      <h2 style="margin-top:14px">Rate estimates <span class="hint" style="font-weight:400">— your assumptions (editable). Replace with supplier quotes when you have them. Leave blank for "quote needed."</span></h2>
+      <div class="briefgrid">
+        ${briefField("day_rate_low","Crew day rate low","number")}${briefField("day_rate_high","Crew day rate high","number")}
+        ${briefField("flight_low","Flight/crew low","number")}${briefField("flight_high","Flight/crew high","number")}
+        ${briefField("hotel_low","Hotel/night low","number")}${briefField("hotel_high","Hotel/night high","number")}
+        ${briefField("permit_low","Permit low","number")}${briefField("permit_high","Permit high","number")}
+        ${briefField("equipment_low","Equipment/day low","number")}${briefField("equipment_high","Equipment/day high","number")}
+        ${briefField("vfx_rate_low","VFX/shot low","number")}${briefField("vfx_rate_high","VFX/shot high","number")}
       </div>
       <div class="row" style="margin-top:12px"><button id="cmpBtn">${S.busy?'<span class="spin"></span> Researching shoot options…':'Compare three options'}</button></div>
       <p class="hint">Missing prices stay <b>incomplete</b>, never zero. Availability and incentives are shown as leads, not confirmations. Selecting an option creates no booking.</p>
