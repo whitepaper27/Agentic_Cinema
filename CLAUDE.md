@@ -2,46 +2,50 @@
 
 Working notes for Claude Code. Read this first each session.
 
-> **⚠️ SUPERSEDED (Sep 7 2026).** The product was reframed to a **scene research
-> & revision desk** (bring a scene → intent → confirm extraction → investigate →
-> propose a small revision → accept → recheck → export). The authoritative specs
-> are now **`sol.md`** (product/evidence/gates) and **`sol_ui.md`** (UX). This
-> file and `claude_ui.md`/`PROGRESS.md` are historical; do not follow their
-> product/UI claims. New architecture below under "Schema-v2 (current)".
+> **⚠️ PRODUCT = scene-to-production PLANNING desk (Sep 8 2026).** Reframed again
+> from the research/revision desk to a **shoot-comparison** product: bring a scene →
+> pick a task → (Plan) compare three ways to film it with real evidence + editable
+> costs → change a constraint → select → export a planning brief. Research/revision
+> is now the *optional* "Scene review". Authoritative specs: **`sol.md`** +
+> **`sol_ui.md`**. `claude_ui.md`/`PROGRESS.md` are historical. Current state below.
 
-## Schema-v2 (current) — what actually exists now
+## Current product (Sep 8) — what actually exists
 
-- **Evidence contract (sol.md §7):** the model returns `source_id` + a verbatim
-  quote (never a URL); code resolves it (`research/evidence_normalizer.resolve_assessments`),
-  rejecting unknown ids/invented quotes, and deterministically maps validated
-  assessments → **research status** SUPPORTED/CONTRADICTED/MIXED/UNRESOLVED/
-  NOT_RESEARCHED/STALE (`contract/policy_evaluator.assess_research_status`).
-  Human **routing** (NONE/REVIEW/ESCALATE) is a separate field
-  (`route_for_type`). No confidence %. Legacy CLEAR states kept only for labeling.
-- **Pipeline:** `studioclear/research_pipeline.run_research(items, providers, …)`
-  (schema_version 2). Legacy `pipeline.run_pipeline` retained for the labeled
-  legacy `/upload` demo only.
-- **Providers:** `LLMProvider` now has `extract_items`, `extract_items_from_images`
-  (Gemini vision), `assess_claim`, `propose_revision`; `build_providers_for_mode`
-  (`"live"` requires keys → 503, never mock fallback; `"example"` = deterministic
-  fixtures in `demo/example_*.json`).
-- **Revision/recheck:** `studioclear/revision.py` (propose/decide/recheck),
-  `studioclear/scene_store.py` (scenes, versions, v2 runs, session ownership).
-- **API (sol.md §9):** `POST/GET /scenes`, `PATCH /scenes/{id}`, `POST /runs`,
-  `GET /run/{id}`, `POST /runs/{id}/revisions`, `POST /revisions/{id}/decision`,
-  `POST /scenes/{id}/recheck`. Session cookie `sc_session`. Legacy `/upload`,
-  `/policy`, `/health` kept.
-- **Frontend:** `app/frontend/index.html` rebuilt to sol_ui.md's four views —
-  Analyze a scene / Scene desk / Handoff / Execution. Verified via jsdom
-  (`scratchpad/drive_v4.js`): example flip Apollo CONTRADICTED → revise → recheck
-  → SUPPORTED, no JS errors.
-- **Tests:** 98 passing (`pytest tests/`), `ruff check studioclear tests app` clean.
-- **Storage:** pluggable backend (`studioclear/storage_backend.py`) — local JSON
-  under `STUDIOCLEAR_DATA_DIR` (dev), or a private GCS bucket when
-  `STUDIOCLEAR_GCS_BUCKET` is set (generation-precondition writes). To activate on
-  Cloud Run: create a private bucket, grant the runtime SA `storage.objectAdmin`,
-  redeploy with `--set-env-vars STUDIOCLEAR_GCS_BUCKET=<bucket>` and drop
-  `--max-instances 1`. Retention (24h) + full RMW compare-and-swap are follow-ups.
+- **Differentiator = shoot comparison (sol.md §6A).** `studioclear/cost_engine.py`
+  (Decimal ranges, subtotal of KNOWN lines, contingency once, shared-expense de-dup,
+  unknown→incomplete NEVER zero, overlap-aware compare, conditional incentives) +
+  `studioclear/shoot_comparison.py` (three fixed slots NEARBY_PRACTICAL /
+  TRAVEL_PRACTICAL / LOCAL_VFX, honest recommendation). Costs respond to the brief.
+- **Production providers:** `ExampleProductionProvider` (deterministic, mock.py) and
+  `LiveProductionProvider` (providers/production.py — runs REAL Parallel searches for
+  leads; rates come from the producer brief as `estimate` or stay `quote needed`;
+  **never fabricates prices**). Live comparison → 503 without a Parallel key.
+- **Location suggestions (sol.md §6A):** `LLMProvider.suggest_locations` (mock
+  deterministic; live Gemini proposes scene-aware candidates + Parallel leads).
+  `POST /scenes/{id}/location-suggestions`. Leads only — never feasibility/cost.
+- **Task + creative + evidence:** scenes carry `task` (plan|review|improve, default
+  plan; NO silent historical-accuracy fallback; fantasy preserved in the extraction
+  prompt). Creative proposals (`revision.propose_creative/decide_creative`, no
+  citations, AI-labeled) via `POST /scenes/{id}/creative-proposals`. Evidence
+  contract + research status (SUPPORTED/CONTRADICTED/MIXED/UNRESOLVED/…) + recheck
+  RE-EXTRACTS the changed scene (Signal Room gate) — all still present under review.
+- **API (sol.md §9):** scenes `POST/GET/PATCH/DELETE /scenes[/{id}]`; runs `POST /runs`,
+  `GET /run/{id}`, revisions/decision/recheck; findings `/keep` decision;
+  **comparison** `POST/GET /scenes/{id}/shoot-comparisons`, `GET
+  /shoot-comparisons/{id}`, `/decision`, `/handoff`; `/location-suggestions`;
+  `/report/{id}` (sanitized handoff). Session cookie `sc_session`, 24h expiry (410).
+- **Providers select by mode:** `build_providers_for_mode("live"|"example")` — live
+  requires keys (503, never mock fallback); example = text-aware `ExampleLLMProvider`
+  + `ExampleSearchProvider` (`demo/example_*.json` is legacy, no longer used).
+- **Frontend:** `app/frontend/index.html` — views Analyze (task selector, "Find a
+  practical way to film your scene") / **Shoot options** (brief + rate estimates,
+  suggest-locations chips, 3 cost cards, recalc, select, download brief) / Scene desk
+  / Handoff / Execution. Verified via jsdom (`scratchpad/drive_*.js`), no JS errors.
+- **Tests:** 144 passing (`pytest tests/`), `ruff check studioclear tests app` clean.
+- **Hosting:** LIVE + durable. GCS bucket `studioclear-runs-602811764567` (24h
+  lifecycle: `daysSinceCustomTime:1`+`age:1`, soft-delete off), runtime SA has
+  `objectAdmin`. Deployed default-scaled. Latest revision `studioclear-00017-gvj`.
+  Redeploy cmd includes `--set-env-vars STUDIOCLEAR_GCS_BUCKET=...,STUDIOCLEAR_DATA_DIR=/tmp/studioclear`.
 
 ## What this is
 
