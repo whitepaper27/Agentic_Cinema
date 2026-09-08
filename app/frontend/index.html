@@ -107,7 +107,9 @@
   .ocard .ototal{font-size:16px}
   table.ct{width:100%;border-collapse:collapse;margin:6px 0}
   table.ct td,table.ct th{border-bottom:1px solid var(--line);padding:4px 6px;font-size:12px;text-align:left}
-  @media print{header,nav,.noprint{display:none!important}.card{border:0;padding:0}main{max-width:none}}
+  @media print{header,nav,.noprint{display:none!important}.card{border:0;padding:0}main{max-width:none}
+    .ct{display:table!important}details>summary{display:none!important}
+    .cards3{grid-template-columns:1fr}.ocard{break-inside:avoid;border:1px solid #ccc}}
 </style>
 </head>
 <body>
@@ -658,22 +660,26 @@ function viewShoot(){
     : rec.reason==="ranges_overlap"? "Cost ranges overlap under these assumptions; no single option is a clear winner."
     : "Comparison incomplete — some costs are missing.";
   const sel=c.decision?`<div class="banner info">Selected for planning: <b>${esc(slotLabel(c.decision.option_id))}</b>${c.decision.rationale?' — "'+esc(c.decision.rationale)+'"':''}. This creates no booking or outreach.</div>`:"";
-  return `<div class="card"><h1>Shoot options</h1>
-    ${c.provider_mode==="example"?'<span class="badge sim">Simulated example</span>':'<span class="badge live">Live</span>'}
-    <span class="hint"> · comparison v${esc(c.calculation_version)} · ${esc(c.estimate_status)}</span>
-    ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
+  const exp = S.scene&&S.scene.expires_at? fmtExpiry(S.scene.expires_at):"";
+  return `<div class="card">
+    <h1>Production planning brief</h1>
+    <div class="hint">${esc(S.scene?S.scene.title:"")} · comparison v${esc(c.calculation_version)} · ${esc(c.estimate_status)}
+      · ${c.provider_mode==="example"?'<b>Simulated example</b>':'processed live'}${exp?` · expires ${esc(exp)}`:""}</div>
+    ${S.error?`<div class="err noprint">${esc(S.error)}</div>`:""}
     <div class="banner info">${recTxt}</div>${sel}
     <div class="cards3">${c.options.map(optionCard).join("")}</div>
-    <h2 style="margin-top:18px">Adjust assumptions and recalculate</h2>
-    <div class="briefgrid">
+    <p class="hint">${esc(c.estimate_status)} — a complete estimate means every modeled line has a value/assumption, not that suppliers, incentives, or availability are confirmed. Costs are estimates, not quotes.</p>
+    <h2 style="margin-top:18px" class="noprint">Adjust assumptions and recalculate</h2>
+    <div class="briefgrid noprint">
       ${briefField("traveling_crew","Traveling crew","number")}${briefField("shoot_days","Shoot days","number")}
       ${briefField("accommodation_nights","Accommodation nights","number")}${briefField("vfx_shots","VFX shots","number")}
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="row noprint" style="margin-top:10px">
       <button class="ghost" id="recalcBtn">${S.busy?'<span class="spin"></span> Recalculating…':'Recalculate'}</button>
+      <button class="ghost" onclick="window.print()">Print / Save PDF</button>
       <button class="ghost" id="briefDl">Download production brief (JSON)</button>
     </div>
-    <p class="hint">Recalculation creates a new comparison revision; changing the scene marks a comparison stale.</p>
+    <p class="hint noprint">Recalculation creates a new comparison revision; changing the scene marks a comparison stale.</p>
   </div>`;
 }
 function wireShoot(){

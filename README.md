@@ -1,4 +1,4 @@
-# StudioClear — Scene Research & Revision Desk
+# StudioClear — Scene-to-Production Planning Desk
 
 **Google Cloud Agentic Cinema — Parallel Track**
 
@@ -6,126 +6,121 @@
 &nbsp;License: MIT &nbsp;·&nbsp; Google ADK 2.8 &nbsp;·&nbsp; Gemini 2.5 (text + vision) &nbsp;·&nbsp; Parallel Search
 
 **🔗 Live demo:** https://studioclear-602811764567.us-central1.run.app — click
-**"Try an example"** to run the deterministic showcase, or paste your own scene /
-upload a storyboard page to run it live.
+**Plan this shoot**, or **Try an example** for the deterministic showcase.
 
-> **Bring your storyboard or scene. StudioClear investigates questionable
-> details and helps you make the smallest evidence-backed correction while
-> preserving your creative intent.**
+> **One scene, three ways to film it, and a production decision the creator can
+> explain.**
 
-A filmmaker brings an unfamiliar scene, gives one instruction, inspects the
-evidence, accepts a single constrained revision, rechecks the changed scene, and
-exports a production handoff. **Gemini** reads and reasons about the material;
-**Parallel** supplies the retrieved evidence that drives the revision; **Google
-Cloud** hosts the app and controls its resource access.
+A producer brings a scene, confirms what filming it requires, and compares three
+approaches — a **nearby practical location**, an **alternative travel location**,
+and **local filming with VFX** — using real research, transparent editable costs,
+and honest uncertainty. Change a constraint (crew size, days, a rate) and the
+applicable costs move. Pick an approach and export a production brief.
 
-It does **not** issue legal clearance, redraw artwork, or establish a person's
-identity from a drawing. Authoritative specs: [`sol.md`](./sol.md) (product,
-evidence, gates) and [`sol_ui.md`](./sol_ui.md) (UX).
+**Gemini** reads the scene and proposes production questions & candidate
+locations; **Parallel** supplies the retrieved evidence and location leads;
+**code** does every calculation; **Google Cloud** hosts it. Optional factual
+review and scene rewriting remain available. StudioClear never issues legal
+clearance, books anyone, or fabricates a price.
 
 ---
 
 ## The loop
 
 ```
-Bring a scene → State intent → Confirm extraction → Investigate
-    → Propose a small revision → Accept or reject → Recheck → Export
+Bring a scene → Choose a task → Confirm requirements → Compare three options
+    → Adjust constraints → Select an approach → Export a production brief
+
+Optional: Review factual details  ·  Improve the scene (creative rewrite)
 ```
 
-The differentiated moment is an **observable, evidence-backed correction**:
-changing a researched detail changes the relevant finding while protected
-dialogue stays intact, and an ambiguous second finding is honestly left
-unresolved. That demonstrates perception, research, user control, and
-verification in one workflow.
-
-**Showcase (Try an example):** a scene claims *"the Apollo 11 Moon landing in
-1968."* Research returns a NASA primary source dated 1969 → the finding reads
-**Evidence challenges this detail (CONTRADICTED)**. You propose the smallest fix,
-accept it, and recheck → the corrected claim now reads **Supported by retrieved
-evidence**. A separate ambiguous detail stays **Not enough evidence**.
+The differentiated moment is an **observable production decision**: change the
+traveling crew size or a rate and the relevant cost lines recalculate — the
+recommendation may or may not change, and the app says so honestly.
 
 ---
 
 ## What makes it credible (not just a demo)
 
-- **Evidence is grounded in code, not the model.** The model selects a stored
-  `source_id` and quotes a retrieved passage — it can **never** supply a URL.
-  Code resolves every reference back to a stored source and **rejects unknown
-  IDs and invented quotes**. `research/evidence_normalizer.py:resolve_assessments`,
-  `tests/adversarial/test_evidence_resolution.py`.
-- **Research status is deterministic.** Validated assessments map to
-  **SUPPORTED / CONTRADICTED / MIXED / UNRESOLVED / NOT_RESEARCHED / STALE** by
-  pure code — context-only sources can't clear a claim, one syndicated story
-  isn't corroboration, and an applicable contradiction is never washed out by
-  weak support. `contract/policy_evaluator.py:assess_research_status`,
-  `tests/unit/test_research_status.py`.
-- **No fabricated confidence.** Quality percentages were removed; the UI shows
-  evidence coverage and limitations instead (sol.md §7).
-- **Research vs. human routing are separate.** A factually SUPPORTED item can
-  still route to a human for rights/likeness review. Brand/music/likeness route
-  to a person; web search does not resolve them.
-- **Honest failure modes.** Live mode without keys returns a 503 and **never**
-  substitutes fixtures over your material; empty extraction says so; the
-  "example" is always labeled **Simulated example**, live runs **Processed live**.
-- **Governance you can inspect.** An authorization self-test denies an unapproved
-  tool at the tool boundary; every run keeps a hash-chained event log
-  ("Chain consistency verified" — not a tamper-proof claim). `security/`.
-- **Human authority by design.** No "cleared by AI" state exists.
+- **Deterministic cost engine** (`cost_engine.py`) — all arithmetic is Decimal and
+  lives in code: line range = qty × rate range, subtotal of **known** lines only,
+  contingency applied once, shared expenses (a flight, a rental) counted once, and
+  an **overlap-aware** comparison that only calls one option cheaper when its range
+  is entirely below the other's *and* coverage is comparable. Otherwise it says the
+  ranges overlap.
+- **Never a fabricated price.** A missing rate is **"quote needed"** and keeps the
+  estimate **incomplete** — never a zero-valued free line, never a made-up number.
+  Live rates come from your editable brief (provenance `estimate`) or a supplier
+  quote; the app won't invent them.
+- **Real research + scene-aware suggestions.** Live mode runs actual Parallel
+  searches for crew/hotel/permit leads, and Gemini proposes candidate filming
+  locations that match your scene's look — attached to real leads, labeled as
+  *leads to verify*, never a feasibility or cost claim.
+- **Fantasy preserved, no silent fact-checking.** A task selector (**Plan this
+  shoot** / Review factual details / Improve this scene) drives behavior; an empty
+  instruction is **not** turned into a historical fact-check, and a magic-stone
+  premise stays intact.
+- **Honest evidence layer** (optional review) — the model returns a `source_id` +
+  quote, code resolves it (rejecting unknown ids / invented quotes) and maps to
+  SUPPORTED / CONTRADICTED / MIXED / UNRESOLVED; a recheck **re-extracts** the
+  changed scene so a newly-added claim is actually researched.
+- **Session-private + durable.** Owner-scoped sessions, a sanitized export (no
+  owner/session data), a real **24-hour expiry** (`410 Gone`), and durable Google
+  Cloud Storage that survives instance restarts.
 
 ---
 
 ## Architecture
 
 ```
-Browser: pages/text + instruction + locked spans
-  → POST /scenes    validate + persist source, Gemini extraction (vision|text)
-  → confirm/correct the editable draft            PATCH /scenes/{id}  (new version)
-  → POST /runs      authorize each tool call, Parallel search,
-                    Gemini grades passages by source_id, CODE resolves + scores
-  → POST /runs/{id}/revisions       smallest evidence-backed edit (no mutation)
-  → POST /revisions/{id}/decision   accept → new immutable scene version
-  → POST /scenes/{id}/recheck       re-extract + re-research, claim lineage
-  → GET  /report/{id}               versioned production handoff (text/PDF/JSON)
+Browser: scene + task + brief (base, crew, days, editable rate estimates)
+  → POST /scenes        Gemini extraction (vision|text), fantasy-preserving
+  → POST /scenes/{id}/location-suggestions   Gemini candidates + Parallel leads
+  → POST /scenes/{id}/shoot-comparisons      real Parallel research + cost engine
+                                             → three priced options, honest coverage
+  → adjust a constraint → recalc (new comparison revision, code-only arithmetic)
+  → POST /shoot-comparisons/{id}/decision    select for planning (no booking)
+  → GET  /shoot-comparisons/{id}/handoff     one sanitized planning-brief snapshot
+
+Optional scene review: POST /runs · /runs/{id}/revisions · /revisions/{id}/decision
+  · /scenes/{id}/recheck · /scenes/{id}/creative-proposals
 ```
 
-- **Schema-v2 pipeline:** `studioclear/research_pipeline.py`.
-- **Revision/recheck:** `studioclear/revision.py`; **storage + versions +
-  session ownership:** `studioclear/scene_store.py`.
-- **Providers:** `build_providers_for_mode("live"|"example")` — live is real
-  Gemini + Parallel (keys required, no fallback); example is deterministic
-  fixtures (`demo/example_*.json`). ADK research path retained.
-- **Frontend:** `app/frontend/index.html`, four views — **Analyze a scene /
-  Scene desk / Handoff / Execution** — vanilla JS, no build.
-- **Hosting:** Google Cloud Run; API keys in **Secret Manager**; the runtime
-  service account's only privileged grant is `secretAccessor` on those secrets.
-
-The legacy clearance-viewer (`/upload`, `run_pipeline`) is retained only as a
-clearly-labeled legacy demo.
+- **Cost + comparison:** `studioclear/cost_engine.py`, `studioclear/shoot_comparison.py`.
+- **Providers:** `providers/production.py` (`LiveProductionProvider` — real Parallel,
+  honest rate provenance), `ExampleProductionProvider` (deterministic). Live mode
+  returns **503** without a Parallel key rather than faking data.
+- **Evidence/revision:** `research_pipeline.py`, `revision.py`, `handoff.py`.
+- **Store:** `scene_store.py` (scenes, versions, runs, comparisons; session
+  ownership; 24h expiry) over a pluggable backend (`storage_backend.py`: local JSON
+  or private GCS with generation-precondition writes + Custom-Time lifecycle).
+- **Frontend:** `app/frontend/index.html` — Analyze · **Shoot options** · Scene desk
+  · Handoff · Execution (vanilla JS, no build).
+- **Hosting:** Google Cloud Run; keys in Secret Manager; a private GCS bucket with a
+  24-hour delete lifecycle.
 
 ---
 
 ## Try it
 
-**Hosted UI (no setup):** open the live URL, click **Try an example**, then walk
-Analyze → Scene desk → propose/accept a revision → recheck → Handoff. Or paste
-your own scene / upload up to three storyboard pages to run it live.
+**Hosted (no setup):** open the live URL → **Plan this shoot** → paste a scene →
+confirm → **Shoot options** → **Suggest alternative locations**, pick one → **Compare
+three options** → change *Traveling crew* → **Recalculate** → **Select** → download
+the brief. Or **Try an example** for the deterministic version.
 
-**One curl — the deterministic example flow (no keys):**
+**One curl — a deterministic comparison (no keys):**
 ```bash
 BASE=https://studioclear-602811764567.us-central1.run.app
-# 1) bring a scene (simulated example providers)
-SCENE=$(curl -s -X POST $BASE/scenes -H 'Content-Type: application/json' \
-  -d '{"mode":"example","source_type":"paste","title":"Demo",
-       "script_text":"It was the Apollo 11 Moon landing in 1968 that changed everything."}')
-SID=$(echo "$SCENE" | python -c "import sys,json;print(json.load(sys.stdin)['scene_id'])")
-# 2) research it → findings with research status (one CONTRADICTED)
-curl -s -X POST $BASE/runs -H 'Content-Type: application/json' \
-  -d "{\"scene_id\":\"$SID\",\"mode\":\"example\"}" | python -m json.tool
+SID=$(curl -s -c j.txt -X POST $BASE/scenes -H 'Content-Type: application/json' \
+  -d '{"mode":"example","source_type":"paste","task":"plan","title":"Demo",
+       "script_text":"A stone turns what it touches to gold on the California coast."}' \
+  | python -c "import sys,json;print(json.load(sys.stdin)['scene_id'])")
+curl -s -b j.txt -X POST $BASE/scenes/$SID/shoot-comparisons \
+  -H 'Content-Type: application/json' \
+  -d '{"mode":"example","brief":{"base_city":"LA","travel_region":"Ireland",
+       "reporting_currency":"USD","shoot_days":5,"traveling_crew":10}}' | python -m json.tool
 ```
-Health check: `GET /health` (lists ADK 2.8 + the three agents). `/healthz` is
-reserved by Google's front end on `*.run.app` — use `/health`.
-
----
+Health: `GET /health`. (`/healthz` is swallowed by Google's front end — use `/health`.)
 
 ## Quickstart (local)
 
@@ -133,46 +128,33 @@ reserved by Google's front end on `*.run.app` — use `/health`.
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env            # add GEMINI_API_KEY + PARALLEL_API_KEY for live mode
-
-uvicorn app.api.main:app --reload        # http://127.0.0.1:8000  (UI at /)
+uvicorn app.api.main:app --reload        # http://127.0.0.1:8000
 ```
-
-Example mode needs no keys. Live mode (real Gemini + Parallel) reads
-`GEMINI_API_KEY` / `PARALLEL_API_KEY` from `.env`.
+Example mode needs no keys. Live mode reads the two keys from `.env`.
 
 ## Testing & CI
 
 ```bash
-pytest tests/                                   # 98 passing, offline/deterministic
+pytest tests/                                   # 144 passing, offline/deterministic
 ruff check studioclear tests app                # lint
 ```
-
-- `tests/unit`, `tests/adversarial` — pure logic: status mapping, evidence
-  resolution (unknown IDs / invented quotes), routing, parser.
-- `tests/integration` — the schema-v2 pipeline, scene/run API, and the full
-  revision→accept→recheck flow (including the CONTRADICTED→SUPPORTED flip).
+Covers the cost engine (ranges, contingency, shared expenses, overlap-aware
+comparison, incentives), the comparison API, the evidence/recheck gates (incl. the
+Signal Room re-extraction gate), creative proposals, expiry/410, and sanitized
+export. CI installs real deps and runs the full offline suite.
 
 ## Limitations & scope (honest)
 
-- **Text revisions only** — dialogue/captions + panel-specific notes. Uploaded
-  artwork is never modified; a needed drawing change is exported as a pending art
-  note and is not verified as visually applied.
-- **Visual references are candidates** — StudioClear does not infer identity,
-  ownership, permission, or likeness from a drawing.
-- **Durable hosting** — a pluggable storage backend is in place
-  (`studioclear/storage_backend.py`): local JSON for dev, a private GCS bucket
-  when `STUDIOCLEAR_GCS_BUCKET` is set (writes use a generation precondition).
-  To enable multi-instance durability, provision a private bucket, grant the Cloud
-  Run runtime service account `roles/storage.objectAdmin` on it, and redeploy with
-  `--set-env-vars STUDIOCLEAR_GCS_BUCKET=<bucket>` (drop `--max-instances 1`).
-  The hosted bucket has a **24h delete lifecycle** with soft-delete disabled, so
-  uploads are physically removed within a day (sol.md §10). Full read-modify-write
-  CAS is a follow-up. PDF/DOCX import is deferred.
-- **Not legal advice** — StudioClear researches and recommends; humans retain
-  final authority and no "cleared by AI" state exists.
-
-Demo content uses real brands/people in **neutral factual context only** and no
-third-party logos, slogans, or trademark graphics.
+- **Costs are estimates**, not quotes: live rates come from your brief or a supplier
+  quote; unknown rates stay "quote needed" and the estimate stays incomplete. The
+  app never fabricates prices, incentives, or availability. Selecting an option
+  **creates no booking or outreach**.
+- **Location suggestions are leads to research** — not proof filming is permitted or
+  affordable there.
+- **At most 3 pages / 12 MB** of images; text revisions only (art changes stay
+  pending notes). PDF/DOCX import, redrawing, and generated video are out of scope.
+- **Not legal advice.** Humans make every decision; there is no "cleared by AI"
+  state. Session-private material auto-expires within ~24 hours.
 
 ## License
 
