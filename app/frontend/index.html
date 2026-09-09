@@ -671,8 +671,9 @@ function viewShoot(){
     <p class="hint">${esc(c.estimate_status)} — a complete estimate means every modeled line has a value/assumption, not that suppliers, incentives, or availability are confirmed. Costs are estimates, not quotes.</p>
     <h2 style="margin-top:18px" class="noprint">Adjust assumptions and recalculate</h2>
     <div class="briefgrid noprint">
-      ${briefField("traveling_crew","Traveling crew","number")}${briefField("shoot_days","Shoot days","number")}
-      ${briefField("accommodation_nights","Accommodation nights","number")}${briefField("vfx_shots","VFX shots","number")}
+      ${briefField("shoot_days","Shoot days","number")}${briefField("local_crew","Local crew","number")}
+      ${briefField("traveling_crew","Traveling crew","number")}${briefField("accommodation_nights","Accommodation nights","number")}
+      ${briefField("vfx_shots","VFX shots","number")}
     </div>
     <div class="row noprint" style="margin-top:10px">
       <button class="ghost" id="recalcBtn">${S.busy?'<span class="spin"></span> Recalculating…':'Recalculate'}</button>

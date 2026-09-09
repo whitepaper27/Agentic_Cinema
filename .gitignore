@@ -34,3 +34,10 @@ Thumbs.db
 *.log
 demo/cached_run.local.json
 app/data/
+
+# Large media / recorded demo video — keep out of git (hosted on YouTube)
+Submission/
+*.mp4
+*.mov
+*.webm
+*.mkv

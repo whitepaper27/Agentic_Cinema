@@ -1,0 +1,26 @@
+Review this as grounded historical fiction set in 1935, not time travel or
+alternate history. The harbor, signal house, and characters are fictional.
+
+Check factual narration and the described or visible equipment against the
+period. Prioritize clear factual contradictions and meaningful equipment
+mismatches. Do not treat poetic language, fictional characters, or the rescue
+premise as factual errors.
+
+For each finding, identify its scene/page and panel, quote the relevant input,
+and explain what retrieved evidence supports or contradicts it. Distinguish
+similar historical milestones rather than replacing one date with another
+without checking what the caption actually claims. If evidence is insufficient,
+state the uncertainty. Do not invent sources or replacement-prop specifications.
+
+Propose the smallest supported caption or action-description change. Preserve
+all spoken dialogue exactly, the 1935 setting, the rescue plot, character names,
+and the final emotional beat. Leave changes as proposals for my approval.
+
+Do not infer an identity, organization, or permission status from the indistinct
+door mark. Unreadable marks remain unreadable unless the input supplies context.
+
+If I upload comic pages, transcribe only what is visible and identify unclear
+text. Keep proposed text edits separate from artwork notes: editing a caption
+or action description does not redraw the uploaded image. If I supply only
+script text, describe equipment findings as script-description findings, not
+as observations of an image you have seen.

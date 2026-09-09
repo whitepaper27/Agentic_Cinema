@@ -11,12 +11,20 @@ Three connected pages demonstrate three different jobs: spotting a visual period
 ## Files and use
 
 - `scene.txt`: paste-ready full script. Submit this file's contents as input, not this README or the evaluation notes.
+- `review-instructions.txt`: paste into the separate instruction field after selecting **Review factual details**. It scopes the review without giving the app the expected answers.
 - `comic-prompts.md`: three separate page prompts, exact lettering, and visual consistency guidance. Generate one page per prompt using permitted Google tooling or commission/draw the pages yourself.
 - `reviewer-notes.md`: rehearsal expectations and source leads. Keep separate from user input and runtime evidence.
 
 Research instruction:
 
 > This is grounded historical fiction set in 1935, not time travel. Check the depicted equipment and factual narration against that setting. Preserve all spoken dialogue exactly. Propose only evidence-backed caption or action-description changes. Do not invent an identity or permission status for the door symbol. Separate pending artwork changes from applied text changes.
+
+Use the longer `review-instructions.txt` for rehearsal, or the short instruction
+above for a compact recording. The camera and cable-caption issues remain
+deliberately seeded in the input so the factual-review workflow has something
+to investigate. This is a review draft, not a historically corrected final script.
+For image-only input, include the grounded-1935 context in the instruction field;
+the script's STORY CONTEXT paragraph need not appear as comic lettering.
 
 Exact dialogue locks:
 
